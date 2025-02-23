@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as files from 'fs';
+
 import Parser from 'tree-sitter';
 const Java = require('tree-sitter-java');
 
@@ -18,6 +20,7 @@ function useTreeSitter() {
         `Path: ${document.uri.path}`,
         `Language: ${document.languageId}`,
         // `Contents: \n${document.getText()}`,
+        `Contents: \n${files.readFileSync(document.uri.fsPath, 'utf8')}`,
     ].join('\n'));
 
     const tree = parser.parse(document.getText());
