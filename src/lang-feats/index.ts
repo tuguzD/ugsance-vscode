@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 export function register(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('ugsance.references', getReferences),
+		vscode.commands.registerCommand('ugsance.all_references', getReferences),
 		// other commands
 	);
 }

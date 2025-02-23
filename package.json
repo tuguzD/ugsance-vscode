@@ -16,16 +16,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "ugsance.treeSitter",
+        "command": "ugsance.tree_sitter",
         "title": "TreeSitter"
       },
       {
-        "command": "ugsance.check",
-        "title": "Check \"References\" plugin"
-      },
-      {
-        "command": "ugsance.references",
-        "title": "References test"
+        "command": "ugsance.all_references",
+        "title": "References"
       }
     ]
   },

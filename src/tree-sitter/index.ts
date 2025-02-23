@@ -4,7 +4,7 @@ const Java = require('tree-sitter-java');
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-		vscode.commands.registerCommand('ugsance.treeSitter', useTreeSitter),
+		vscode.commands.registerCommand('ugsance.tree_sitter', useTreeSitter),
         // other commands
 	);
 }
@@ -16,6 +16,7 @@ function useTreeSitter() {
     let document = vscode.window.activeTextEditor!.document;
     console.log([
         `Path: ${document.uri.path}`,
+        `Language: ${document.languageId}`,
         // `Contents: \n${document.getText()}`,
     ].join('\n'));
 
