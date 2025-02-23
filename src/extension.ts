@@ -44,7 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	const references = vscode.commands.registerCommand('ugsance.references', () => {
-		executeReferenceProvider(vscode.window.activeTextEditor!);
+		let editor = vscode.window.activeTextEditor!;
+		executeReferenceProvider(editor);
+
+		console.log(editor.document.languageId);
 	});
 
 	context.subscriptions.push(
