@@ -1,0 +1,54 @@
+{
+  "name": "ugsance",
+  "displayName": "ugsance",
+  "description": "",
+  "version": "0.0.0",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:plaintext"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ugsance.treeSitter",
+        "title": "TreeSitter"
+      },
+      {
+        "command": "ugsance.check",
+        "title": "Check \"References\" plugin"
+      },
+      {
+        "command": "ugsance.references",
+        "title": "References test"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "tree-sitter": "^0.22.4"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0",
+    "typescript": "^5.7.3",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.4",
+    "@types/vscode": "^1.97.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
