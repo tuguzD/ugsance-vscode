@@ -1,8 +1,11 @@
 import * as vscode from 'vscode';
-import * as utils from './utils';
+
+import * as lang_feats from './lang-feats';
+import * as tree_sitter from './tree-sitter';
 
 export function activate(context: vscode.ExtensionContext) {
-	utils.register(context);
+	lang_feats.register(context);
+	tree_sitter.register(context);
 
 	function api() { }
 
