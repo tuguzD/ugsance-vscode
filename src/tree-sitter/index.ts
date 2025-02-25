@@ -1,41 +1,47 @@
 import * as vscode from 'vscode';
 import * as files from 'fs';
-
-import Parser from 'tree-sitter';
-const Java = require('tree-sitter-java');
+import Parser, { Query } from 'tree-sitter';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-		vscode.commands.registerCommand('ugsance.tree_sitter', useTreeSitter),
+        vscode.commands.registerCommand('ugsance.tree_sitter', useTreeSitter),
         // other commands
-	);
+    );
 }
 
-const parser = new Parser();
-parser.setLanguage(Java);
-
 function useTreeSitter() {
-    let document = vscode.window.activeTextEditor!.document;
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        console.log("No file opened!");
+        return;
+    }
+    const document = editor.document;
+    const languageId = document.languageId;
+    const code = // document.getText();
+        files.readFileSync(document.uri.fsPath, 'utf8');
+
     console.log([
         `Path: ${document.uri.path}`,
-        `Language: ${document.languageId}`,
-        // `Contents: \n${document.getText()}`,
-        `Contents: \n${files.readFileSync(document.uri.fsPath, 'utf8')}`,
+        `Language: ${languageId}`,
+        // `Contents: \n${code}`,
     ].join('\n'));
 
-    const tree = parser.parse(document.getText());
-    // console.log('\n', tree.rootNode.toString());
-
-    const variables: any = [];
-    function variableNames(node: any) {
-        if (node.type === 'variable_declarator') {
-            for (let child of node.namedChildren)
-                if (child.type === 'identifier') variables.push(child.text);
-        }
-        for (let child of node.namedChildren) {
-            variableNames(child);
-        }
+    const parser = new Parser();
+    const language = require(`tree-sitter-${languageId}`);
+    if (!language) {
+        console.log("No language!");
+        return;
     }
-    variableNames(tree.rootNode);
+    parser.setLanguage(language);
+
+    const tree = parser.parse(code);
+    const query = new Query(language,
+        `( variable_declarator ( identifier ) @names)`,
+    );
+
+    const variables: string[] = query.captures(tree.rootNode)
+        .map(node => node.node.text);
+
     vscode.window.showInformationMessage(variables.toString());
+    console.log(variables);
 }
