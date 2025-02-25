@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
-import * as tree_sitter from './tree-sitter';
-import * as lang_features from './lang-feats';
+import * as TreeSitter from './tree-sitter';
+import * as LSP from './lang-features';
 
 export function activate(context: vscode.ExtensionContext) {
-	tree_sitter.register(context);
-	lang_features.register(context);
+	TreeSitter.register(context);
+	LSP.register(context);
 
 	function api() { }
 
