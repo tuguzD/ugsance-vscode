@@ -1,47 +1,52 @@
 import * as vscode from 'vscode';
 import * as files from 'fs';
-import Parser, { Query } from 'tree-sitter';
+import Parser from 'web-tree-sitter';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('ugsance.tree_sitter', useTreeSitter),
-        // other commands
     );
 }
 
-function useTreeSitter() {
+async function useTreeSitter() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-        console.log("No file opened!");
+        console.log('No text editor opened!');
         return;
     }
-    const document = editor.document;
-    const languageId = document.languageId;
-    const code = // document.getText();
-        files.readFileSync(document.uri.fsPath, 'utf8');
+    const languageId = (editor.document.languageId == 'csharp') ? 'c-sharp' : editor.document.languageId;
 
-    console.log([
-        `Path: ${document.uri.path}`,
-        `Language: ${languageId}`,
-        // `Contents: \n${code}`,
-    ].join('\n'));
+    const userFolder =
+        'C:\\Users\\Damir\\Projects\\Video games\\Modding\\extension\\tree-sitter';
+    const path = `${userFolder}\\tree-sitter-${languageId}.wasm`;
 
-    const parser = new Parser();
-    const language = require(`tree-sitter-${languageId}`);
-    if (!language) {
-        console.log("No language!");
+    if (!files.existsSync(path)) {
+        console.log(`No parser for '${languageId}' located!`);
         return;
     }
-    parser.setLanguage(language);
+    const { parser, lang } = await initLanguage(path);
+    const tree = parser.parse(editor.document.getText());
+    // console.log(tree.rootNode.toString());
 
-    const tree = parser.parse(code);
-    const query = new Query(language,
-        `( variable_declarator ( identifier ) @names)`,
-    );
+    const variable: string = languageId == 'java'
+        ? 'variable_declarator' : 'variable_list';
+    const variablesQuery = `( ${variable} ( identifier ) @variables)`;
 
+    const query = lang.query(variablesQuery);
     const variables: string[] = query.captures(tree.rootNode)
-        .map(node => node.node.text);
+        .map(capture => capture.node.text);
 
     vscode.window.showInformationMessage(variables.toString());
     console.log(variables);
+}
+
+async function initLanguage(path: string) {
+    await Parser.init();
+    const parser = new Parser();
+    const lang = await Parser.Language.load(path);
+    parser.setLanguage(lang);
+
+    // const queryText = files.readFileSync('', "utf-8");
+    // const highlightQuery = lang.query(queryText);
+    return { parser, lang };
 }

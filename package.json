@@ -50,7 +50,7 @@
     "test": "vscode-test"
   },
   "dependencies": {
-    "tree-sitter": "^0.22.4"
+    "web-tree-sitter": "<=0.24.7"
   },
   "devDependencies": {
     "eslint": "^9.19.0",
