@@ -2,34 +2,53 @@ import * as vscode from 'vscode';
 
 export function register(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('ugsance.all_references', getReferences),
-		// other commands
+		vscode.commands.registerCommand('ugsance.DefinitionProvider', DefinitionProvider),
+		vscode.commands.registerCommand('ugsance.TypeDefinitionProvider', TypeDefinitionProvider),
+		vscode.commands.registerCommand('ugsance.DeclarationProvider', DeclarationProvider),
+		vscode.commands.registerCommand('ugsance.ImplementationProvider', ImplementationProvider),
+		vscode.commands.registerCommand('ugsance.ReferenceProvider', ReferenceProvider),
 	);
 }
 
-function getReferences() {
-	let editor = vscode.window.activeTextEditor;
+function DefinitionProvider() {
+	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeDefinitionProvider');
+}
+
+function TypeDefinitionProvider() {
+	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeTypeDefinitionProvider');
+}
+
+function DeclarationProvider() {
+	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeDeclarationProvider');
+}
+
+function ImplementationProvider() {
+	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeImplementationProvider');
+}
+
+function ReferenceProvider() {
+	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeReferenceProvider')
+}
+
+async function executeFeatureProvider(editor: vscode.TextEditor | undefined, command: string) {
 	if (!editor) {
 		console.log("No file opened!");
 		return;
 	}
+	const locations: vscode.Location[] = await
+		vscode.commands.executeCommand<vscode.Location[] | vscode.LocationLink[]>(
+			command, editor.document.uri, editor.selection.active,
+		).then(locations => locations.map(
+			item => item instanceof vscode.Location ? item
+				: new vscode.Location(item.targetUri, item.targetRange))
+		);
+	console.log('\n', `Command '${command}' was successfully called`);
+	console.log(locations);
 
-	executeReferenceProvider(editor);
-}
-
-async function executeReferenceProvider(editor: vscode.TextEditor) {
-	const refs = await vscode.commands.executeCommand<vscode.Location[]>(
-		'vscode.executeReferenceProvider',
-		editor.document.uri, editor.selection.active,
+	const rangeOutput: string[] = locations.map(item =>
+		`Line: ${item.range.start.line.toString()} + ` +
+		`Char: ${item.range.start.character.toString()}`
 	);
-
-	var result: string[] = [];
-	for (var ref of refs) result.push(
-		`Line: ${ref.range.start.line.toString()} + ` +
-		`Char: ${ref.range.start.character.toString()}`
-	);
-	vscode.window.showInformationMessage(result.toString());
-
-	// for (const ref of refs) console.log(ref.range.start);
-	console.log(result);
+	vscode.window.showInformationMessage(rangeOutput.toString());
+	console.log(rangeOutput);
 }

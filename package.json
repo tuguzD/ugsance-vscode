@@ -20,8 +20,24 @@
         "title": "TreeSitter"
       },
       {
-        "command": "ugsance.all_references",
-        "title": "References"
+        "command": "ugsance.DefinitionProvider",
+        "title": "DefinitionProvider"
+      },
+      {
+        "command": "ugsance.TypeDefinitionProvider",
+        "title": "TypeDefinitionProvider"
+      },
+      {
+        "command": "ugsance.DeclarationProvider",
+        "title": "DeclarationProvider"
+      },
+      {
+        "command": "ugsance.ImplementationProvider",
+        "title": "ImplementationProvider"
+      },
+      {
+        "command": "ugsance.ReferenceProvider",
+        "title": "ReferenceProvider"
       }
     ]
   },
