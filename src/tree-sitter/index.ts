@@ -23,6 +23,12 @@ async function useTreeSitter() {
 
     const config = vscode.workspace.getConfiguration('UGsance');
     const userFolder = config.get<string>('tree-sitter.pathToWASM');
+    if (userFolder === "") {
+        const message = `You should set up folder for parsers (WASM files)!`;
+        vscode.window.showWarningMessage(message);
+        console.log(message);
+        return;
+    }
 
     const path = `${userFolder}\\tree-sitter-${languageId}.wasm`;
     if (!files.existsSync(path)) {
@@ -35,7 +41,7 @@ async function useTreeSitter() {
     const tree = parser.parse(editor.document.getText());
 
     const langData = langsData.filter(item => item.vscodeId == languageId)[0];
-    if (!langData || langData.function === "") {
+    if (!langData || langData.function.size === 0) {
         const message = `The language '${languageId}' is not (currently) supported`;
         vscode.window.showErrorMessage(message);
         console.log(message);
