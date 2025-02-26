@@ -29,7 +29,7 @@ async function useTreeSitter() {
     // console.log(tree.rootNode.toString());
 
     const variable: string = languageId == 'java'
-        ? 'variable_declarator' : 'variable_list';
+        ? 'method_declaration' : 'variable_list';
     const variablesQuery = `( ${variable} ( identifier ) @variables)`;
 
     const query = lang.query(variablesQuery);
@@ -49,4 +49,20 @@ async function initLanguage(path: string) {
     // const queryText = files.readFileSync('', "utf-8");
     // const highlightQuery = lang.query(queryText);
     return { parser, lang };
+}
+
+async function executeDocumentSymbolProvider() {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        console.log('No text editor opened!');
+        return;
+    }
+    const symbols: any = await
+        vscode.commands.executeCommand<vscode.SymbolInformation[] | vscode.DocumentSymbol[]>(
+            'vscode.executeDocumentSymbolProvider', editor.document.uri,
+        ).then(symbols => symbols.map(item => {
+            console.log(item);
+            return item;
+        }));
+    console.log('\n', `Command 'vscode.executeDocumentSymbolProvider' was successfully called`);
 }
