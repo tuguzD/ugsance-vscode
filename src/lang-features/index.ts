@@ -35,13 +35,13 @@ async function executeFeatureProvider(editor: vscode.TextEditor | undefined, com
 		console.log("No file opened!");
 		return;
 	}
-	const locations: vscode.Location[] = await
-		vscode.commands.executeCommand<vscode.Location[] | vscode.LocationLink[]>(
-			command, editor.document.uri, editor.selection.active,
-		).then(locations => locations.map(
-			item => item instanceof vscode.Location ? item
-				: new vscode.Location(item.targetUri, item.targetRange))
-		);
+	type Locations = vscode.Location[] | vscode.LocationLink[];
+	const locations: vscode.Location[] = await vscode.commands.executeCommand<Locations>(
+		command, editor.document.uri, editor.selection.active,
+	).then(locations => locations.map(
+		item => item instanceof vscode.Location ? item
+			: new vscode.Location(item.targetUri, item.targetRange))
+	);
 	console.log('\n', `Command '${command}' was successfully called`);
 	console.log(locations);
 

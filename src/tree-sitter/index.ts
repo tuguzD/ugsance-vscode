@@ -58,12 +58,12 @@ async function executeDocumentSymbolProvider() {
         console.log('No text editor opened!');
         return;
     }
-    const symbols: any = await
-        vscode.commands.executeCommand<vscode.SymbolInformation[] | vscode.DocumentSymbol[]>(
-            'vscode.executeDocumentSymbolProvider', editor.document.uri,
-        ).then(symbols => symbols.map(item => {
-            console.log(item);
-            return item;
-        }));
+    type Symbols = vscode.SymbolInformation[] | vscode.DocumentSymbol[];
+    const symbols = await vscode.commands.executeCommand<Symbols>(
+        'vscode.executeDocumentSymbolProvider', editor.document.uri,
+    ).then(symbols => symbols.map(item => {
+        console.log(item);
+        return item;
+    }));
     console.log('\n', `Command 'vscode.executeDocumentSymbolProvider' was successfully called`);
 }
