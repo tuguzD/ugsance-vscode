@@ -4,7 +4,7 @@ import Parser from 'web-tree-sitter';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('ugsance.tree_sitter', useTreeSitter),
+        vscode.commands.registerCommand('UGsance.tree_sitter', useTreeSitter),
     );
 }
 
@@ -16,8 +16,9 @@ async function useTreeSitter() {
     }
     const languageId = (editor.document.languageId == 'csharp') ? 'c-sharp' : editor.document.languageId;
 
-    const userFolder =
-        'C:\\Users\\Damir\\Projects\\Video games\\Modding\\extension\\tree-sitter';
+    const config = vscode.workspace.getConfiguration('UGsance');
+    const userFolder = config.get<string>('tree-sitter.pathToWASM');
+
     const path = `${userFolder}\\tree-sitter-${languageId}.wasm`;
 
     if (!files.existsSync(path)) {

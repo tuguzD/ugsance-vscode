@@ -1,6 +1,6 @@
 {
-  "name": "ugsance",
-  "displayName": "ugsance",
+  "name": "UGsance",
+  "displayName": "UGsance",
   "description": "",
   "version": "0.0.0",
   "engines": {
@@ -14,29 +14,40 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "UGsance",
+      "properties": {
+        "UGsance.tree-sitter.pathToWASM": {
+          "type": "string",
+          "default": "",
+          "scope": "machine-overridable",
+          "markdownDescription": "Path to a folder containing language parsers (in a form of `.wasm` files)."
+        }
+      }
+    },
     "commands": [
       {
-        "command": "ugsance.tree_sitter",
+        "command": "UGsance.tree_sitter",
         "title": "TreeSitter"
       },
       {
-        "command": "ugsance.DefinitionProvider",
+        "command": "UGsance.DefinitionProvider",
         "title": "DefinitionProvider"
       },
       {
-        "command": "ugsance.TypeDefinitionProvider",
+        "command": "UGsance.TypeDefinitionProvider",
         "title": "TypeDefinitionProvider"
       },
       {
-        "command": "ugsance.DeclarationProvider",
+        "command": "UGsance.DeclarationProvider",
         "title": "DeclarationProvider"
       },
       {
-        "command": "ugsance.ImplementationProvider",
+        "command": "UGsance.ImplementationProvider",
         "title": "ImplementationProvider"
       },
       {
-        "command": "ugsance.ReferenceProvider",
+        "command": "UGsance.ReferenceProvider",
         "title": "ReferenceProvider"
       }
     ]

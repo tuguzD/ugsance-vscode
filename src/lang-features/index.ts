@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 
 export function register(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('ugsance.DefinitionProvider', DefinitionProvider),
-		vscode.commands.registerCommand('ugsance.TypeDefinitionProvider', TypeDefinitionProvider),
-		vscode.commands.registerCommand('ugsance.DeclarationProvider', DeclarationProvider),
-		vscode.commands.registerCommand('ugsance.ImplementationProvider', ImplementationProvider),
-		vscode.commands.registerCommand('ugsance.ReferenceProvider', ReferenceProvider),
+		vscode.commands.registerCommand('UGsance.DefinitionProvider', DefinitionProvider),
+		vscode.commands.registerCommand('UGsance.TypeDefinitionProvider', TypeDefinitionProvider),
+		vscode.commands.registerCommand('UGsance.DeclarationProvider', DeclarationProvider),
+		vscode.commands.registerCommand('UGsance.ImplementationProvider', ImplementationProvider),
+		vscode.commands.registerCommand('UGsance.ReferenceProvider', ReferenceProvider),
 	);
 }
 
