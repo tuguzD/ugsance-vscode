@@ -41,7 +41,7 @@ async function useTreeSitter() {
     const tree = parser.parse(editor.document.getText());
 
     const langData = langsData.filter(item => item.vscodeId == languageId)[0];
-    if (!langData || langData.function.size === 0) {
+    if (!langData || langData.function.length === 0) {
         const message = `The language '${languageId}' is not (currently) supported`;
         vscode.window.showErrorMessage(message);
         console.log(message);
@@ -71,21 +71,3 @@ async function initLanguage(path: string) {
     // const highlightQuery = lang.query(queryText);
     return { parser, lang };
 }
-
-// async function executeDocumentSymbolProvider() {
-//     const editor = vscode.window.activeTextEditor;
-//     if (!editor) {
-//         const message = `No text editor opened!`;
-//         vscode.window.showErrorMessage(message);
-//         console.log(message);
-//         return;
-//     }
-//     type Symbols = vscode.SymbolInformation[] | vscode.DocumentSymbol[];
-//     const symbols = await vscode.commands.executeCommand<Symbols>(
-//         'vscode.executeDocumentSymbolProvider', editor.document.uri,
-//     ).then(symbols => symbols.map(item => {
-//         console.log(item);
-//         return item;
-//     }));
-//     console.log('\n', `Command 'vscode.executeDocumentSymbolProvider' was successfully called`);
-// }
