@@ -10,8 +10,7 @@ export const tag: Function = {
     name: 'name', args: 'args',
 };
 // export function queryItem(type: Function) {
-//     return new QueryItem(
-//         tag.fun, type.fun, [
+//     return new QueryItem(tag.fun, type.fun, [
 //         new QueryItem(tag.name, type.name),
 //         new QueryItem(tag.args, type.args),
 //         new QueryItem(tag.body, type.body),
