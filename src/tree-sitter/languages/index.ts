@@ -1,5 +1,5 @@
 import { QueryItem } from "../queries";
-import { tag } from "../queries/function";
+import * as fun from "../queries/function";
 
 export type Language = {
     vscodeId: string;
@@ -9,16 +9,15 @@ export type Language = {
 const Rust: Language = {
     vscodeId: 'rust',
     function: [
-        new QueryItem(tag.fun, 'function_item', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'parameters'),
-            new QueryItem(tag.body, 'block'),
-        ]),
-        new QueryItem(tag.fun, 'macro_definition', [
-            new QueryItem(tag.name, 'identifier'),
+        fun.queryItem({
+            fun: 'function_item', body: 'block',
+            name: 'identifier', args: 'parameters',
+        }),
+        new QueryItem(fun.tag.fun, 'macro_definition', [
+            new QueryItem(fun.tag.name, 'identifier'),
             new QueryItem(null, 'macro_rule', [
-                new QueryItem(tag.args, 'token_tree_pattern'),
-                new QueryItem(tag.body, 'token_tree'),
+                new QueryItem(fun.tag.args, 'token_tree_pattern'),
+                new QueryItem(fun.tag.body, 'token_tree'),
             ]),
         ]),
     ],
@@ -26,52 +25,46 @@ const Rust: Language = {
 const Go: Language = {
     vscodeId: 'go',
     function: [
-        new QueryItem(tag.fun, 'function_declaration', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'parameter_list'),
-            new QueryItem(tag.body, 'block'),
-        ]),
-        new QueryItem(tag.fun, 'method_declaration', [
-            new QueryItem(tag.name, 'field_identifier'),
-            new QueryItem(tag.args, 'parameter_list'),
-            new QueryItem(tag.body, 'block'),
-        ]),
+        fun.queryItem({
+            fun: 'function_declaration', body: 'block',
+            name: 'identifier', args: 'parameter_list',
+        }),
+        fun.queryItem({
+            fun: 'method_declaration', body: 'block',
+            name: 'field_identifier', args: 'parameter_list',
+        }),
     ],
 };
 
 const Java: Language = {
     vscodeId: 'java',
     function: [
-        new QueryItem(tag.fun, 'method_declaration', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'formal_parameters'),
-            new QueryItem(tag.body, 'block'),
-        ]),
+        fun.queryItem({
+            fun: 'method_declaration', body: 'block',
+            name: 'identifier', args: 'formal_parameters',
+        }),
     ],
 };
 const CSharp: Language = {
     vscodeId: 'csharp',
     function: [
-        new QueryItem(tag.fun, 'method_declaration', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'parameter_list'),
-            new QueryItem(tag.body, 'block'),
-        ]),
-        new QueryItem(tag.fun, 'local_function_statement', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'parameter_list'),
-            new QueryItem(tag.body, 'block'),
-        ]),
+        fun.queryItem({
+            fun: 'method_declaration', body: 'block',
+            name: 'identifier', args: 'parameter_list',
+        }),
+        fun.queryItem({
+            fun: 'local_function_statement', body: 'block',
+            name: 'identifier', args: 'parameter_list',
+        }),
     ],
 };
 const Python: Language = {
     vscodeId: 'python',
     function: [
-        new QueryItem(tag.fun, 'function_definition', [
-            new QueryItem(tag.name, 'identifier'),
-            new QueryItem(tag.args, 'parameters'),
-            new QueryItem(tag.body, 'block'),
-        ]),
+        fun.queryItem({
+            fun: 'function_definition', body: 'block',
+            name: 'identifier', args: 'parameters',
+        }),
     ],
 };
 
