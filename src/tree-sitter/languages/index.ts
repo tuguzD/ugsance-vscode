@@ -6,7 +6,7 @@ export type Language = {
     function: QueryItem[];
 };
 
-const Rust: Language = {
+export const Rust: Language = {
     vscodeId: 'rust',
     function: [
         fun.queryItem({
@@ -22,7 +22,7 @@ const Rust: Language = {
         ]),
     ],
 };
-const Go: Language = {
+export const Go: Language = {
     vscodeId: 'go',
     function: [
         fun.queryItem({
@@ -36,7 +36,7 @@ const Go: Language = {
     ],
 };
 
-const Java: Language = {
+export const Java: Language = {
     vscodeId: 'java',
     function: [
         fun.queryItem({
@@ -45,7 +45,7 @@ const Java: Language = {
         }),
     ],
 };
-const CSharp: Language = {
+export const CSharp: Language = {
     vscodeId: 'csharp',
     function: [
         fun.queryItem({
@@ -58,7 +58,7 @@ const CSharp: Language = {
         }),
     ],
 };
-const Python: Language = {
+export const Python: Language = {
     vscodeId: 'python',
     function: [
         fun.queryItem({
