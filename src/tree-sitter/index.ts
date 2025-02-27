@@ -3,6 +3,7 @@ import * as files from 'fs';
 import Parser from 'web-tree-sitter';
 
 import { languages } from './languages';
+import { capturedQuery } from './queries';
 import * as fun from './queries/function';
 
 export function register(context: vscode.ExtensionContext) {
@@ -40,7 +41,7 @@ async function useTreeSitter() {
     const { parser, lang } = await initLanguage(path);
     const tree = parser.parse(editor.document.getText());
 
-    const langData = languages.filter(item => item.vscodeId == languageId)[0];
+    const langData = languages.find(item => item.vscodeId == languageId);
     if (!langData || langData.function.length === 0) {
         const message = `The language '${languageId}' is not (currently) supported`;
         vscode.window.showErrorMessage(message);
@@ -48,15 +49,14 @@ async function useTreeSitter() {
         return;
     }
 
-    const functions = lang.query(fun.query(langData)
-    ).captures(tree.rootNode).filter(
-        capture => capture.name === fun.tag.name
+    const functions = capturedQuery(
+        tree.rootNode, langData.function, lang, fun.tag.name,
     );
     // for (let item of functions) console.log(
     //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
     // );
-    const functionsNames = functions.map(capture => capture.node.text);
 
+    const functionsNames = functions.map(capture => capture.node.text);
     vscode.window.showInformationMessage(functionsNames.toString());
     console.log(functionsNames);
 }
