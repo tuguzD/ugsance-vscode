@@ -1,5 +1,5 @@
 import { QueryItem } from "../queries";
-import * as fun from "../queries/function";
+import { tag } from "../queries/function";
 
 export type Language = {
     vscodeId: string;
@@ -8,18 +8,37 @@ export type Language = {
 
 const C: Language = {
     vscodeId: 'c',
-    function: [],
-    // new Map([
-    //     ['function_declarator', 'identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'function_definition', [
+            new QueryItem(tag.body, 'function_declarator', [
+                new QueryItem(tag.name, 'identifier'),
+                new QueryItem(tag.args, 'formal_parameters'),
+            ]),
+            new QueryItem(tag.body, 'compound_statement'),
+        ]),
+    ],
 };
 const Cpp: Language = {
     vscodeId: 'cpp',
-    function: [],
-    // new Map([
-    //     ['function_declarator', 'identifier'],
-    //     ['function_declarator', 'field_identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'function_definition', [
+            new QueryItem(tag.body, 'function_declarator', [
+                new QueryItem(tag.name, 'identifier'),
+                new QueryItem(tag.args, 'formal_parameters'),
+            ]),
+            new QueryItem(tag.body, 'compound_statement'),
+        ]),
+        new QueryItem(
+            tag.fun, 'function_definition', [
+            new QueryItem(tag.body, 'function_declarator', [
+                new QueryItem(tag.name, 'field_identifier'),
+                new QueryItem(tag.args, 'formal_parameters'),
+            ]),
+            new QueryItem(tag.body, 'compound_statement'),
+        ]),
+    ],
 };
 const Rust: Language = {
     vscodeId: 'rust',
@@ -66,12 +85,12 @@ const CSharp: Language = {
 const Java: Language = {
     vscodeId: 'java',
     function: [
-        fun.queryItem({
-            fun: 'method_declaration',
-            name: 'identifier',
-            args: 'formal_parameters',
-            body: 'block',
-        }),
+        new QueryItem(
+            tag.fun, 'method_declaration', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'block'),
+        ]),
     ],
 };
 // ToDo: test (somehow)
