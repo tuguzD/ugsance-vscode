@@ -1,4 +1,5 @@
-import { functionQuery, QueryItem } from "./queries";
+import { QueryItem } from "../queries";
+import * as fun from "../queries/function";
 
 export type Language = {
     vscodeId: string;
@@ -65,7 +66,7 @@ const CSharp: Language = {
 const Java: Language = {
     vscodeId: 'java',
     function: [
-        functionQuery({
+        fun.queryItem({
             fun: 'method_declaration',
             name: 'identifier',
             args: 'formal_parameters',
