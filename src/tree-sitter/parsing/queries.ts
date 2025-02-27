@@ -1,7 +1,9 @@
-export function functionNames(node: Map<string, string>): string {
+import { Language } from "./languages";
+
+export function functions(language: Language): string {
     let result = '';
-    node.forEach((value, key) => {
-        result += `( ${key} ( ${value} ) @name)\n`
+    language.function.forEach((value, key) => {
+        result += `( ${key} ( ${value} ) @name ) @function \n`
     });
     return result;
 }

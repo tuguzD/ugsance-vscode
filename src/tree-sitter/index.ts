@@ -48,12 +48,17 @@ async function useTreeSitter() {
         return;
     }
 
-    const query = lang.query(queries.functionNames(langData.function));
-    const functions: string[] = query.captures(tree.rootNode)
-        .map(capture => capture.node.text);
+    const functions = lang.query(
+        queries.functions(langData)
+    ).captures(tree.rootNode).filter(
+        capture => capture.name === 'name'
+    );
+    // for (let item of functions)
+    //     console.log(item.node.toString());
+    const functionsNames = functions.map(capture => capture.node.text);
 
-    vscode.window.showInformationMessage(functions.toString());
-    console.log(functions);
+    vscode.window.showInformationMessage(functionsNames.toString());
+    console.log(functionsNames);
 }
 
 async function initLanguage(path: string) {
@@ -67,20 +72,20 @@ async function initLanguage(path: string) {
     return { parser, lang };
 }
 
-async function executeDocumentSymbolProvider() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        const message = `No text editor opened!`;
-        vscode.window.showErrorMessage(message);
-        console.log(message);
-        return;
-    }
-    type Symbols = vscode.SymbolInformation[] | vscode.DocumentSymbol[];
-    const symbols = await vscode.commands.executeCommand<Symbols>(
-        'vscode.executeDocumentSymbolProvider', editor.document.uri,
-    ).then(symbols => symbols.map(item => {
-        console.log(item);
-        return item;
-    }));
-    console.log('\n', `Command 'vscode.executeDocumentSymbolProvider' was successfully called`);
-}
+// async function executeDocumentSymbolProvider() {
+//     const editor = vscode.window.activeTextEditor;
+//     if (!editor) {
+//         const message = `No text editor opened!`;
+//         vscode.window.showErrorMessage(message);
+//         console.log(message);
+//         return;
+//     }
+//     type Symbols = vscode.SymbolInformation[] | vscode.DocumentSymbol[];
+//     const symbols = await vscode.commands.executeCommand<Symbols>(
+//         'vscode.executeDocumentSymbolProvider', editor.document.uri,
+//     ).then(symbols => symbols.map(item => {
+//         console.log(item);
+//         return item;
+//     }));
+//     console.log('\n', `Command 'vscode.executeDocumentSymbolProvider' was successfully called`);
+// }

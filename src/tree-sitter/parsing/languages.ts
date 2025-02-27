@@ -1,4 +1,4 @@
-type Language = {
+export type Language = {
     vscodeId: string;
     function: Map<string, string>;
 };
@@ -46,6 +46,13 @@ const Scala: Language = {
     ]),
 };
 
+const CSharp: Language = {
+    vscodeId: 'csharp',
+    function: new Map([
+        ['method_declaration', 'identifier'],
+        ['local_function_statement', 'identifier'],
+    ]),
+};
 const Java: Language = {
     vscodeId: 'java',
     function: new Map([
@@ -58,13 +65,6 @@ const Kotlin: Language = {
     function: new Map([
         ['function_declaration', 'simple_identifier'],
         // 'anonymous_function'
-    ]),
-};
-const CSharp: Language = {
-    vscodeId: 'csharp',
-    function: new Map([
-        ['method_declaration', 'identifier'],
-        ['local_function_statement', 'identifier'],
     ]),
 };
 const Python: Language = {
@@ -102,6 +102,6 @@ const Lua: Language = {
 
 export const languages: Language[] = [
     C, Cpp, Rust, Go, Ruby, Scala,
-    Java, Kotlin, CSharp, Python,
+    CSharp, Java, Kotlin, Python,
     JavaScript, TypeScript, Lua,
 ];
