@@ -53,8 +53,9 @@ async function useTreeSitter() {
     ).captures(tree.rootNode).filter(
         capture => capture.name === 'name'
     );
-    // for (let item of functions)
-    //     console.log(item.node.toString());
+    // for (let item of functions) console.log(
+    //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
+    // );
     const functionsNames = functions.map(capture => capture.node.text);
 
     vscode.window.showInformationMessage(functionsNames.toString());
