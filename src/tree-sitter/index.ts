@@ -51,7 +51,7 @@ async function useTreeSitter() {
     const functions = lang.query(
         queries.functions(langData)
     ).captures(tree.rootNode).filter(
-        capture => capture.name === 'name'
+        capture => capture.name === queries.tag.name
     );
     // for (let item of functions) console.log(
     //     `${item.node.startPosition.row}:${item.node.startPosition.column}`

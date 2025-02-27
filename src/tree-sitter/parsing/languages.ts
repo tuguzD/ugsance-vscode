@@ -1,8 +1,8 @@
-import { Function } from "./queries";
+import { functionQuery, QueryItem } from "./queries";
 
 export type Language = {
     vscodeId: string;
-    function: Function[];
+    function: QueryItem[];
 };
 
 const C: Language = {
@@ -64,12 +64,14 @@ const CSharp: Language = {
 };
 const Java: Language = {
     vscodeId: 'java',
-    function: [{
-        function: 'method_declaration',
-        name: 'identifier',
-        args: 'formal_parameters',
-        body: 'block',
-    }],
+    function: [
+        functionQuery({
+            fun: 'method_declaration',
+            name: 'identifier',
+            args: 'formal_parameters',
+            body: 'block',
+        }),
+    ],
 };
 // ToDo: test (somehow)
 const Kotlin: Language = {
