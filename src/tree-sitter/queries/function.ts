@@ -1,4 +1,4 @@
-import { QueryItem } from ".";
+// import { QueryItem } from ".";
 import { Language } from "../languages";
 
 type Function = {
@@ -21,5 +21,5 @@ export const tag: Function = {
 export function query(language: Language): string {
     return language.function.map(
         item => item.query
-    ).join('');
+    ).join('\n\n');
 }

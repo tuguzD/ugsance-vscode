@@ -42,11 +42,22 @@ const Cpp: Language = {
 };
 const Rust: Language = {
     vscodeId: 'rust',
-    function: [],
-    // new Map([
-    //     ['function_item', 'identifier'],
-    //     ['macro_definition', 'identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'function_item', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'parameters'),
+            new QueryItem(tag.body, 'block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'macro_definition', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(null, 'macro_rule', [
+                new QueryItem(tag.args, 'token_tree_pattern'),
+                new QueryItem(tag.body, 'token_tree'),
+            ]),
+        ]),
+    ],
 };
 
 const Go: Language = {
@@ -76,11 +87,20 @@ const Scala: Language = {
 
 const CSharp: Language = {
     vscodeId: 'csharp',
-    function: [],
-    // new Map([
-    //     ['method_declaration', 'identifier'],
-    //     ['local_function_statement', 'identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'method_declaration', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'parameter_list'),
+            new QueryItem(tag.body, 'block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'local_function_statement', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'parameter_list'),
+            new QueryItem(tag.body, 'block'),
+        ]),
+    ],
 };
 const Java: Language = {
     vscodeId: 'java',
@@ -104,20 +124,53 @@ const Kotlin: Language = {
 };
 const Python: Language = {
     vscodeId: 'python',
-    function: [],
-    // new Map([
-    //     ['function_definition', 'identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'function_definition', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'parameters'),
+            new QueryItem(tag.body, 'block'),
+        ]),
+    ],
 };
 
 const JavaScript: Language = {
     vscodeId: 'javascript',
-    function: [],
-    // new Map([
-    //     ['method_definition', 'property_identifier'],
-    //     ['function_declaration', 'identifier'],
-    //     ['generator_function_declaration', 'identifier'],
-    // ]),
+    function: [
+        new QueryItem(
+            tag.fun, 'arrow_function', [
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'generator_function', [
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'function_expression', [
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'function_declaration', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'generator_function_declaration', [
+            new QueryItem(tag.name, 'identifier'),
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+        new QueryItem(
+            tag.fun, 'method_definition', [
+            new QueryItem(tag.name, 'property_identifier'),
+            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.body, 'statement_block'),
+        ]),
+    ],
 };
 const TypeScript: Language = {
     vscodeId: 'typescript',

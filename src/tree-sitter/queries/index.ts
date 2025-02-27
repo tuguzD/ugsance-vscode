@@ -1,5 +1,5 @@
 export class QueryItem {
-    tag: string;
+    tag: string | null;
     type: string;
     children: Array<QueryItem>;
 
@@ -7,11 +7,12 @@ export class QueryItem {
         let children: string = this.children.map(
             item => `\n${item.query}`
         ).join('');
-        return `( ${this.type} ${children}) @${this.tag} `;
+        let tag: string = (this.tag != null) ? `@${this.tag}` : '';
+        return `( ${this.type} ${children}) ${tag} `;
     }
 
     constructor(
-        tag: string, type: string,
+        tag: string | null, type: string,
         children: Array<QueryItem> = [],
     ) {
         this.tag = tag;
