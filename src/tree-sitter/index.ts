@@ -5,6 +5,7 @@ import { nullCheck } from '../utils';
 import * as language from './languages';
 import * as query from './queries';
 import * as fun from './queries/function';
+import { CSharp } from './languages/csharp';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -33,7 +34,7 @@ async function useTreeSitter() {
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
-        console.log(query.buildQuery(language.CSharp.function));
+        console.log(query.buildQuery(CSharp.function));
 
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);
