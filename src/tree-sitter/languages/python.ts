@@ -1,11 +1,11 @@
 import { Language } from ".";
-import * as fun from "../queries/function";
+import * as call from "../queries/function";
 
 export const Python: Language = {
     vscodeId: 'python',
-    function: [
-        fun.queryItem({
-            fun: 'function_definition', body: 'block',
+    callUnit: [
+        call.queryItem({
+            call: 'function_definition', body: 'block',
             name: 'identifier', args: 'parameters',
         }),
     ],

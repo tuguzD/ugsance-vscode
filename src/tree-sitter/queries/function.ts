@@ -1,17 +1,25 @@
 import { QueryItem } from ".";
 
-type Function = {
-    fun: string, body: string,
-    name: string, args: string,
+type CallUnit = {
+    call: string, body: string,
+    name: string | null, args: string,
 };
-export const tag: Function = {
-    fun: 'function', body: 'body',
+export const tag: CallUnit = {
+    call: 'callable', body: 'body',
     name: 'name', args: 'args',
 };
-export function queryItem(type: Function) {
-    return new QueryItem(tag.fun, type.fun, [
+
+export function queryItem(type: CallUnit) {
+    let children: QueryItem[] = type.name ? [
         new QueryItem(tag.name, type.name),
+    ] : [];
+
+    children.push(
         new QueryItem(tag.args, type.args),
         new QueryItem(tag.body, type.body),
-    ]);
+    );
+
+    return new QueryItem(
+        tag.call, type.call, children
+    );
 }

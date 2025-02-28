@@ -4,8 +4,8 @@ import { nullCheck } from '../utils';
 
 import * as language from './languages';
 import * as query from './queries';
-import * as fun from './queries/function';
-import { CSharp } from './languages/csharp';
+import * as call from './queries/function';
+// import { JavaScript } from './languages/js';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -23,9 +23,9 @@ async function useTreeSitter() {
             parserPath, editor.document.getText(),
         );
         const captures = query.captures(
-            node, query.buildQuery(langData.function), langParser,
+            node, query.buildQuery(langData.callUnit), langParser,
         );
-        const functions = query.filterTag(captures, fun.tag.name);
+        const functions = query.filterTag(captures, call.tag.name);
         // functions.forEach(item => console.log(
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));
@@ -34,7 +34,7 @@ async function useTreeSitter() {
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
-        console.log(query.buildQuery(CSharp.function));
+        // console.log(query.buildQuery(JavaScript.callUnit));
 
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);

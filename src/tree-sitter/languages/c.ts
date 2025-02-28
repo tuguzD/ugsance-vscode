@@ -4,13 +4,13 @@ import { tag } from "../queries/function";
 
 export const C: Language = {
     vscodeId: 'c',
-    function: [
+    callUnit: [
         cQueryItem(false),
     ],
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    function: [
+    callUnit: [
         cQueryItem(true),
         cQueryItem(false),
     ],
@@ -19,7 +19,7 @@ export const Cpp: Language = {
 function cQueryItem(method: boolean) {
     let identifier = (method ? 'field_' : '') + 'identifier';
     return new QueryItem(
-        tag.fun, 'function_definition', [
+        tag.call, 'function_definition', [
         new QueryItem(tag.body, 'function_declarator', [
             new QueryItem(tag.name, identifier),
             new QueryItem(tag.args, 'formal_parameters'),

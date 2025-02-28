@@ -1,21 +1,20 @@
 import { Language } from ".";
-import { QueryItem } from "../queries";
-import * as fun from "../queries/function";
+import * as call from "../queries/function";
 
 export const Java: Language = {
     vscodeId: 'java',
-    function: [
-        fun.queryItem({
-            fun: 'method_declaration', body: 'block',
-            name: 'identifier', args: 'formal_parameters',
+    callUnit: [
+        call.queryItem({
+            call: 'method_declaration', name: 'identifier',
+            body: 'block', args: 'formal_parameters',
         }),
-        fun.queryItem({
-            fun: 'constructor_declaration', body: 'constructor_body',
-            name: 'identifier', args: 'formal_parameters',
+        call.queryItem({
+            call: 'constructor_declaration', name: 'identifier',
+            body: 'constructor_body', args: 'formal_parameters',
         }),
-        new QueryItem(fun.tag.fun, 'synchronized_statement', [
-            new QueryItem(fun.tag.args, 'parenthesized_expression'),
-            new QueryItem(fun.tag.body, 'block'),
-        ]),
+        call.queryItem({
+            call: 'synchronized_statement', name: null,
+            body: 'block', args: 'parenthesized_expression',
+        }),
     ],
 };

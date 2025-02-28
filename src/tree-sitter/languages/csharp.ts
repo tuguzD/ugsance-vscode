@@ -1,37 +1,37 @@
 import { Language } from ".";
 import { Alternation, QueryItem } from "../queries";
-import * as fun from "../queries/function";
+import * as call from "../queries/function";
 
 export const CSharp: Language = {
     vscodeId: 'csharp',
-    function: [
-        fun.queryItem({
-            fun: 'method_declaration', body: 'block',
+    callUnit: [
+        call.queryItem({
+            call: 'method_declaration', body: 'block',
             name: 'identifier', args: 'parameter_list',
         }),
-        fun.queryItem({
-            fun: 'local_function_statement', body: 'block',
+        call.queryItem({
+            call: 'local_function_statement', body: 'block',
             name: 'identifier', args: 'parameter_list',
         }),
-        new QueryItem(fun.tag.fun, 'anonymous_method_expression', [
-            new QueryItem(fun.tag.args, 'parameter_list'),
-            new QueryItem(fun.tag.body, 'block'),
-        ]),
-        new QueryItem(fun.tag.fun, 'constructor_declaration', [
-            new QueryItem(fun.tag.name, 'identifier'),
-            new QueryItem(fun.tag.args, 'parameter_list'),
+        call.queryItem({
+            call: 'anonymous_method_expression', name: null,
+            args: 'parameter_list', body: 'block',
+        }),
+        new QueryItem(call.tag.call, 'constructor_declaration', [
+            new QueryItem(call.tag.name, 'identifier'),
+            new QueryItem(call.tag.args, 'parameter_list'),
             new Alternation(null, [
-                new QueryItem(fun.tag.body, 'block'),
-                new QueryItem(fun.tag.body, 'arrow_expression_clause'),
+                new QueryItem(call.tag.body, 'block'),
+                new QueryItem(call.tag.body, 'arrow_expression_clause'),
             ], false),
         ]),
-        new QueryItem(fun.tag.fun, 'property_declaration', [
-            new QueryItem(fun.tag.name, 'identifier'),
+        new QueryItem(call.tag.call, 'property_declaration', [
+            new QueryItem(call.tag.name, 'identifier'),
             new QueryItem(null, 'accessor_list', [
                 new QueryItem(null, 'accessor_declaration', [
                     new Alternation(null, [
-                        new QueryItem(fun.tag.body, 'block'),
-                        new QueryItem(fun.tag.body, 'arrow_expression_clause'),
+                        new QueryItem(call.tag.body, 'block'),
+                        new QueryItem(call.tag.body, 'arrow_expression_clause'),
                     ], true),
                 ]),
             ]),
