@@ -1,6 +1,6 @@
 import Parser from "web-tree-sitter";
 
-import { QueryItem } from "../queries";
+import { Alternation, QueryItem } from "../queries";
 import * as fun from "../queries/function";
 
 export async function init(
@@ -58,6 +58,14 @@ export const Java: Language = {
             fun: 'method_declaration', body: 'block',
             name: 'identifier', args: 'formal_parameters',
         }),
+        fun.queryItem({
+            fun: 'constructor_declaration', body: 'constructor_body',
+            name: 'identifier', args: 'formal_parameters',
+        }),
+        new QueryItem(fun.tag.fun, 'synchronized_statement', [
+            new QueryItem(fun.tag.args, 'parenthesized_expression'),
+            new QueryItem(fun.tag.body, 'block'),
+        ]),
     ],
 };
 export const CSharp: Language = {
@@ -71,6 +79,29 @@ export const CSharp: Language = {
             fun: 'local_function_statement', body: 'block',
             name: 'identifier', args: 'parameter_list',
         }),
+        new QueryItem(fun.tag.fun, 'anonymous_method_expression', [
+            new QueryItem(fun.tag.args, 'parameter_list'),
+            new QueryItem(fun.tag.body, 'block'),
+        ]),
+        new QueryItem(fun.tag.fun, 'constructor_declaration', [
+            new QueryItem(fun.tag.name, 'identifier'),
+            new QueryItem(fun.tag.args, 'parameter_list'),
+            new Alternation(null, [
+                new QueryItem(fun.tag.body, 'block'),
+                new QueryItem(fun.tag.body, 'arrow_expression_clause'),
+            ], false),
+        ]),
+        new QueryItem(fun.tag.fun, 'property_declaration', [
+            new QueryItem(fun.tag.name, 'identifier'),
+            new QueryItem(null, 'accessor_list', [
+                new QueryItem(null, 'accessor_declaration', [
+                    new Alternation(null, [
+                        new QueryItem(fun.tag.body, 'block'),
+                        new QueryItem(fun.tag.body, 'arrow_expression_clause'),
+                    ], true),
+                ]),
+            ]),
+        ]),
     ],
 };
 export const Python: Language = {

@@ -21,7 +21,9 @@ async function useTreeSitter() {
         const { langParser, node } = await language.init(
             parserPath, editor.document.getText(),
         );
-        const captures = query.captures(node, langData.function, langParser);
+        const captures = query.captures(
+            node, query.buildQuery(langData.function), langParser,
+        );
         const functions = query.filterTag(captures, fun.tag.name);
         // functions.forEach(item => console.log(
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
@@ -30,6 +32,8 @@ async function useTreeSitter() {
         const functionsNames = functions.map(capture => capture.node.text);
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
+
+        console.log(query.buildQuery(language.CSharp.function));
 
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);
