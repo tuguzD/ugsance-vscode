@@ -1,5 +1,20 @@
+import Parser from "web-tree-sitter";
+
 import { QueryItem } from "../queries";
 import * as fun from "../queries/function";
+
+export async function init(
+    parserPath: string, codeSource: string,
+) {
+    await Parser.init();
+    const parser = new Parser();
+    const langParser = await
+        Parser.Language.load(parserPath);
+    parser.setLanguage(langParser);
+
+    const node = parser.parse(codeSource).rootNode;
+    return { langParser, node };
+}
 
 export type Language = {
     vscodeId: string;
@@ -71,7 +86,7 @@ export const Python: Language = {
 import { C, Cpp } from "./c";
 import { JavaScript, TypeScript } from "./js";
 
-export const languages: Language[] = [
+export const list: Language[] = [
     C, Cpp, Rust, Go,
     Java, CSharp, Python,
     JavaScript, TypeScript,

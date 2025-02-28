@@ -1,17 +1,5 @@
 import Parser from "web-tree-sitter";
 
-export async function initLanguage(
-    parserPath: string, codeSource: string,
-) {
-    await Parser.init();
-    const parser = new Parser();
-    const lang = await Parser.Language.load(parserPath);
-    parser.setLanguage(lang);
-
-    const node = parser.parse(codeSource).rootNode;
-    return { lang, node };
-}
-
 export class QueryItem {
     tag: string | null;
     type: string;
