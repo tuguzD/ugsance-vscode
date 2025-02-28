@@ -22,7 +22,7 @@ function cQueryItem(method: boolean) {
         tag.call, 'function_definition', [
         new QueryItem(tag.body, 'function_declarator', [
             new QueryItem(tag.name, identifier),
-            new QueryItem(tag.args, 'formal_parameters'),
+            new QueryItem(tag.args, 'parameter_list'),
         ]),
         new QueryItem(tag.body, 'compound_statement'),
     ]);
