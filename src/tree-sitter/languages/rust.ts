@@ -16,5 +16,16 @@ export const Rust: Language = {
                 new QueryItem(call.tag.body, 'token_tree'),
             ]),
         ]),
+        call.queryItem({
+            call: 'closure_expression', body: 'block',
+            name: null, args: 'closure_parameters',
+        }),
+        new QueryItem(null, '', [
+            new QueryItem(call.tag.body, 'block', [
+                new QueryItem(null, 'label', [
+                    new QueryItem(call.tag.name, 'identifier'),
+                ], true),
+            ]),
+        ]),
     ],
 };
