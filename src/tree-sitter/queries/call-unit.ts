@@ -1,11 +1,11 @@
 import { QueryItem } from ".";
 
 type CallUnit = {
-    call: string, body: string,
+    unit: string, body: string,
     name: string | null, args: string,
 };
 export const tag: CallUnit = {
-    call: 'callable', body: 'body',
+    unit: 'unit', body: 'body',
     name: 'name', args: 'args',
 };
 
@@ -20,6 +20,6 @@ export function queryItem(type: CallUnit) {
     );
 
     return new QueryItem(
-        tag.call, type.call, children
+        tag.unit, type.unit, children
     );
 }

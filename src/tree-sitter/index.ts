@@ -4,7 +4,7 @@ import { nullCheck } from '../utils';
 
 import * as language from './languages';
 import * as query from './queries';
-import * as call from './queries/function';
+import * as unit from './queries/call-unit';
 // import { Rust } from './languages/rust';
 
 export function register(context: vscode.ExtensionContext) {
@@ -25,7 +25,7 @@ async function useTreeSitter() {
         const captures = query.captures(
             node, query.buildQuery(langData.callUnit), langParser,
         );
-        const functions = query.filterTag(captures, call.tag.name);
+        const functions = query.filterTag(captures, unit.tag.name);
         // functions.forEach(item => console.log(
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));

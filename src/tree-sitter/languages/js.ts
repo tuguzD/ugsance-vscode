@@ -1,5 +1,5 @@
 import { Language } from ".";
-import { queryItem } from "../queries/function";
+import { queryItem } from "../queries/call-unit";
 
 const callUnit = [
     jsQueryItem('arrow_function', false),
@@ -23,7 +23,7 @@ function jsQueryItem(callUnit: string, named: boolean, method: boolean = false) 
     let identifier = (method ? 'property_' : '') + 'identifier';
 
     return queryItem({
-        call: callUnit, name: named ? identifier : null,
+        unit: callUnit, name: named ? identifier : null,
         body: 'statement_block', args: 'formal_parameters',
     });
 }
