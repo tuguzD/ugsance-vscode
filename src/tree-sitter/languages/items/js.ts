@@ -4,6 +4,14 @@ import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
 import * as loop from "../../queries/items/loop";
 
+const callUnits = [
+    jsQueryItem('arrow_function', false),
+    jsQueryItem('generator_function', false),
+    jsQueryItem('function_expression', false),
+    jsQueryItem('method_definition', true, true),
+    jsQueryItem('function_declaration', true, false),
+    jsQueryItem('generator_function_declaration', true, false),
+];
 const jumps = queryItems(tags.jump, [
     'return_statement', 'throw_statement',
     'break_statement', 'continue_statement',
@@ -39,14 +47,6 @@ const flows: QueryItem[] = [
 ] ) @flow
 
 */
-];
-const callUnits = [
-    jsQueryItem('arrow_function', false),
-    jsQueryItem('generator_function', false),
-    jsQueryItem('function_expression', false),
-    jsQueryItem('method_definition', true, true),
-    jsQueryItem('function_declaration', true, false),
-    jsQueryItem('generator_function_declaration', true, false),
 ];
 
 export const JavaScript: Language = {

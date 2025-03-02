@@ -5,18 +5,28 @@ import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
 
 const body = 'block';
-export const Python: Language = {
-    vscodeId: 'python',
-    jump: queryItems(tags.jump, [
-        'return_statement', 'await',
-        'raise_statement', 'assert_statement',
-        'break_statement', 'continue_statement',
+const callUnits = [
+    unit.queryItem({
+        unit: 'function_definition', body: body,
+        name: 'identifier', args: 'parameters',
+    }),
+    new QueryItem(tags.unit.unit, 'lambda', [
+        new Alternation(null, [
+            new QueryItem(tags.unit.args, 'lambda_parameters'),
+            new QueryItem(tags.unit.body, 'expression'),
+        ],),
     ]),
-    loop: loopItems([
-        'for_statement', 'while_statement',
-    ]),
-    flow: [
-        // todo
+];
+const jumps = queryItems(tags.jump, [
+    'return_statement', 'await',
+    'raise_statement', 'assert_statement',
+    'break_statement', 'continue_statement',
+]);
+const loops = loopItems([
+    'for_statement', 'while_statement',
+]);
+const flows: QueryItem[] = [
+    // todo
 /*
 
 ( if_statement [ 
@@ -45,19 +55,14 @@ export const Python: Language = {
 ] ) @flow
 
 */
-    ],
-    callUnit: [
-        unit.queryItem({
-            unit: 'function_definition', body: body,
-            name: 'identifier', args: 'parameters',
-        }),
-        new QueryItem(tags.unit.unit, 'lambda', [
-            new Alternation(null, [
-                new QueryItem(tags.unit.args, 'lambda_parameters'),
-                new QueryItem(tags.unit.body, 'expression'),
-            ],),
-        ]),
-    ],
+];
+
+export const Python: Language = {
+    vscodeId: 'python',
+    jump: jumps,
+    loop: loops,
+    flow: flows,
+    callUnit: callUnits,
 };
 
 function elseItem(query: QueryItem[]): QueryItem[] {

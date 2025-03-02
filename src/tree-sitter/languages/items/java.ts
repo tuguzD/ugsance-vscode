@@ -5,19 +5,38 @@ import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
 import * as loop from "../../queries/items/loop";
 
-export const Java: Language = {
-    vscodeId: 'java',
-    jump: queryItems(tags.jump, [
-        'return_statement',
-        'break_statement', 'continue_statement',
-        'yield_statement', 'throw_statement',
+const callUnits = [
+    unit.queryItem({
+        unit: 'method_declaration', name: 'identifier',
+        body: 'block', args: 'formal_parameters',
+    }),
+    unit.queryItem({
+        unit: 'constructor_declaration', name: 'identifier',
+        body: 'constructor_body', args: 'formal_parameters',
+    }),
+    unit.queryItem({
+        unit: 'synchronized_statement', name: null,
+        body: 'block', args: 'parenthesized_expression',
+    }),
+    new QueryItem(tags.unit.unit, 'lambda_expression', [
+        new Alternation(null, [
+            new QueryItem(tags.unit.args, 'formal_parameters'),
+            new QueryItem(tags.unit.args, 'inferred_parameters'),
+        ]),
+        new QueryItem(tags.unit.body, 'block'),
     ]),
-    loop: loop.queryItems('statement', [
-        'do_statement', 'while_statement',
-        'for_statement', 'enhanced_for_statement',
-    ]),
-    flow: [
-        // todo
+];
+const jumps = queryItems(tags.jump, [
+    'return_statement',
+    'break_statement', 'continue_statement',
+    'yield_statement', 'throw_statement',
+]);
+const loops = loop.queryItems('statement', [
+    'do_statement', 'while_statement',
+    'for_statement', 'enhanced_for_statement',
+]);
+const flows: QueryItem[] = [
+    // todo
 /*
 
 ( if_statement [
@@ -47,26 +66,12 @@ export const Java: Language = {
 ] ) @flow
 
 */
-    ],
-    callUnit: [
-        unit.queryItem({
-            unit: 'method_declaration', name: 'identifier',
-            body: 'block', args: 'formal_parameters',
-        }),
-        unit.queryItem({
-            unit: 'constructor_declaration', name: 'identifier',
-            body: 'constructor_body', args: 'formal_parameters',
-        }),
-        unit.queryItem({
-            unit: 'synchronized_statement', name: null,
-            body: 'block', args: 'parenthesized_expression',
-        }),
-        new QueryItem(tags.unit.unit, 'lambda_expression', [
-            new Alternation(null, [
-                new QueryItem(tags.unit.args, 'formal_parameters'),
-                new QueryItem(tags.unit.args, 'inferred_parameters'),
-            ]),
-            new QueryItem(tags.unit.body, 'block'),
-        ]),
-    ],
+];
+
+export const Java: Language = {
+    vscodeId: 'java',
+    jump: jumps,
+    loop: loops,
+    flow: flows,
+    callUnit: callUnits,
 };
