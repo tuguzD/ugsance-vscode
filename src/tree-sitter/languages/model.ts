@@ -1,11 +1,11 @@
 import { QueryItem } from "../queries/model";
 
+type I = QueryItem[];
 export type Language = {
-    vscodeId: string;
-    callUnit: QueryItem[];
-    loop: QueryItem[];
-    flow: QueryItem[];
-    jump: QueryItem[];
+    vscodeId: string,
+    jump: I,
+    loop: I, flow: I,
+    callUnit: I,
 };
 
 import { Go } from "./items/go";

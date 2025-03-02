@@ -2,6 +2,7 @@ import { Language } from "../model";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
+import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
@@ -34,10 +35,7 @@ const loops = block.items(tags.loop, [
     'do_statement', 'while_statement',
     'for_statement', 'enhanced_for_statement',
 ], 'statement');
-const flows: QueryItem[] = [
-    // todo
 /*
-
 ( if_statement [
 ( statement ) @body
 ( statement )* @body
@@ -47,24 +45,12 @@ const flows: QueryItem[] = [
 ( switch_block
 ( switch_block_statement_group ) @body )
 ) @flow
-
-( try_statement [
-( block ) @body
-( catch_clause
-( block ) @body ) @flow
-( finally_clause
-( block ) @body ) @flow
-] ) @flow
-
-( try_with_resources_statement [
-( block ) @body
-( catch_clause
-( block ) @body ) @flow
-( finally_clause
-( block ) @body ) @flow
-] ) @flow
-
 */
+const flows: QueryItem[] = [
+    ...flow.items(tags.flow,
+        ['try_statement', 'try_with_resources_statement'],
+        ['catch_clause', 'finally_clause'],
+    'block'),
 ];
 
 export const Java: Language = {

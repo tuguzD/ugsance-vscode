@@ -2,12 +2,12 @@ import { Language } from "../model";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
+import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
-const body = 'block';
 const callUnits = [
     unit.queryItem({
-        item: 'function_definition', body: body,
+        item: 'function_definition', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
     new QueryItem(tags.unit.item, 'lambda', [
@@ -22,40 +22,30 @@ const jumps = block.items(tags.jump, [
     'raise_statement', 'assert_statement',
     'break_statement', 'continue_statement',
 ]);
-const loops = loopItems([
-    'for_statement', 'while_statement',
-]);
-const flows: QueryItem[] = [
-    // todo
-    /*
-    
-    ( if_statement [ 
-    ( block ) @body
-    ( elif_clause 
-    ( block ) @body ) @flow
-    ( else_clause 
-    ( block ) @body ) @flow 
-    ] ) @flow
-    
-    ( match_statement
-    ( block 
-    ( case_clause ) @body
-    ) ) @flow
-    
-    ( try_statement [
-    ( block ) @body
-    ( except_clause
-    ( block ) @body ) @flow
-    ( except_group_clause
-    ( block ) @body ) @flow
-    ( else_clause
-    ( block ) @body ) @flow
-    ( finally_clause
-    ( block ) @body ) @flow
-    ] ) @flow
-    
-    */
+/*
+( match_statement
+( block 
+( case_clause ) @body
+) ) @flow
+*/
+const flows = [
+    ...flow.items(tags.flow, ['if_statement'],
+        ['elif_clause', 'else_clause'],
+    'block'),
+    new QueryItem(tags.flow.item, 'match_statement', [
+        new QueryItem(null, 'block', [
+            new QueryItem(tags.flow.body, 'case_clause'),
+        ]),
+    ]),
+    ...flow.items(tags.flow, ['try_statement'], [
+        'except_clause', 'except_group_clause',
+        'else_clause', 'finally_clause',
+    ], 'block'),
 ];
+const loops = flow.items(tags.loop,
+    ['for_statement', 'while_statement'],
+    ['else_clause'], 'block',
+);
 
 export const Python: Language = {
     vscodeId: 'python',
@@ -63,19 +53,3 @@ export const Python: Language = {
     loop: loops, flow: flows,
     callUnit: callUnits,
 };
-
-function elseItem(query: QueryItem[]): QueryItem[] {
-    return [new Alternation(null, query.concat([
-        new QueryItem(tags.flow.item, 'else_clause', [
-            new QueryItem(tags.flow.body, body),
-        ]),
-    ]))];
-}
-
-function loopItems(types: string[]): QueryItem[] {
-    return types.map(type =>
-        new QueryItem(tags.loop.item, type, elseItem([
-            new QueryItem(tags.loop.body, body),
-        ]))
-    );
-}

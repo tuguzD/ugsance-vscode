@@ -5,7 +5,7 @@ import { nullCheck } from '../utils';
 import { list } from './languages/model';
 import * as query from './queries';
 import { tags } from './queries/tag';
-// import { C } from './languages/items/c';
+// import { CSharp } from './languages/items/csharp';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -34,7 +34,7 @@ async function useTreeSitter() {
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
-        // console.log(query.buildQuery(C.loop));
+        // console.log(query.buildQuery(CSharp.flow));
 
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);

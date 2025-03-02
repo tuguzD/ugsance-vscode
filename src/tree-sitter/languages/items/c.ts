@@ -1,39 +1,9 @@
 import { Language } from "../model";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
+import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
 
-const jumps = block.items(tags.jump, [
-    'return_statement', 'goto_statement',
-    'break_statement', 'continue_statement',
-]);
-const loops = block.items(tags.loop, [
-    'for_statement', 'do_statement', 'while_statement',
-], 'compound_statement');
-const flows: QueryItem[] = [
-    // todo
-/*
-
-( if_statement [
-( compound_statement ) @body
-( else_clause 
-( compound_statement ) @body )
-] ) @flow
-
-( switch_statement
-( compound_statement
-( case_statement ) @body )
-) @flow
-
-// C++ ONLY
-( try_statement 
-( compound_statement ) @body
-( catch_clause 
-( compound_statement ) @body )
-) @flow
-
-*/
-];
 const callUnitsCpp = [
     cQueryItem([
         'identifier', 'field_identifier',
@@ -48,6 +18,31 @@ const callUnitsCpp = [
         new QueryItem(tags.unit.body, 'compound_statement'),
     ]),
 ];
+const jumps = block.items(tags.jump, [
+    'return_statement', 'goto_statement',
+    'break_statement', 'continue_statement',
+]);
+const loops = block.items(tags.loop, [
+    'for_statement', 'do_statement', 'while_statement',
+], 'compound_statement');
+const flows = [
+    ...flow.items(tags.flow,
+        ['if_statement'], ['else_clause'],
+    'compound_statement'),
+];
+/*
+( switch_statement
+( compound_statement
+( case_statement ) @body )
+) @flow
+
+// C++ ONLY
+( try_statement 
+( compound_statement ) @body
+( catch_clause 
+( compound_statement ) @body )
+) @flow
+*/
 
 export const C: Language = {
     vscodeId: 'c',

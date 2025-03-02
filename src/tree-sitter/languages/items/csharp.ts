@@ -1,8 +1,9 @@
 import { Language } from "../model";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
-import * as unit from "../../queries/items/call-unit";
 import * as block from "../../queries/items/block";
+import * as flow from "../../queries/items/flow";
+import * as unit from "../../queries/items/call-unit";
 
 const callUnits = csQueryItems([
     'method_declaration', 'local_function_statement',
@@ -30,10 +31,7 @@ const loops = block.items(tags.loop, [
     'do_statement', 'while_statement',
     'for_statement', 'foreach_statement',
 ], 'statement');
-const flows: QueryItem[] = [
-    // todo
 /*
-
 ( if_statement
 ( statement ) @body
 ) @flow
@@ -43,19 +41,14 @@ const flows: QueryItem[] = [
 ( switch_section ) @body )
 ) @flow
 
-( try_statement
-[ ( block ) @body
-( catch_clause 
-( block ) @body )
-( finally_clause 
-( block ) @body ) ]
-) @flow
-
 ( lock_statement
 ( statement ) @body
 ) @flow
-
 */
+const flows: QueryItem[] = [
+    ...flow.items(tags.flow, ['try_statement'],
+        ['catch_clause', 'finally_clause'],
+    'block'),
 ];
 
 export const CSharp: Language = {

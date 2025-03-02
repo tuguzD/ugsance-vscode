@@ -2,6 +2,7 @@ import { Language } from "../model";
 import { QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
+import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
@@ -33,27 +34,26 @@ const jumps = block.items(tags.jump, [
     'yield_expression', 'await_expression',
     'break_expression', 'continue_expression',
 ]);
+/*
+( match_expression
+( match_block
+( match_arm ) @body )
+) @flow
+*/
+const flows = [
+    ...flow.items(tags.flow,
+        ['if_expression'], ['else_clause'],
+    'block'),
+    new QueryItem(tags.flow.item, 'match_expression', [
+        new QueryItem(null, 'match_block', [
+            new QueryItem(tags.flow.body, 'match_arm'),
+        ]),
+    ]),
+];
 const loops = block.items(tags.loop, [
     'for_expression', 'loop_expression',
     'while_expression', 'try_block',
 ], 'block');
-const flows: QueryItem[] = [
-    // todo
-/*
-
-( if_expression [ 
-( block ) @body
-( else_clause
-( block ) @body ) @flow
-] ) @flow
-
-( match_expression 
-( match_block 
-( match_arm ) @body )
-) @flow
-
-*/
-];
 
 export const Rust: Language = {
     vscodeId: 'rust',
