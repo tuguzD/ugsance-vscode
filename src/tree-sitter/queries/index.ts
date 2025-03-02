@@ -2,10 +2,6 @@ import Parser from "web-tree-sitter";
 import { QueryItem } from "./model";
 import { Tag } from "./tag";
 
-export function queryItems(tag: Tag, types: string[]): QueryItem[] {
-    return types.map(type => new QueryItem(tag, type));
-}
-
 export function buildQuery(queryType: QueryItem[]): string {
     return queryType.map(item => item.query).join('\n\n');
 }

@@ -4,7 +4,7 @@ import { Block } from "./items/block";
 export type Tag = string;
 
 type TagItem = {
-    unit: CallUnit, jump: Tag,
+    unit: CallUnit, jump: Block,
     loop: Block, flow: Block,
 };
 export const tags: TagItem = {
@@ -18,5 +18,7 @@ export const tags: TagItem = {
     flow: {
         item: 'flow', body: 'body',
     },
-    jump: 'jump',
+    jump: {
+        item: 'jump', body: null,
+    },
 };

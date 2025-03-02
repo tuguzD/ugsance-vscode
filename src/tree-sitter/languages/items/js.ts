@@ -1,5 +1,4 @@
 import { Language } from "../model";
-import { queryItems } from "../../queries";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
 import * as unit from "../../queries/items/call-unit";
@@ -12,15 +11,15 @@ const callUnits = [
     jsQueryItem('function_declaration', true, false),
     jsQueryItem('generator_function_declaration', true, false),
 ];
-const jumps = queryItems(tags.jump, [
+const jumps = block.items(tags.jump, [
     'return_statement', 'throw_statement',
     'break_statement', 'continue_statement',
     'yield_expression', 'await_expression',
 ]);
-const loops = block.items(tags.loop, 'statement', [
+const loops = block.items(tags.loop, [
     'do_statement', 'while_statement',
     'for_statement', 'for_in_statement',
-]);
+], 'statement');
 import { QueryItem } from "../../queries/model";
 const flows: QueryItem[] = [
     // todo

@@ -1,5 +1,4 @@
 import { Language } from "../model";
-import { queryItems } from "../../queries";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
 import * as unit from "../../queries/items/call-unit";
@@ -14,12 +13,12 @@ const callUnits = [
         name: 'field_identifier', args: 'parameter_list',
     }),
 ];
-const jumps = queryItems(tags.jump, [
+const jumps = block.items(tags.jump, [
     'return_statement', 'goto_statement',
     'fallthrough_statement',
     'break_statement', 'continue_statement',
 ]);
-const loops = block.items(tags.loop, 'block', ['for_statement']);
+const loops = block.items(tags.loop, ['for_statement'], 'block');
 
 import { QueryItem } from "../../queries/model";
 const flows: QueryItem[] = [

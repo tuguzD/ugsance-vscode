@@ -13,7 +13,7 @@ export function queryItem(type: CallUnit) {
 
     children.push(
         new QueryItem(tags.unit.args, type.args),
-        new QueryItem(tags.unit.body, type.body),
+        new QueryItem(tags.unit.body, type.body!),
     );
 
     return new QueryItem(

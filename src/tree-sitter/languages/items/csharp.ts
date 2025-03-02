@@ -1,5 +1,4 @@
 import { Language } from "../model";
-import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
@@ -21,16 +20,16 @@ const callUnits = csQueryItems([
         ]),
     ]),
 ]);
-const jumps = queryItems(tags.jump, [
+const jumps = block.items(tags.jump, [
     'return_statement',
     'goto_statement', 'yield_statement',
     'break_statement', 'continue_statement',
     'throw_statement', 'throw_expression',
 ]);
-const loops = block.items(tags.loop, 'statement', [
+const loops = block.items(tags.loop, [
     'do_statement', 'while_statement',
     'for_statement', 'foreach_statement',
-]);
+], 'statement');
 const flows: QueryItem[] = [
     // todo
 /*

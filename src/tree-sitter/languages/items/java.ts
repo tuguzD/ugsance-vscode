@@ -1,5 +1,4 @@
 import { Language } from "../model";
-import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
@@ -26,15 +25,15 @@ const callUnits = [
         new QueryItem(tags.unit.body, 'block'),
     ]),
 ];
-const jumps = queryItems(tags.jump, [
+const jumps = block.items(tags.jump, [
     'return_statement',
     'break_statement', 'continue_statement',
     'yield_statement', 'throw_statement',
 ]);
-const loops = block.items(tags.loop, 'statement', [
+const loops = block.items(tags.loop, [
     'do_statement', 'while_statement',
     'for_statement', 'enhanced_for_statement',
-]);
+], 'statement');
 const flows: QueryItem[] = [
     // todo
 /*

@@ -1,7 +1,7 @@
 import { Language } from "../model";
-import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
+import * as block from "../../queries/items/block";
 import * as unit from "../../queries/items/call-unit";
 
 const body = 'block';
@@ -17,7 +17,7 @@ const callUnits = [
         ],),
     ]),
 ];
-const jumps = queryItems(tags.jump, [
+const jumps = block.items(tags.jump, [
     'return_statement', 'await',
     'raise_statement', 'assert_statement',
     'break_statement', 'continue_statement',
