@@ -16,6 +16,23 @@ export const Rust: Language = {
         'for_expression', 'loop_expression',
         'while_expression', 'try_block',
     ]),
+    flow: [
+        // todo
+/*
+
+( if_expression [ 
+( block ) @body
+( else_clause
+( block ) @body ) @flow
+] ) @flow
+
+( match_expression 
+( match_block 
+( match_arm ) @body )
+) @flow
+
+*/
+    ],
     callUnit: [
         unit.queryItem({
             unit: 'function_item', body: 'block',

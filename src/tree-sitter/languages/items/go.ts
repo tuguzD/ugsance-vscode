@@ -21,5 +21,29 @@ export const Go: Language = {
             name: 'field_identifier', args: 'parameter_list',
         }),
     ],
+    flow: [
+        // todo
+/*
+
+( if_statement
+( block ) @body
+) @flow
+
+( select_statement 
+( communication_case ) @body
+) @flow
+
+( expression_switch_statement [
+( expression_case ) @body
+( default_case ) @body
+] ) @flow
+
+( type_switch_statement [
+( type_case ) @body
+( default_case ) @body
+] ) @flow
+
+*/
+    ],
     loop: [loop.queryItem({loop: 'for_statement', body: 'block'})],
 };

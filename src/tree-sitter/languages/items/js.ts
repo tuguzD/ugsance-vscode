@@ -13,6 +13,33 @@ const loops = loop.queryItems('statement', [
     'do_statement', 'while_statement',
     'for_statement', 'for_in_statement',
 ]);
+import { QueryItem } from "../../queries/model";
+const flows: QueryItem[] = [
+    // todo
+/*
+
+( if_statement
+( statement ) @body
+( else_clause
+( statement ) @body )*
+) @flow
+
+( switch_statement
+( switch_body [
+( switch_case ) @body
+( switch_default ) @body
+] ) ) @flow
+
+( try_statement [
+( statement_block ) @body
+( catch_clause
+( statement_block ) @body ) @flow
+( finally_clause
+( statement_block ) @body ) @flow
+] ) @flow
+
+*/
+];
 const callUnits = [
     jsQueryItem('arrow_function', false),
     jsQueryItem('generator_function', false),
@@ -26,12 +53,14 @@ export const JavaScript: Language = {
     vscodeId: 'javascript',
     jump: jumps,
     loop: loops,
+    flow: flows,
     callUnit: callUnits,
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
     jump: jumps,
     loop: loops,
+    flow: flows,
     callUnit: callUnits,
 };
 

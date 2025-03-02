@@ -4,6 +4,7 @@ export type Language = {
     vscodeId: string;
     callUnit: QueryItem[];
     loop: QueryItem[];
+    flow: QueryItem[];
     jump: QueryItem[];
 };
 

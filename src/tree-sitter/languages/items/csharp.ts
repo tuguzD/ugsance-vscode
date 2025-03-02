@@ -13,6 +13,33 @@ export const CSharp: Language = {
         'break_statement', 'continue_statement',
         'throw_statement', 'throw_expression',
     ]),
+    flow: [
+        // todo
+/*
+
+( if_statement
+( statement ) @body
+) @flow
+
+( switch_statement
+( switch_body 
+( switch_section ) @body )
+) @flow
+
+( try_statement
+[ ( block ) @body
+( catch_clause 
+( block ) @body )
+( finally_clause 
+( block ) @body ) ]
+) @flow
+
+( lock_statement
+( statement ) @body
+) @flow
+
+*/
+    ],
     loop: loop.queryItems('statement', [
         'do_statement', 'while_statement',
         'for_statement', 'foreach_statement',

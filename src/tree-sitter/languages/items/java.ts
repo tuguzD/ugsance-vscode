@@ -16,6 +16,38 @@ export const Java: Language = {
         'do_statement', 'while_statement',
         'for_statement', 'enhanced_for_statement',
     ]),
+    flow: [
+        // todo
+/*
+
+( if_statement [
+( statement ) @body
+( statement )* @body
+] ) @flow
+
+( switch_expression
+( switch_block
+( switch_block_statement_group ) @body )
+) @flow
+
+( try_statement [
+( block ) @body
+( catch_clause
+( block ) @body ) @flow
+( finally_clause
+( block ) @body ) @flow
+] ) @flow
+
+( try_with_resources_statement [
+( block ) @body
+( catch_clause
+( block ) @body ) @flow
+( finally_clause
+( block ) @body ) @flow
+] ) @flow
+
+*/
+    ],
     callUnit: [
         unit.queryItem({
             unit: 'method_declaration', name: 'identifier',

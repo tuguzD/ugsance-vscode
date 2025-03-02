@@ -15,6 +15,37 @@ export const Python: Language = {
     loop: loopItems([
         'for_statement', 'while_statement',
     ]),
+    flow: [
+        // todo
+/*
+
+( if_statement [ 
+( block ) @body
+( elif_clause 
+( block ) @body ) @flow
+( else_clause 
+( block ) @body ) @flow 
+] ) @flow
+
+( match_statement
+( block 
+( case_clause ) @body
+) ) @flow
+
+( try_statement [
+( block ) @body
+( except_clause
+( block ) @body ) @flow
+( except_group_clause
+( block ) @body ) @flow
+( else_clause
+( block ) @body ) @flow
+( finally_clause
+( block ) @body ) @flow
+] ) @flow
+
+*/
+    ],
     callUnit: [
         unit.queryItem({
             unit: 'function_definition', body: body,
