@@ -5,15 +5,19 @@ import { tags } from "../tag";
 export function items(
     tag: Block, types: string[],
     clauses: string[], typeBody: string,
+    alternation = true, body = true,
+    tagged = true, repeated = false,
 ): QueryItem[] {
-    let body = new QueryItem(tags.flow.body, typeBody);
-    let group = clauses.map(clause =>
-        new QueryItem(tags.flow.item, clause, [body]),
-    );
+    let item = new QueryItem(tags.flow.body, typeBody);
+    let group = clauses.map(clause => new QueryItem(
+        tagged ? tags.flow.item : null,
+        clause, [item], false, repeated,
+    ));
+    let child = body ? [item].concat(group) : group;
 
     return types.map(type =>
-        new QueryItem(tag.item, type, [
-            new Alternation(null, [body].concat(group)),
-        ]),
+        new QueryItem(tag.item, type, 
+            alternation ? [new Alternation(null, child)] : child,
+        ),
     );
 }

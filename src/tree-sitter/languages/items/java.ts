@@ -40,13 +40,11 @@ const loops = block.items(tags.loop, [
 ( statement ) @body
 ( statement )* @body
 ] ) @flow
-
-( switch_expression
-( switch_block
-( switch_block_statement_group ) @body )
-) @flow
 */
 const flows: QueryItem[] = [
+    ...flow.items(tags.flow, ['switch_expression'],
+        ['switch_block'], 'switch_block_statement_group',
+    false, false, false),
     ...flow.items(tags.flow,
         ['try_statement', 'try_with_resources_statement'],
         ['catch_clause', 'finally_clause'],

@@ -27,29 +27,21 @@ const jumps = block.items(tags.jump, [
     'break_statement', 'continue_statement',
     'throw_statement', 'throw_expression',
 ]);
-const loops = block.items(tags.loop, [
-    'do_statement', 'while_statement',
-    'for_statement', 'foreach_statement',
-], 'statement');
-/*
-( if_statement
-( statement ) @body
-) @flow
-
-( switch_statement
-( switch_body 
-( switch_section ) @body )
-) @flow
-
-( lock_statement
-( statement ) @body
-) @flow
-*/
 const flows: QueryItem[] = [
+    ...block.items(tags.flow,
+        ['if_statement', 'lock_statement'],
+    'statement'),
+    ...flow.items(tags.flow, ['switch_statement'],
+        ['switch_body'], 'switch_section',
+    false, false, false),
     ...flow.items(tags.flow, ['try_statement'],
         ['catch_clause', 'finally_clause'],
     'block'),
 ];
+const loops = block.items(tags.loop, [
+    'do_statement', 'while_statement',
+    'for_statement', 'foreach_statement',
+], 'statement');
 
 export const CSharp: Language = {
     vscodeId: 'csharp',

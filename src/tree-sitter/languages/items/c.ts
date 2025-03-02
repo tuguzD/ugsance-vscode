@@ -29,31 +29,24 @@ const flows = [
     ...flow.items(tags.flow,
         ['if_statement'], ['else_clause'],
     'compound_statement'),
+    ...flow.items(tags.flow,
+        ['switch_statement'], ['compound_statement'],
+    'case_statement', false, false, false),
 ];
-/*
-( switch_statement
-( compound_statement
-( case_statement ) @body )
-) @flow
-
-// C++ ONLY
-( try_statement 
-( compound_statement ) @body
-( catch_clause 
-( compound_statement ) @body )
-) @flow
-*/
 
 export const C: Language = {
     vscodeId: 'c',
-    loop: loops, flow: flows,
+    loop: loops, flow: flows, jump: jumps,
     callUnit: [cQueryItem(['identifier'])],
-    jump: jumps,
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    loop: loops, flow: flows,
     callUnit: callUnitsCpp,
+    flow: flows.concat(flow.items(
+        tags.flow, ['try_statement'], ['catch_clause'],
+        'compound_statement', false, true, false,
+    )),
+    loop: loops,
     jump: jumps.concat(block.items(tags.jump, [
         'throw_statement', // then: coroutines (C++20)
         'co_return_statement', 'co_yield_statement', 'co_await_expression',

@@ -19,20 +19,11 @@ const jumps = block.items(tags.jump, [
     'break_statement', 'continue_statement',
 ]);
 const loops = block.items(tags.loop, ['for_statement'], 'block');
-
-import { QueryItem } from "../../queries/model";
-const flows: QueryItem[] = [
-    // todo
+const flows = [
+    ...block.items(tags.flow, ['if_statement'], 'block'),
+    ...block.items(tags.flow, ['select_statement'], 'communication_case'),
+];
 /*
-
-( if_statement
-( block ) @body
-) @flow
-
-( select_statement 
-( communication_case ) @body
-) @flow
-
 ( expression_switch_statement [
 ( expression_case ) @body
 ( default_case ) @body
@@ -42,9 +33,7 @@ const flows: QueryItem[] = [
 ( type_case ) @body
 ( default_case ) @body
 ] ) @flow
-
 */
-];
 
 export const Go: Language = {
     vscodeId: 'go',

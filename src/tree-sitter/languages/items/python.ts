@@ -22,21 +22,13 @@ const jumps = block.items(tags.jump, [
     'raise_statement', 'assert_statement',
     'break_statement', 'continue_statement',
 ]);
-/*
-( match_statement
-( block 
-( case_clause ) @body
-) ) @flow
-*/
 const flows = [
     ...flow.items(tags.flow, ['if_statement'],
         ['elif_clause', 'else_clause'],
     'block'),
-    new QueryItem(tags.flow.item, 'match_statement', [
-        new QueryItem(null, 'block', [
-            new QueryItem(tags.flow.body, 'case_clause'),
-        ]),
-    ]),
+    ...flow.items(tags.flow, ['match_statement'],
+        ['block'], 'case_clause', false, false, false,
+    ),
     ...flow.items(tags.flow, ['try_statement'], [
         'except_clause', 'except_group_clause',
         'else_clause', 'finally_clause',

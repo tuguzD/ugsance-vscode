@@ -34,21 +34,13 @@ const jumps = block.items(tags.jump, [
     'yield_expression', 'await_expression',
     'break_expression', 'continue_expression',
 ]);
-/*
-( match_expression
-( match_block
-( match_arm ) @body )
-) @flow
-*/
 const flows = [
     ...flow.items(tags.flow,
         ['if_expression'], ['else_clause'],
     'block'),
-    new QueryItem(tags.flow.item, 'match_expression', [
-        new QueryItem(null, 'match_block', [
-            new QueryItem(tags.flow.body, 'match_arm'),
-        ]),
-    ]),
+    ...flow.items(tags.flow,
+        ['match_expression'], ['match_block'],
+    'match_arm', false, false, false),
 ];
 const loops = block.items(tags.loop, [
     'for_expression', 'loop_expression',

@@ -18,12 +18,6 @@ const jumps = block.items(tags.jump, [
     'yield_expression', 'await_expression',
 ]);
 /*
-( if_statement
-( statement ) @body
-( else_clause
-( statement ) @body )*
-) @flow
-
 ( switch_statement
 ( switch_body [
 ( switch_case ) @body
@@ -31,6 +25,9 @@ const jumps = block.items(tags.jump, [
 ] ) ) @flow
 */
 const flows = [
+    ...flow.items(tags.flow, ['if_statement'],
+        ['else_clause'], 'statement',
+    false, true, false, true),
     ...flow.items(tags.flow, ['try_statement'],
         ['catch_clause', 'finally_clause'],
     'statement_block'),
