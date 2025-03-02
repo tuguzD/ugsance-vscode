@@ -2,23 +2,23 @@ import { Language } from "../model";
 import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
+import * as block from "../../queries/items/block";
 import * as unit from "../../queries/items/call-unit";
-import * as loop from "../../queries/items/loop";
 
 const callUnits = [
     unit.queryItem({
-        unit: 'method_declaration', name: 'identifier',
+        item: 'method_declaration', name: 'identifier',
         body: 'block', args: 'formal_parameters',
     }),
     unit.queryItem({
-        unit: 'constructor_declaration', name: 'identifier',
+        item: 'constructor_declaration', name: 'identifier',
         body: 'constructor_body', args: 'formal_parameters',
     }),
     unit.queryItem({
-        unit: 'synchronized_statement', name: null,
+        item: 'synchronized_statement', name: null,
         body: 'block', args: 'parenthesized_expression',
     }),
-    new QueryItem(tags.unit.unit, 'lambda_expression', [
+    new QueryItem(tags.unit.item, 'lambda_expression', [
         new Alternation(null, [
             new QueryItem(tags.unit.args, 'formal_parameters'),
             new QueryItem(tags.unit.args, 'inferred_parameters'),
@@ -31,7 +31,7 @@ const jumps = queryItems(tags.jump, [
     'break_statement', 'continue_statement',
     'yield_statement', 'throw_statement',
 ]);
-const loops = loop.queryItems('statement', [
+const loops = block.items(tags.loop, 'statement', [
     'do_statement', 'while_statement',
     'for_statement', 'enhanced_for_statement',
 ]);

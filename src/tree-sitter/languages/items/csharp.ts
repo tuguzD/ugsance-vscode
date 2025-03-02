@@ -3,18 +3,18 @@ import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
-import * as loop from "../../queries/items/loop";
+import * as block from "../../queries/items/block";
 
 const callUnits = csQueryItems([
     'method_declaration', 'local_function_statement',
     'anonymous_method_expression', // no "name" tag
 ]).concat([
-    new QueryItem(tags.unit.unit, 'constructor_declaration', [
+    new QueryItem(tags.unit.item, 'constructor_declaration', [
         new QueryItem(tags.unit.name, 'identifier'),
         new QueryItem(tags.unit.args, 'parameter_list'),
         arrowBody(false),
     ]),
-    new QueryItem(tags.unit.unit, 'property_declaration', [
+    new QueryItem(tags.unit.item, 'property_declaration', [
         new QueryItem(tags.unit.name, 'identifier'),
         new QueryItem(null, 'accessor_list', [
             new QueryItem(null, 'accessor_declaration', [arrowBody()]),
@@ -27,7 +27,7 @@ const jumps = queryItems(tags.jump, [
     'break_statement', 'continue_statement',
     'throw_statement', 'throw_expression',
 ]);
-const loops = loop.queryItems('statement', [
+const loops = block.items(tags.loop, 'statement', [
     'do_statement', 'while_statement',
     'for_statement', 'foreach_statement',
 ]);
@@ -68,7 +68,7 @@ export const CSharp: Language = {
 
 function csQueryItems(units: string[]): QueryItem[] {
     return units.map(item => unit.queryItem({
-        unit: item, body: 'block', args: 'parameter_list',
+        item: item, body: 'block', args: 'parameter_list',
         name: item.includes('anonymous') ? null : 'identifier',
     }));
 }

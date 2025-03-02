@@ -1,8 +1,8 @@
 import { QueryItem } from "../model";
 import { Tag, tags } from "../tag";
+import { Block } from "./block";
 
-export type CallUnit = {
-    unit: Tag, body: Tag,
+export type CallUnit = Block & {
     name: Tag | null, args: Tag,
 };
 
@@ -17,6 +17,6 @@ export function queryItem(type: CallUnit) {
     );
 
     return new QueryItem(
-        tags.unit.unit, type.unit, children
+        tags.unit.item, type.item, children
     );
 }

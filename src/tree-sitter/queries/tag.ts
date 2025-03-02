@@ -1,23 +1,22 @@
 import { CallUnit } from "./items/call-unit";
-import { Loop } from "./items/loop";
-import { Flow } from "./items/flow";
+import { Block } from "./items/block";
 
 export type Tag = string;
 
 type TagItem = {
     unit: CallUnit, jump: Tag,
-    loop: Loop, flow: Flow,
+    loop: Block, flow: Block,
 };
 export const tags: TagItem = {
     unit: {
-        unit: 'unit', body: 'body',
+        item: 'unit', body: 'body',
         name: 'name', args: 'args',
     },
     loop: {
-        loop: 'loop', body: 'body',
+        item: 'loop', body: 'body',
     },
     flow: {
-        flow: 'flow', body: 'body',
+        item: 'flow', body: 'body',
     },
     jump: 'jump',
 };

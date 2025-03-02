@@ -1,8 +1,8 @@
 import { Language } from "../model";
 import { queryItems } from "../../queries";
 import { tags } from "../../queries/tag";
+import * as block from "../../queries/items/block";
 import * as unit from "../../queries/items/call-unit";
-import * as loop from "../../queries/items/loop";
 
 const callUnits = [
     jsQueryItem('arrow_function', false),
@@ -17,7 +17,7 @@ const jumps = queryItems(tags.jump, [
     'break_statement', 'continue_statement',
     'yield_expression', 'await_expression',
 ]);
-const loops = loop.queryItems('statement', [
+const loops = block.items(tags.loop, 'statement', [
     'do_statement', 'while_statement',
     'for_statement', 'for_in_statement',
 ]);
@@ -66,7 +66,7 @@ function jsQueryItem(callUnit: string, named: boolean, method: boolean = false) 
     let identifier = (method ? 'property_' : '') + 'identifier';
 
     return unit.queryItem({
-        unit: callUnit, name: named ? identifier : null,
+        item: callUnit, name: named ? identifier : null,
         body: 'statement_block', args: 'formal_parameters',
     });
 }

@@ -2,13 +2,13 @@ import { Language } from "../model";
 import { queryItems } from "../../queries";
 import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
-import * as loop from "../../queries/items/loop";
+import * as block from "../../queries/items/block";
 
 const jumps = queryItems(tags.jump, [
     'return_statement', 'goto_statement',
     'break_statement', 'continue_statement',
 ]);
-const loops = loop.queryItems('compound_statement', [
+const loops = block.items(tags.loop, 'compound_statement', [
     'for_statement', 'do_statement', 'while_statement',
 ]);
 const flows: QueryItem[] = [
@@ -41,7 +41,7 @@ const callUnitsCpp = [
         'qualified_identifier', 'operator_name',
         'destructor_name', 'structured_binding_declarator',
     ]),
-    new QueryItem(tags.unit.unit, 'lambda_expression', [
+    new QueryItem(tags.unit.item, 'lambda_expression', [
         new QueryItem(tags.unit.name, 'lambda_capture_specifier'),
         new QueryItem(null, 'abstract_function_declarator', [
             new QueryItem(tags.unit.args, 'parameter_list'),
@@ -68,7 +68,7 @@ export const Cpp: Language = {
 
 function cQueryItem(nameTypes: string[]) {
     return new QueryItem(
-        tags.unit.unit, 'function_definition', [
+        tags.unit.item, 'function_definition', [
         new QueryItem(null, 'function_declarator', [
             new Alternation(null, 
                 queryItems(tags.unit.name!, nameTypes), true),
