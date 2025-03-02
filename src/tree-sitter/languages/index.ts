@@ -18,6 +18,7 @@ import { QueryItem } from "../queries";
 export type Language = {
     vscodeId: string;
     callUnit: QueryItem[];
+    jump: QueryItem[];
 };
 
 import { Go } from "./go";

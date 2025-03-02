@@ -1,7 +1,8 @@
 import Parser from "web-tree-sitter";
+import { Tag } from "./tag";
 
 export class QueryItem {
-    tag: string | null;
+    tag: Tag | null;
     type: string | null;
     children: Array<QueryItem>;
     optional: boolean;
@@ -20,7 +21,7 @@ export class QueryItem {
     }
 
     constructor(
-        tag: string | null, type: string,
+        tag: Tag | null, type: string,
         children: Array<QueryItem> = [],
         optional = false, repeat = false,
     ) {
@@ -42,12 +43,16 @@ export class Alternation extends QueryItem {
     }
 
     constructor(
-        tag: string | null, children: Array<QueryItem> = [],
+        tag: Tag | null, children: Array<QueryItem> = [],
         optional = false, repeat = false, type = null,
     ) {
         super(tag, '', children, optional, repeat);
         this.type = type;
     }
+}
+
+export function queryItems(tag: Tag, types: string[]): QueryItem[] {
+    return types.map(type => new QueryItem(tag, type));
 }
 
 export function buildQuery(queryType: QueryItem[]) {
@@ -61,7 +66,7 @@ export function captures(
 }
 
 export function filterTag(
-    captures: Parser.QueryCapture[], tag: string | null = null,
+    captures: Parser.QueryCapture[], tag: Tag | null = null,
 ) {
     return (tag == null) ? captures
         : captures.filter(item => item.name === tag);

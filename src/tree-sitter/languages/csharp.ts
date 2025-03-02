@@ -1,9 +1,16 @@
 import { Language } from ".";
-import { Alternation, QueryItem } from "../queries";
+import { Alternation, QueryItem, queryItems } from "../queries";
+import { tags } from "../queries/tag";
 import * as unit from "../queries/call-unit";
 
 export const CSharp: Language = {
     vscodeId: 'csharp',
+    jump: queryItems(tags.jump, [
+        'return_statement',
+        'goto_statement', 'yield_statement',
+        'break_statement', 'continue_statement',
+        'throw_statement', 'throw_expression',
+    ]),
     callUnit: [
         unit.queryItem({
             unit: 'method_declaration', body: 'block',
@@ -17,21 +24,21 @@ export const CSharp: Language = {
             unit: 'anonymous_method_expression', name: null,
             args: 'parameter_list', body: 'block',
         }),
-        new QueryItem(unit.tag.unit, 'constructor_declaration', [
-            new QueryItem(unit.tag.name, 'identifier'),
-            new QueryItem(unit.tag.args, 'parameter_list'),
+        new QueryItem(tags.unit.unit, 'constructor_declaration', [
+            new QueryItem(tags.unit.name, 'identifier'),
+            new QueryItem(tags.unit.args, 'parameter_list'),
             new Alternation(null, [
-                new QueryItem(unit.tag.body, 'block'),
-                new QueryItem(unit.tag.body, 'arrow_expression_clause'),
+                new QueryItem(tags.unit.body, 'block'),
+                new QueryItem(tags.unit.body, 'arrow_expression_clause'),
             ], false),
         ]),
-        new QueryItem(unit.tag.unit, 'property_declaration', [
-            new QueryItem(unit.tag.name, 'identifier'),
+        new QueryItem(tags.unit.unit, 'property_declaration', [
+            new QueryItem(tags.unit.name, 'identifier'),
             new QueryItem(null, 'accessor_list', [
                 new QueryItem(null, 'accessor_declaration', [
                     new Alternation(null, [
-                        new QueryItem(unit.tag.body, 'block'),
-                        new QueryItem(unit.tag.body, 'arrow_expression_clause'),
+                        new QueryItem(tags.unit.body, 'block'),
+                        new QueryItem(tags.unit.body, 'arrow_expression_clause'),
                     ], true),
                 ]),
             ]),

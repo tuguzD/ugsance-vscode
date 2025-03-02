@@ -1,6 +1,12 @@
 import { Language } from ".";
+import { queryItems } from "../queries";
 import { queryItem } from "../queries/call-unit";
+import { tags } from "../queries/tag";
 
+const jump = queryItems(tags.jump, [
+    'return_statement', 'throw_statement',
+    'break_statement', 'continue_statement',
+]);
 const callUnit = [
     jsQueryItem('arrow_function', false),
     jsQueryItem('generator_function', false),
@@ -12,10 +18,12 @@ const callUnit = [
 
 export const JavaScript: Language = {
     vscodeId: 'javascript',
+    jump: jump,
     callUnit: callUnit,
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
+    jump: jump,
     callUnit: callUnit,
 };
 

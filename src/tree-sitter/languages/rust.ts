@@ -1,19 +1,25 @@
 import { Language } from ".";
-import { QueryItem } from "../queries";
+import { QueryItem, queryItems } from "../queries";
+import { tags } from "../queries/tag";
 import * as unit from "../queries/call-unit";
 
 export const Rust: Language = {
     vscodeId: 'rust',
+    jump: queryItems(tags.jump, [
+        'return_expression',
+        'yield_expression', 'await_expression',
+        'break_expression', 'continue_expression',
+    ]),
     callUnit: [
         unit.queryItem({
             unit: 'function_item', body: 'block',
             name: 'identifier', args: 'parameters',
         }),
-        new QueryItem(unit.tag.unit, 'macro_definition', [
-            new QueryItem(unit.tag.name, 'identifier'),
+        new QueryItem(tags.unit.unit, 'macro_definition', [
+            new QueryItem(tags.unit.name, 'identifier'),
             new QueryItem(null, 'macro_rule', [
-                new QueryItem(unit.tag.args, 'token_tree_pattern'),
-                new QueryItem(unit.tag.body, 'token_tree'),
+                new QueryItem(tags.unit.args, 'token_tree_pattern'),
+                new QueryItem(tags.unit.body, 'token_tree'),
             ]),
         ]),
         unit.queryItem({
@@ -21,9 +27,9 @@ export const Rust: Language = {
             name: null, args: 'closure_parameters',
         }),
         new QueryItem(null, '', [
-            new QueryItem(unit.tag.body, 'block', [
+            new QueryItem(tags.unit.body, 'block', [
                 new QueryItem(null, 'label', [
-                    new QueryItem(unit.tag.name, 'identifier'),
+                    new QueryItem(tags.unit.name, 'identifier'),
                 ], true),
             ]),
         ]),

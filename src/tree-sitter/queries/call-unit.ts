@@ -1,25 +1,22 @@
 import { QueryItem } from ".";
+import { Tag, tags } from "./tag";
 
-type CallUnit = {
-    unit: string, body: string,
-    name: string | null, args: string,
-};
-export const tag: CallUnit = {
-    unit: 'unit', body: 'body',
-    name: 'name', args: 'args',
+export type CallUnit = {
+    unit: Tag, body: Tag,
+    name: Tag | null, args: Tag,
 };
 
 export function queryItem(type: CallUnit) {
     let children: QueryItem[] = type.name ? [
-        new QueryItem(tag.name, type.name),
+        new QueryItem(tags.unit.name, type.name),
     ] : [];
 
     children.push(
-        new QueryItem(tag.args, type.args),
-        new QueryItem(tag.body, type.body),
+        new QueryItem(tags.unit.args, type.args),
+        new QueryItem(tags.unit.body, type.body),
     );
 
     return new QueryItem(
-        tag.unit, type.unit, children
+        tags.unit.unit, type.unit, children
     );
 }
