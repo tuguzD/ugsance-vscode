@@ -3,9 +3,10 @@ import * as files from 'fs';
 import { nullCheck } from '../utils';
 
 import * as language from './languages';
+import { list } from './languages/model';
 import * as query from './queries';
 import { tags } from './queries/tag';
-// import { JavaScript } from './languages/js';
+// import { JavaScript } from './languages/items/js';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -43,7 +44,7 @@ async function useTreeSitter() {
 }
 
 function getLanguage(languageId: string) {
-    const langData = language.list.find(item => item.vscodeId == languageId);
+    const langData = list.find(item => item.vscodeId == languageId);
     nullCheck(langData, `The language '${languageId}' is not (currently) supported`);
 
     const config = vscode.workspace.getConfiguration('UGsance');

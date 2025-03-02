@@ -1,7 +1,8 @@
-import { Language } from ".";
-import { Alternation, QueryItem, queryItems } from "../queries";
-import { tags } from "../queries/tag";
-import * as unit from "../queries/call-unit";
+import { Language } from "../model";
+import { queryItems } from "../../queries";
+import { Alternation, QueryItem } from "../../queries/model";
+import { tags } from "../../queries/tag";
+import * as unit from "../../queries/items/call-unit";
 
 const body = 'block';
 export const Python: Language = {

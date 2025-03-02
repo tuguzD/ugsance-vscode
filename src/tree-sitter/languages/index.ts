@@ -12,26 +12,3 @@ export async function init(
     const node = parser.parse(codeSource).rootNode;
     return { langParser, node };
 }
-
-import { QueryItem } from "../queries";
-
-export type Language = {
-    vscodeId: string;
-    callUnit: QueryItem[];
-    loop: QueryItem[];
-    jump: QueryItem[];
-};
-
-import { Go } from "./go";
-import { C, Cpp } from "./c";
-import { Rust } from "./rust";
-import { Java } from "./java";
-import { CSharp } from "./csharp";
-import { Python } from "./python";
-import { JavaScript, TypeScript } from "./js";
-
-export const list: Language[] = [
-    C, Cpp, Rust, Go,
-    Java, CSharp, Python,
-    JavaScript, TypeScript,
-];

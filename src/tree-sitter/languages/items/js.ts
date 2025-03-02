@@ -1,8 +1,8 @@
-import { Language } from ".";
-import { queryItems } from "../queries";
-import { tags } from "../queries/tag";
-import * as unit from "../queries/call-unit";
-import * as loop from "../queries/loop";
+import { Language } from "../model";
+import { queryItems } from "../../queries";
+import { tags } from "../../queries/tag";
+import * as unit from "../../queries/items/call-unit";
+import * as loop from "../../queries/items/loop";
 
 const jumps = queryItems(tags.jump, [
     'return_statement', 'throw_statement',

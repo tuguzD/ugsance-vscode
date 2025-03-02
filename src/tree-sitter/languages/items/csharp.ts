@@ -1,8 +1,9 @@
-import { Language } from ".";
-import { Alternation, QueryItem, queryItems } from "../queries";
-import { tags } from "../queries/tag";
-import * as unit from "../queries/call-unit";
-import * as loop from "../queries/loop";
+import { Language } from "../model";
+import { queryItems } from "../../queries";
+import { Alternation, QueryItem } from "../../queries/model";
+import { tags } from "../../queries/tag";
+import * as unit from "../../queries/items/call-unit";
+import * as loop from "../../queries/items/loop";
 
 export const CSharp: Language = {
     vscodeId: 'csharp',

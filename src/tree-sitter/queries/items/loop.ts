@@ -1,5 +1,5 @@
-import { QueryItem } from ".";
-import { Tag, tags } from "./tag";
+import { QueryItem } from "../model";
+import { Tag, tags } from "../tag";
 
 export type Loop = {
     loop: Tag, body: Tag,

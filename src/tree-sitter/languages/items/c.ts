@@ -1,7 +1,8 @@
-import { Language } from ".";
-import { Alternation, QueryItem, queryItems } from "../queries";
-import { tags } from "../queries/tag";
-import * as loop from "../queries/loop";
+import { Language } from "../model";
+import { queryItems } from "../../queries";
+import { Alternation, QueryItem } from "../../queries/model";
+import { tags } from "../../queries/tag";
+import * as loop from "../../queries/items/loop";
 
 const loops = loop.queryItems('compound_statement', [
     'for_statement', 'do_statement', 'while_statement',
