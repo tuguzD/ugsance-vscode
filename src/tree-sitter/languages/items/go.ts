@@ -18,7 +18,6 @@ const jumps = block.items(tags.jump, [
     'fallthrough_statement',
     'break_statement', 'continue_statement',
 ]);
-const loops = block.items(tags.loop, ['for_statement'], 'block');
 const flows = [
     ...block.items(tags.flow, ['if_statement'], 'block'),
     ...block.items(tags.flow, ['select_statement'], 'communication_case'),
@@ -34,6 +33,7 @@ const flows = [
 ( default_case ) @body
 ] ) @flow
 */
+const loops = block.items(tags.loop, ['for_statement'], 'block');
 
 export const Go: Language = {
     vscodeId: 'go',

@@ -31,10 +31,6 @@ const jumps = block.items(tags.jump, [
     'break_statement', 'continue_statement',
     'yield_statement', 'throw_statement',
 ]);
-const loops = block.items(tags.loop, [
-    'do_statement', 'while_statement',
-    'for_statement', 'enhanced_for_statement',
-], 'statement');
 /*
 ( if_statement [
 ( statement ) @body
@@ -50,6 +46,10 @@ const flows: QueryItem[] = [
         ['catch_clause', 'finally_clause'],
     'block'),
 ];
+const loops = block.items(tags.loop, [
+    'do_statement', 'while_statement',
+    'for_statement', 'enhanced_for_statement',
+], 'statement');
 
 export const Java: Language = {
     vscodeId: 'java',
