@@ -59,7 +59,6 @@ const flows: QueryItem[] = [
 export const Rust: Language = {
     vscodeId: 'rust',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };

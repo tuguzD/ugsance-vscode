@@ -71,7 +71,6 @@ const flows: QueryItem[] = [
 export const Java: Language = {
     vscodeId: 'java',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };

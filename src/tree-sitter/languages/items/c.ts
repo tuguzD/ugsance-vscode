@@ -52,15 +52,13 @@ const callUnitsCpp = [
 
 export const C: Language = {
     vscodeId: 'c',
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: [cQueryItem(['identifier'])],
     jump: jumps,
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnitsCpp,
     jump: jumps.concat(queryItems(tags.jump, [
         'throw_statement', // then: coroutines (C++20)

@@ -5,39 +5,22 @@ import { tags } from "../../queries/tag";
 import * as unit from "../../queries/items/call-unit";
 import * as loop from "../../queries/items/loop";
 
-const callUnits = [
-    unit.queryItem({
-        unit: 'method_declaration', name: 'identifier',
-        body: 'block', args: 'parameter_list',
-    }),
-    unit.queryItem({
-        unit: 'local_function_statement', name: 'identifier',
-        body: 'block', args: 'parameter_list',
-    }),
-    unit.queryItem({
-        unit: 'anonymous_method_expression', name: null,
-        body: 'block', args: 'parameter_list',
-    }),
+const callUnits = csQueryItems([
+    'method_declaration', 'local_function_statement',
+    'anonymous_method_expression', // no "name" tag
+]).concat([
     new QueryItem(tags.unit.unit, 'constructor_declaration', [
         new QueryItem(tags.unit.name, 'identifier'),
         new QueryItem(tags.unit.args, 'parameter_list'),
-        new Alternation(null, [
-            new QueryItem(tags.unit.body, 'block'),
-            new QueryItem(tags.unit.body, 'arrow_expression_clause'),
-        ], false),
+        arrowBody(false),
     ]),
     new QueryItem(tags.unit.unit, 'property_declaration', [
         new QueryItem(tags.unit.name, 'identifier'),
         new QueryItem(null, 'accessor_list', [
-            new QueryItem(null, 'accessor_declaration', [
-                new Alternation(null, [
-                    new QueryItem(tags.unit.body, 'block'),
-                    new QueryItem(tags.unit.body, 'arrow_expression_clause'),
-                ], true),
-            ]),
+            new QueryItem(null, 'accessor_declaration', [arrowBody()]),
         ]),
     ]),
-];
+]);
 const jumps = queryItems(tags.jump, [
     'return_statement',
     'goto_statement', 'yield_statement',
@@ -79,7 +62,20 @@ const flows: QueryItem[] = [
 export const CSharp: Language = {
     vscodeId: 'csharp',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };
+
+function csQueryItems(units: string[]): QueryItem[] {
+    return units.map(item => unit.queryItem({
+        unit: item, body: 'block', args: 'parameter_list',
+        name: item.includes('anonymous') ? null : 'identifier',
+    }));
+}
+
+function arrowBody(optional = true): QueryItem {
+    return new Alternation(null, [
+        new QueryItem(tags.unit.body, 'block'),
+        new QueryItem(tags.unit.body, 'arrow_expression_clause'),
+    ], optional);
+}

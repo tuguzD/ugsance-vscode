@@ -52,7 +52,6 @@ const flows: QueryItem[] = [
 export const Go: Language = {
     vscodeId: 'go',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };

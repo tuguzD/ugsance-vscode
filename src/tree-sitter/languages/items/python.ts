@@ -60,8 +60,7 @@ const flows: QueryItem[] = [
 export const Python: Language = {
     vscodeId: 'python',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };
 

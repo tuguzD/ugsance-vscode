@@ -52,15 +52,13 @@ const flows: QueryItem[] = [
 export const JavaScript: Language = {
     vscodeId: 'javascript',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
     jump: jumps,
-    loop: loops,
-    flow: flows,
+    loop: loops, flow: flows,
     callUnit: callUnits,
 };
 
