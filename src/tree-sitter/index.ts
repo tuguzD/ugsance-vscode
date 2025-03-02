@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as files from 'fs';
 import { nullCheck } from '../utils';
 
-import * as language from './languages';
 import { list } from './languages/model';
 import * as query from './queries';
 import { tags } from './queries/tag';
@@ -20,7 +19,7 @@ async function useTreeSitter() {
         nullCheck(editor, `No text editor opened!`);
         const { langData, parserPath } = getLanguage(editor.document.languageId);
 
-        const { langParser, node } = await language.init(
+        const { langParser, node } = await query.init(
             parserPath, editor.document.getText(),
         );
         const captures = query.captures(
