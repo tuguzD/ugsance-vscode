@@ -2,6 +2,7 @@ import { Language } from ".";
 import { Alternation, QueryItem, queryItems } from "../queries";
 import { tags } from "../queries/tag";
 import * as unit from "../queries/call-unit";
+import * as loop from "../queries/loop";
 
 export const CSharp: Language = {
     vscodeId: 'csharp',
@@ -10,6 +11,10 @@ export const CSharp: Language = {
         'goto_statement', 'yield_statement',
         'break_statement', 'continue_statement',
         'throw_statement', 'throw_expression',
+    ]),
+    loop: loop.queryItems('statement', [
+        'do_statement', 'while_statement',
+        'for_statement', 'foreach_statement',
     ]),
     callUnit: [
         unit.queryItem({

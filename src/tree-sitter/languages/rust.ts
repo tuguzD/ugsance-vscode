@@ -2,6 +2,7 @@ import { Language } from ".";
 import { QueryItem, queryItems } from "../queries";
 import { tags } from "../queries/tag";
 import * as unit from "../queries/call-unit";
+import * as loop from "../queries/loop";
 
 export const Rust: Language = {
     vscodeId: 'rust',
@@ -9,6 +10,10 @@ export const Rust: Language = {
         'return_expression',
         'yield_expression', 'await_expression',
         'break_expression', 'continue_expression',
+    ]),
+    loop: loop.queryItems('block', [
+        'for_expression', 'loop_expression',
+        'while_expression', 'try_block',
     ]),
     callUnit: [
         unit.queryItem({

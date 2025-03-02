@@ -1,20 +1,26 @@
 import { Language } from ".";
 import { Alternation, QueryItem, queryItems } from "../queries";
 import { tags } from "../queries/tag";
+import * as loop from "../queries/loop";
 
-const jump = queryItems(tags.jump, [
+const loops = loop.queryItems('compound_statement', [
+    'for_statement', 'do_statement', 'while_statement',
+]);
+const jumps = queryItems(tags.jump, [
     'return_statement', 'goto_statement',
     'break_statement', 'continue_statement',
 ]);
 
 export const C: Language = {
     vscodeId: 'c',
+    loop: loops,
+    jump: jumps,
     callUnit: [cQueryItem(['identifier'])],
-    jump: jump,
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    jump: jump.concat(queryItems(tags.jump, [
+    loop: loops,
+    jump: jumps.concat(queryItems(tags.jump, [
         'throw_statement', // then: coroutines (C++20)
         'co_return_statement', 'co_yield_statement', 'co_await_expression',
     ])),

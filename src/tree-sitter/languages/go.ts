@@ -1,7 +1,8 @@
 import { Language } from ".";
 import { queryItems } from "../queries";
-import * as unit from "../queries/call-unit";
 import { tags } from "../queries/tag";
+import * as unit from "../queries/call-unit";
+import * as loop from "../queries/loop";
 
 export const Go: Language = {
     vscodeId: 'go',
@@ -20,4 +21,5 @@ export const Go: Language = {
             name: 'field_identifier', args: 'parameter_list',
         }),
     ],
+    loop: [loop.queryItem({loop: 'for_statement', body: 'block'})],
 };

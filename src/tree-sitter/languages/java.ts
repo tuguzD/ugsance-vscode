@@ -1,7 +1,8 @@
 import { Language } from ".";
 import { Alternation, QueryItem, queryItems } from "../queries";
-import * as unit from "../queries/call-unit";
 import { tags } from "../queries/tag";
+import * as unit from "../queries/call-unit";
+import * as loop from "../queries/loop";
 
 export const Java: Language = {
     vscodeId: 'java',
@@ -9,6 +10,10 @@ export const Java: Language = {
         'return_statement',
         'break_statement', 'continue_statement',
         'yield_statement', 'throw_statement',
+    ]),
+    loop: loop.queryItems('statement', [
+        'do_statement', 'while_statement',
+        'for_statement', 'enhanced_for_statement',
     ]),
     callUnit: [
         unit.queryItem({
