@@ -24,27 +24,31 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         await parser.setLanguage(editor.document.languageId, config.userFolder);
         parser.parse(editor.document.getText());
 
-        const captures = parser.captures(
+        const callUnits = parser.captures(
             parser.langData.callUnit.toString(),
         );
 
-        const functions = captures.filter(tags.unit.name);
-        // functions.list.forEach(item => console.log(
+        // todo
+        const callNames = callUnits.filter(tags.unit.name).list;
+        // console.log(callNames.map(item => 
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));
-        const functionsNames = functions.list.map(capture => capture.node.text);
-        vs.window.showInformationMessage(functionsNames.toString());
-        console.log(functionsNames);
+        const outputCalls = callNames.map(item => item.node.text);
+        // vs.window.showInformationMessage(outputCalls.toString());
+        console.log(outputCalls);
 
-        const firstBody = captures.filter(tags.unit.body).list[0].node;
-        console.log(firstBody.text);
+        // todo
+        const callBodies = callUnits.filter(tags.unit.body).list;
+        const chosenCallBody = callBodies[0].node;
+        console.log(chosenCallBody.text);
 
-        const lol = parser.captures(
-            parser.langData.flow.toString(), firstBody,
+        // todo
+        const flows = parser.captures(
+            parser.langData.flow.toString(), chosenCallBody,
         );
-        console.log(
-            lol.filter(tags.flow.body).list[0].node.text,
-        );
+        const flowBodies = flows.filter(tags.flow.body).list;
+        const chosenFlowBody = flowBodies[0].node;
+        console.log(chosenFlowBody.text);
 
     } catch (e: any) {
         vs.window.showErrorMessage(e.message);
