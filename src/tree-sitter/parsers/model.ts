@@ -1,9 +1,9 @@
 import T from "web-tree-sitter";
 import * as files from 'fs';
-import { nullCheck } from "../utils";
+import { nullCheck } from "../../utils";
 
-import { find } from "./languages";
-import { Language } from "./languages/model";
+import { find } from "../languages";
+import { Language } from "../languages/model";
 
 // import { QueryItem } from "./queries/model";
 // import { Tag } from "./queries/tag";

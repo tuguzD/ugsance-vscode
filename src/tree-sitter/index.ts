@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { nullCheck } from '../utils';
-import { Parser } from './parser';
+import { Parser } from './parsers/model';
 import { filter, build } from './queries';
 import { tags } from './queries/tag';
 
