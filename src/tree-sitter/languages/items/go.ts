@@ -1,5 +1,5 @@
 import { Language } from "../model";
-import { tags } from "../../queries/tag";
+import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";

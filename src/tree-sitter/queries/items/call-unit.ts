@@ -1,5 +1,5 @@
 import { QueryItem } from "../model";
-import { Tag, tags } from "../tag";
+import { Tag, tags } from "..";
 import { Block } from "./block";
 
 export type CallUnit = Block & {

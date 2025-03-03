@@ -1,8 +1,25 @@
-import T from "web-tree-sitter";
-import { Tag } from "./tag";
+import { CallUnit } from "./items/call-unit";
+import { Block } from "./items/block";
 
-export function filter(
-    captures: T.QueryCapture[], tag: Tag | null = null,
-): T.QueryCapture[] {
-    return !tag ? captures : captures.filter(item => item.name === tag);
-}
+export type Tag = string;
+type TagItem = {
+    unit: CallUnit, jump: Block,
+    loop: Block, flow: Block,
+};
+
+const body = 'body';
+export const tags: TagItem = {
+    unit: {
+        item: 'unit', body: body,
+        name: 'name', args: 'args',
+    },
+    loop: {
+        item: 'loop', body: body,
+    },
+    flow: {
+        item: 'flow', body: body,
+    },
+    jump: {
+        item: 'jump', body: null,
+    },
+};

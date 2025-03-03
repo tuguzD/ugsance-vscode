@@ -1,6 +1,6 @@
 import { Alternation, QueryItem } from "../model";
 import { Block } from "./block";
-import { tags } from "../tag";
+import { tags } from "..";
 
 export function items(
     tag: Block, types: string[],

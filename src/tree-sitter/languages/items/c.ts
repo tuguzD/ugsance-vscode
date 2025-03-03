@@ -1,6 +1,6 @@
 import { Language } from "../model";
 import { Alternation, QueryItem } from "../../queries/model";
-import { tags } from "../../queries/tag";
+import { tags } from "../../queries";
 import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
 import { items } from ".";

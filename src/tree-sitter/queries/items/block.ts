@@ -1,5 +1,5 @@
 import { QueryItem } from "../model";
-import { Tag } from "../tag";
+import { Tag } from "..";
 
 export type Block = {
     item: Tag,
