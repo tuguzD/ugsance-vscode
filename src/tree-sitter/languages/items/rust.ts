@@ -6,7 +6,7 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
-    unit.queryItem({
+    unit.item({
         item: 'function_item', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
@@ -17,7 +17,7 @@ const callUnits = [
             new QueryItem(tags.unit.body, 'token_tree'),
         ]),
     ]),
-    unit.queryItem({
+    unit.item({
         item: 'closure_expression', body: 'block',
         name: null, args: 'closure_parameters',
     }),

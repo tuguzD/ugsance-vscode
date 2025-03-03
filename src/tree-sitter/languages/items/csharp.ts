@@ -51,7 +51,7 @@ export const CSharp: Language = {
 };
 
 function csQueryItems(units: string[]): QueryItem[] {
-    return units.map(item => unit.queryItem({
+    return units.map(item => unit.item({
         item: item, body: 'block', args: 'parameter_list',
         name: item.includes('anonymous') ? null : 'identifier',
     }));

@@ -5,7 +5,7 @@ import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
 
 const callUnitsCpp = [
-    cQueryItem([
+    unitItem([
         'identifier', 'field_identifier',
         'qualified_identifier', 'operator_name',
         'destructor_name', 'structured_binding_declarator',
@@ -37,7 +37,7 @@ const flows = [
 export const C: Language = {
     vscodeId: 'c',
     loop: loops, flow: flows, jump: jumps,
-    callUnit: [cQueryItem(['identifier'])],
+    callUnit: [unitItem(['identifier'])],
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
@@ -53,7 +53,7 @@ export const Cpp: Language = {
     ])),
 };
 
-function cQueryItem(nameTypes: string[]) {
+function unitItem(nameTypes: string[]) {
     return new QueryItem(
         tags.unit.item, 'function_definition', [
         new QueryItem(null, 'function_declarator', [

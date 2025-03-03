@@ -6,15 +6,15 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
-    unit.queryItem({
+    unit.item({
         item: 'method_declaration', name: 'identifier',
         body: 'block', args: 'formal_parameters',
     }),
-    unit.queryItem({
+    unit.item({
         item: 'constructor_declaration', name: 'identifier',
         body: 'constructor_body', args: 'formal_parameters',
     }),
-    unit.queryItem({
+    unit.item({
         item: 'synchronized_statement', name: null,
         body: 'block', args: 'parenthesized_expression',
     }),

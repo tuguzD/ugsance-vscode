@@ -6,7 +6,7 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
-    unit.queryItem({
+    unit.item({
         item: 'function_definition', body: 'block',
         name: 'identifier', args: 'parameters',
     }),

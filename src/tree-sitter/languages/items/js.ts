@@ -6,12 +6,12 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
-    jsQueryItem('arrow_function', false),
-    jsQueryItem('generator_function', false),
-    jsQueryItem('function_expression', false),
-    jsQueryItem('method_definition', true, true),
-    jsQueryItem('function_declaration', true, false),
-    jsQueryItem('generator_function_declaration', true, false),
+    unitItem('arrow_function', false),
+    unitItem('generator_function', false),
+    unitItem('function_expression', false),
+    unitItem('method_definition', true, true),
+    unitItem('function_declaration', true, false),
+    unitItem('generator_function_declaration', true, false),
 ];
 const jumps = block.items(tags.jump, [
     'return_statement', 'throw_statement',
@@ -50,10 +50,9 @@ export const TypeScript: Language = {
     callUnit: callUnits,
 };
 
-function jsQueryItem(callUnit: string, name: boolean, method: boolean = false) {
+function unitItem(callUnit: string, name: boolean, method: boolean = false) {
     let identifier = (method ? 'property_' : '') + 'identifier';
-
-    return unit.queryItem({
+    return unit.item({
         item: callUnit, name: name ? identifier : null,
         body: 'statement_block', args: 'formal_parameters',
     });

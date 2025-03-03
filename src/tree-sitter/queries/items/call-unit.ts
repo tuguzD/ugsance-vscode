@@ -6,7 +6,7 @@ export type CallUnit = Block & {
     name: Tag | null, args: Tag,
 };
 
-export function queryItem(type: CallUnit) {
+export function item(type: CallUnit) {
     let children: QueryItem[] = type.name ? [
         new QueryItem(tags.unit.name, type.name),
     ] : [];

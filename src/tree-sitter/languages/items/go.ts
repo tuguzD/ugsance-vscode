@@ -5,11 +5,11 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
-    unit.queryItem({
+    unit.item({
         item: 'function_declaration', body: 'block',
         name: 'identifier', args: 'parameter_list',
     }),
-    unit.queryItem({
+    unit.item({
         item: 'method_declaration', body: 'block',
         name: 'field_identifier', args: 'parameter_list',
     }),
@@ -29,12 +29,6 @@ const flows = [
         ['type_case', 'default_case'], '',
     true, false, false, false, false),
 ];
-/*
-( expression_switch_statement [
-( expression_case ) @body
-( default_case ) @body
-] ) @flow
-*/
 const loops = block.items(tags.loop, ['for_statement'], 'block');
 
 export const Go: Language = {
