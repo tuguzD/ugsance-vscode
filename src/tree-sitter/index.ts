@@ -3,28 +3,23 @@ import { nullCheck } from '../utils';
 
 import { Parser } from './parsers/model';
 import { tags } from './queries';
+import { Configuration } from '../config';
 
-export function register(context: vscode.ExtensionContext, parser: Parser) {
+export function register(
+    context: vscode.ExtensionContext,
+    parser: Parser, config: Configuration,
+) {
     context.subscriptions.push(vscode.commands.registerCommand(
-        'UGsance.tree_sitter', () => { useTreeSitter(parser) },
+        'UGsance.tree_sitter', () => { useTreeSitter(parser, config) },
     ));
 }
 
-async function useTreeSitter(parser: Parser) {
+async function useTreeSitter(parser: Parser, config: Configuration) {
     try {
         const editor = vscode.window.activeTextEditor;
         nullCheck(editor, `No text editor opened!`);
 
-        const config = vscode.workspace.getConfiguration('UGsance');
-        const userFolder = config.get<string>('tree-sitter.pathToWASM');
-        nullCheck(
-            userFolder && userFolder.trim() !== '',
-            `You should set up folder for parsers (WASM files)!`,
-        );
-
-        await parser.setLanguage(
-            editor.document.languageId, userFolder,
-        );
+        await parser.setLanguage(editor.document.languageId, config.userFolder);
         parser.parse(editor.document.getText());
 
         const captures = parser.captures(
