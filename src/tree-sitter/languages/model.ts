@@ -1,6 +1,5 @@
-import { QueryItem } from "../queries/model";
+import { QueryItems as I } from "../queries/model";
 
-type I = QueryItem[];
 export type Language = {
     vscodeId: string,
     jump: I,

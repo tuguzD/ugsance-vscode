@@ -4,6 +4,7 @@ import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
+import { items } from ".";
 
 const callUnits = [
     unit.item({
@@ -41,7 +42,7 @@ const loops = flow.items(tags.loop,
 
 export const Python: Language = {
     vscodeId: 'python',
-    jump: jumps,
-    loop: loops, flow: flows,
-    callUnit: callUnits,
+    jump: items(jumps),
+    loop: items(loops), flow: items(flows),
+    callUnit: items(callUnits),
 };

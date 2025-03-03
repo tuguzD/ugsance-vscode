@@ -3,7 +3,7 @@ import { Tag } from "./tag";
 export class QueryItem {
     tag: Tag | null;
     type: string | null;
-    children: Array<QueryItem>;
+    children: QueryItem[];
     optional: boolean;
     repeat: boolean;
 
@@ -21,7 +21,7 @@ export class QueryItem {
 
     constructor(
         tag: Tag | null, type: string,
-        children: Array<QueryItem> = [],
+        children: QueryItem[] = [],
         optional = false, repeat = false,
     ) {
         this.tag = tag;
@@ -43,10 +43,22 @@ export class Alternation extends QueryItem {
     }
 
     constructor(
-        tag: Tag | null, children: Array<QueryItem> = [],
+        tag: Tag | null, children: QueryItem[] = [],
         optional = false, repeat = false, type = null,
     ) {
         super(tag, '', children, optional, repeat);
         this.type = type;
+    }
+}
+
+export class QueryItems {
+    list: QueryItem[];
+    constructor(query: QueryItem[]) {
+        this.list = query;
+    }
+    toString(separator = '\n\n'): string {
+        return this.list
+            .map(item => item.query)
+            .join(separator);
     }
 }

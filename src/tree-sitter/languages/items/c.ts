@@ -3,6 +3,7 @@ import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
+import { items } from ".";
 
 const callUnitsCpp = [
     unitItem([
@@ -36,21 +37,25 @@ const flows = [
 
 export const C: Language = {
     vscodeId: 'c',
-    loop: loops, flow: flows, jump: jumps,
-    callUnit: [unitItem(['identifier'])],
+    loop: items(loops),
+    flow: items(flows),
+    jump: items(jumps),
+    callUnit: items([
+        unitItem(['identifier']),
+    ]),
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    callUnit: callUnitsCpp,
-    flow: flows.concat(flow.items(
+    callUnit: items(callUnitsCpp),
+    flow: items(flows.concat(flow.items(
         tags.flow, ['try_statement'], ['catch_clause'],
         'compound_statement', false, true, false,
-    )),
-    loop: loops,
-    jump: jumps.concat(block.items(tags.jump, [
+    ))),
+    loop: items(loops),
+    jump: items(jumps.concat(block.items(tags.jump, [
         'throw_statement', // then: coroutines (C++20)
         'co_return_statement', 'co_yield_statement', 'co_await_expression',
-    ])),
+    ]))),
 };
 
 function unitItem(nameTypes: string[]) {

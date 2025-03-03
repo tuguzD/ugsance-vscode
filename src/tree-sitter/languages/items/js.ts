@@ -4,6 +4,7 @@ import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
+import { items } from ".";
 
 const callUnits = [
     unitItem('arrow_function', false),
@@ -39,15 +40,15 @@ const loops = block.items(tags.loop, [
 
 export const JavaScript: Language = {
     vscodeId: 'javascript',
-    jump: jumps,
-    loop: loops, flow: flows,
-    callUnit: callUnits,
+    jump: items(jumps),
+    loop: items(loops), flow: items(flows),
+    callUnit: items(callUnits),
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
-    jump: jumps,
-    loop: loops, flow: flows,
-    callUnit: callUnits,
+    jump: items(jumps),
+    loop: items(loops), flow: items(flows),
+    callUnit: items(callUnits),
 };
 
 function unitItem(callUnit: string, name: boolean, method: boolean = false) {

@@ -5,8 +5,19 @@ import { nullCheck } from "../../utils";
 import { find } from "../languages";
 import { Language } from "../languages/model";
 
-// import { QueryItem } from "./queries/model";
-// import { Tag } from "./queries/tag";
+// import { Tag } from "../queries/tag";
+
+// export class QueryCaptures {
+//     list: T.QueryCapture[];
+//     constructor(capture: T.QueryCapture[]) {
+//         this.list = capture;
+//     }
+//     filter(tag: Tag | null = null): QueryCaptures {
+//         return !tag ? this : new QueryCaptures(
+//             this.list.filter(item => item.name === tag)
+//         );
+//     }
+// }
 
 export class Parser {
     private parser: T = new T();
@@ -15,17 +26,9 @@ export class Parser {
     rootNode!: T.SyntaxNode;
     langData!: Language;
 
-    // build(queryType: QueryItem[]): string {
-    //     return queryType.map(item => item.query).join('\n\n');
-    // }
-    captures(query: string, node = this.rootNode) : T.QueryCapture[] {
+    captures(query: string, node = this.rootNode): T.QueryCapture[] {
         return this.language.query(query).captures(node);
     }
-    // filter(
-    //     captures: T.QueryCapture[], tag: Tag | null = null,
-    // ): T.QueryCapture[] {
-    //     return !tag ? captures : captures.filter(item => item.name === tag);
-    // }
 
     async setLanguage(id: string, folderPath: string) {
         this.langData = find(id);
