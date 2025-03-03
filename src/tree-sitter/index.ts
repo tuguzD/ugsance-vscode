@@ -5,7 +5,6 @@ import { nullCheck } from '../utils';
 import { list } from './languages/model';
 import * as query from './queries';
 import { tags } from './queries/tag';
-import { Cpp } from './languages/items/c';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -34,7 +33,16 @@ async function useTreeSitter() {
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
-        console.log(query.buildQuery(Cpp.callUnit));
+        const firstBody = query.filterTag(captures, tags.unit.body)[0].node;
+        console.log(
+            query.filterTag(captures, tags.unit.body)[0].node.text,
+        );
+        const lol = query.captures(
+            firstBody, query.buildQuery(langData.flow), langParser,
+        );
+        console.log(
+            query.filterTag(lol, tags.flow.body)[0].node.text,
+        );
 
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);
