@@ -12,10 +12,10 @@ export class QueryCaptures {
     constructor(capture: T.QueryCapture[]) {
         this.list = capture;
     }
-    filter(tag: Tag | null = null) {
-        return !tag ? this : new QueryCaptures(
+    filter(tags: Tag[]): QueryCaptures {
+        return new QueryCaptures(tags.map(tag =>
             this.list.filter(item => item.name === tag)
-        );
+        ).flat());
     }
 }
 

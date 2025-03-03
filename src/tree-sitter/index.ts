@@ -29,16 +29,35 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         );
 
         // todo
-        const callNames = callUnits.filter(tags.unit.name).list;
+        const callNames = callUnits.filter([tags.unit.name!]).list;
         // console.log(callNames.map(item => 
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));
         const outputCalls = callNames.map(item => item.node.text);
-        // vs.window.showInformationMessage(outputCalls.toString());
-        console.log(outputCalls);
+
+        const callArgs = callUnits.filter([tags.unit.args]).list;
+        const outputArgs = callArgs.map(item => item.node.text);
+
+        {
+            function mergeArrays(first: any[], second: any[]) {
+                var min = Math.min(first.length, second.length),
+                    i = 0, result = [];
+                while (i < min) {
+                    result.push(first[i], second[i]);
+                    ++i;
+                }
+                return result.concat(first.slice(min), second.slice(min));
+            }
+            let result = mergeArrays(outputCalls, outputArgs);
+            result = result.reduce((result, value, index, sourceArray) =>
+                index % 2 === 0 ? [...result, sourceArray.slice(index, index + 2)] : result, []
+            );
+            result = result.map(item => item.join(''));
+            console.log(result);
+        }
 
         // todo
-        const callBodies = callUnits.filter(tags.unit.body).list;
+        const callBodies = callUnits.filter([tags.unit.body!]).list;
         const chosenCallBody = callBodies[0].node;
         console.log(chosenCallBody.text);
 
@@ -46,7 +65,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const flows = parser.captures(
             parser.langData.flow.toString(), chosenCallBody,
         );
-        const flowBodies = flows.filter(tags.flow.body).list;
+        const flowBodies = flows.filter([tags.flow.body!]).list;
         const chosenFlowBody = flowBodies[0].node;
         console.log(chosenFlowBody.text);
 
