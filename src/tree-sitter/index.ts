@@ -1,22 +1,24 @@
-import * as vscode from 'vscode';
+import * as vs from 'vscode';
 import { nullCheck } from '../utils';
 
-import { Parser } from './parsers/model';
-import { tags } from './queries';
 import { Configuration } from '../config';
+import { Command, name } from '../command';
+
+import { tags } from './queries';
+import { Parser } from './parsers/model';
 
 export function register(
-    context: vscode.ExtensionContext,
+    context: vs.ExtensionContext,
     parser: Parser, config: Configuration,
 ) {
-    context.subscriptions.push(vscode.commands.registerCommand(
-        'UGsance.tree_sitter', () => { useTreeSitter(parser, config) },
+    context.subscriptions.push(vs.commands.registerCommand(
+        name(Command.TreeSitter), () => { useTreeSitter(parser, config) },
     ));
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {
     try {
-        const editor = vscode.window.activeTextEditor;
+        const editor = vs.window.activeTextEditor;
         nullCheck(editor, `No text editor opened!`);
 
         await parser.setLanguage(editor.document.languageId, config.userFolder);
@@ -31,7 +33,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));
         const functionsNames = functions.list.map(capture => capture.node.text);
-        vscode.window.showInformationMessage(functionsNames.toString());
+        vs.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
         const firstBody = captures.filter(tags.unit.body).list[0].node;
@@ -45,7 +47,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         );
 
     } catch (e: any) {
-        vscode.window.showErrorMessage(e.message);
+        vs.window.showErrorMessage(e.message);
         console.log(e.message);
     }
 }

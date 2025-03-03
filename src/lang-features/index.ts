@@ -1,46 +1,47 @@
-import * as vscode from 'vscode';
+import * as vs from 'vscode';
+import { name, Command, vsCommand } from '../command';
 
-export function register(context: vscode.ExtensionContext) {
+export function register(context: vs.ExtensionContext) {
 	context.subscriptions.push(
-		vscode.commands.registerCommand('UGsance.DefinitionProvider', DefinitionProvider),
-		vscode.commands.registerCommand('UGsance.TypeDefinitionProvider', TypeDefinitionProvider),
-		vscode.commands.registerCommand('UGsance.DeclarationProvider', DeclarationProvider),
-		vscode.commands.registerCommand('UGsance.ImplementationProvider', ImplementationProvider),
-		vscode.commands.registerCommand('UGsance.ReferenceProvider', ReferenceProvider),
+		vs.commands.registerCommand(name(Command.definitions), DefinitionProvider),
+		vs.commands.registerCommand(name(Command.typeDefinitions), TypeDefinitionProvider),
+		vs.commands.registerCommand(name(Command.declarations), DeclarationProvider),
+		vs.commands.registerCommand(name(Command.implementations), ImplementationProvider),
+		vs.commands.registerCommand(name(Command.references), ReferenceProvider),
 	);
 }
 
 function DefinitionProvider() {
-	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeDefinitionProvider');
+	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.definitions));
 }
 
 function TypeDefinitionProvider() {
-	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeTypeDefinitionProvider');
+	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.typeDefinitions));
 }
 
 function DeclarationProvider() {
-	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeDeclarationProvider');
+	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.declarations));
 }
 
 function ImplementationProvider() {
-	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeImplementationProvider');
+	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.implementations));
 }
 
 function ReferenceProvider() {
-	executeFeatureProvider(vscode.window.activeTextEditor, 'vscode.executeReferenceProvider')
+	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.references));
 }
 
-async function executeFeatureProvider(editor: vscode.TextEditor | undefined, command: string) {
+async function executeFeatureProvider(editor: vs.TextEditor | undefined, command: string) {
 	if (!editor) {
 		console.log("No file opened!");
 		return;
 	}
-	type Locations = vscode.Location[] | vscode.LocationLink[];
-	const locations: vscode.Location[] = await vscode.commands.executeCommand<Locations>(
+	type Locations = vs.Location[] | vs.LocationLink[];
+	const locations: vs.Location[] = await vs.commands.executeCommand<Locations>(
 		command, editor.document.uri, editor.selection.active,
 	).then(locations => locations.map(
-		item => item instanceof vscode.Location ? item
-			: new vscode.Location(item.targetUri, item.targetRange))
+		item => item instanceof vs.Location ? item
+			: new vs.Location(item.targetUri, item.targetRange))
 	);
 	console.log('\n', `Command '${command}' was successfully called`);
 	console.log(locations);
@@ -49,6 +50,6 @@ async function executeFeatureProvider(editor: vscode.TextEditor | undefined, com
 		`Line: ${item.range.start.line.toString()} + ` +
 		`Char: ${item.range.start.character.toString()}`
 	);
-	vscode.window.showInformationMessage(rangeOutput.toString());
+	vs.window.showInformationMessage(rangeOutput.toString());
 	console.log(rangeOutput);
 }

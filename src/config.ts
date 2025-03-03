@@ -1,10 +1,12 @@
-import * as vscode from 'vscode';
+import * as vs from 'vscode';
 import { nullCheck } from './utils';
 
+export const UGsance = 'UGsance';
+
 export class Configuration {
-    private _source: vscode.WorkspaceConfiguration;
+    private _source: vs.WorkspaceConfiguration;
     constructor() {
-        this._source = vscode.workspace.getConfiguration('UGsance');
+        this._source = vs.workspace.getConfiguration(UGsance);
         this._userFolder = this._source.get<string>('tree-sitter.pathToWASM')!;
     }
 
