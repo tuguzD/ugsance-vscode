@@ -1,6 +1,7 @@
 import { Language } from "../model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
+import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 
 const callUnits = [
@@ -21,15 +22,16 @@ const jumps = block.items(tags.jump, [
 const flows = [
     ...block.items(tags.flow, ['if_statement'], 'block'),
     ...block.items(tags.flow, ['select_statement'], 'communication_case'),
+    ...flow.items(tags.flow, ['expression_switch_statement'],
+        ['expression_case', 'default_case'], '',
+    true, false, false, false, false),
+    ...flow.items(tags.flow, ['type_switch_statement'],
+        ['type_case', 'default_case'], '',
+    true, false, false, false, false),
 ];
 /*
 ( expression_switch_statement [
 ( expression_case ) @body
-( default_case ) @body
-] ) @flow
-
-( type_switch_statement [
-( type_case ) @body
 ( default_case ) @body
 ] ) @flow
 */

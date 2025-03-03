@@ -31,13 +31,11 @@ const jumps = block.items(tags.jump, [
     'break_statement', 'continue_statement',
     'yield_statement', 'throw_statement',
 ]);
-/*
-( if_statement [
-( statement ) @body
-( statement )* @body
-] ) @flow
-*/
 const flows: QueryItem[] = [
+    new QueryItem(tags.flow.item, 'if_statement', [new Alternation(null, [
+        new QueryItem(tags.flow.body, 'statement'),
+        new QueryItem(tags.flow.body, 'statement', [], false, true),
+    ])]),
     ...flow.items(tags.flow, ['switch_expression'],
         ['switch_block'], 'switch_block_statement_group',
     false, false, false),

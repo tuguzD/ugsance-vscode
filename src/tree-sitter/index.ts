@@ -6,6 +6,8 @@ import { list } from './languages/model';
 import * as query from './queries';
 import { tags } from './queries/tag';
 import { JavaScript } from './languages/items/js';
+import { Go } from './languages/items/go';
+import { Java } from './languages/items/java';
 
 export function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(

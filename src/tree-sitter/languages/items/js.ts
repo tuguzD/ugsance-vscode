@@ -1,4 +1,5 @@
 import { Language } from "../model";
+import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries/tag";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
@@ -17,17 +18,16 @@ const jumps = block.items(tags.jump, [
     'break_statement', 'continue_statement',
     'yield_expression', 'await_expression',
 ]);
-/*
-( switch_statement
-( switch_body [
-( switch_case ) @body
-( switch_default ) @body
-] ) ) @flow
-*/
 const flows = [
     ...flow.items(tags.flow, ['if_statement'],
         ['else_clause'], 'statement',
     false, true, false, true),
+    new QueryItem(tags.flow.item, 'switch_statement', [
+        new QueryItem(null, 'switch_body', [new Alternation(null, [
+            new QueryItem(tags.flow.body, 'switch_case'),
+            new QueryItem(tags.flow.body, 'switch_default'),
+        ])]),
+    ]),
     ...flow.items(tags.flow, ['try_statement'],
         ['catch_clause', 'finally_clause'],
     'statement_block'),
@@ -50,11 +50,11 @@ export const TypeScript: Language = {
     callUnit: callUnits,
 };
 
-function jsQueryItem(callUnit: string, named: boolean, method: boolean = false) {
+function jsQueryItem(callUnit: string, name: boolean, method: boolean = false) {
     let identifier = (method ? 'property_' : '') + 'identifier';
 
     return unit.queryItem({
-        item: callUnit, name: named ? identifier : null,
+        item: callUnit, name: name ? identifier : null,
         body: 'statement_block', args: 'formal_parameters',
     });
 }
