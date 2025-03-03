@@ -1,30 +1,36 @@
 import * as vscode from 'vscode';
-import * as files from 'fs';
 import { nullCheck } from '../utils';
-
-import { list } from './languages/model';
-import * as query from './queries';
+import { Parser } from './parser';
+import { filter, build } from './queries';
 import { tags } from './queries/tag';
 
-export function register(context: vscode.ExtensionContext) {
-    context.subscriptions.push(
-        vscode.commands.registerCommand('UGsance.tree_sitter', useTreeSitter),
-    );
+export function register(context: vscode.ExtensionContext, parser: Parser) {
+    context.subscriptions.push(vscode.commands.registerCommand(
+        'UGsance.tree_sitter', () => { useTreeSitter(parser) },
+    ));
 }
 
-async function useTreeSitter() {
+async function useTreeSitter(parser: Parser) {
     try {
         const editor = vscode.window.activeTextEditor;
         nullCheck(editor, `No text editor opened!`);
-        const { langData, parserPath } = getLanguage(editor.document.languageId);
 
-        const { langParser, node } = await query.init(
-            parserPath, editor.document.getText(),
+        const config = vscode.workspace.getConfiguration('UGsance');
+        const userFolder = config.get<string>('tree-sitter.pathToWASM');
+        nullCheck(
+            userFolder && userFolder.trim() !== '',
+            `You should set up folder for parsers (WASM files)!`,
         );
-        const captures = query.captures(
-            node, query.buildQuery(langData.callUnit), langParser,
+
+        await parser.setLanguage(
+            editor.document.languageId, userFolder,
         );
-        const functions = query.filterTag(captures, tags.unit.name);
+        parser.parse(editor.document.getText());
+
+        const captures = parser.captures(
+            build(parser.langData.callUnit),
+        );
+        const functions = filter(captures, tags.unit.name);
         // functions.forEach(item => console.log(
         //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
         // ));
@@ -33,40 +39,18 @@ async function useTreeSitter() {
         vscode.window.showInformationMessage(functionsNames.toString());
         console.log(functionsNames);
 
-        const firstBody = query.filterTag(captures, tags.unit.body)[0].node;
+        const firstBody = filter(captures, tags.unit.body)[0].node;
         console.log(
-            query.filterTag(captures, tags.unit.body)[0].node.text,
+            filter(captures, tags.unit.body)[0].node.text,
         );
-        const lol = query.captures(
-            firstBody, query.buildQuery(langData.flow), langParser,
+        const lol = parser.captures(
+            build(parser.langData.flow), firstBody,
         );
         console.log(
-            query.filterTag(lol, tags.flow.body)[0].node.text,
+            filter(lol, tags.flow.body)[0].node.text,
         );
-
     } catch (e: any) {
         vscode.window.showErrorMessage(e.message);
         console.log(e.message);
     }
-}
-
-function getLanguage(languageId: string) {
-    const langData = list.find(item => item.vscodeId == languageId);
-    nullCheck(langData, `The language '${languageId}' is not (currently) supported`);
-
-    const config = vscode.workspace.getConfiguration('UGsance');
-    const userFolder = config.get<string>('tree-sitter.pathToWASM');
-    nullCheck(
-        userFolder && userFolder.trim() !== '',
-        `You should set up folder for parsers (WASM files)!`,
-    );
-
-    const parserPath =
-        `${userFolder}\\tree-sitter-${languageId}.wasm`;
-    nullCheck(
-        files.existsSync(parserPath),
-        `No parser for '${languageId}' located!`,
-    );
-
-    return { langData, parserPath };
 }

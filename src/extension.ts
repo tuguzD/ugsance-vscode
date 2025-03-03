@@ -1,11 +1,16 @@
 import * as vscode from 'vscode';
-
-import * as TreeSitter from './tree-sitter';
 import * as LSP from './lang-features';
 
-export function activate(context: vscode.ExtensionContext) {
-	TreeSitter.register(context);
+import T from "web-tree-sitter";
+import * as TreeSitter from './tree-sitter';
+import { Parser } from './tree-sitter/parser';
+
+export async function activate(context: vscode.ExtensionContext) {
+	await T.init();
+    const parser = new Parser();
+
 	LSP.register(context);
+	TreeSitter.register(context, parser);
 
 	function api() { }
 
