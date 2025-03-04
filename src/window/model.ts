@@ -1,11 +1,5 @@
 import * as vs from 'vscode';
 
-class FlowAction {
-	static back = new FlowAction();
-	static cancel = new FlowAction();
-	static resume = new FlowAction();
-}
-
 interface Parameters {
 	title: string, step: number, totalSteps: number,
 	buttons?: vs.QuickInputButton[],
@@ -19,7 +13,15 @@ interface InputBoxParameters extends Parameters {
 	value: string, prompt: string,
 	validate: (value: string) => Promise<string | undefined>,
 }
+
+class FlowAction {
+	static back = new FlowAction();
+	static cancel = new FlowAction();
+	static resume = new FlowAction();
+}
 type Step = (input: MultiStepInput) => Thenable<Step | void>;
+
+type Alias = (Parameters extends { buttons: (infer I)[] } ? I : never);
 
 export class MultiStepInput {
 	private current?: vs.QuickInput;
@@ -30,19 +32,6 @@ export class MultiStepInput {
 		return input.stepThrough(start);
 	}
 
-	// private async test<T extends vs.QuickPickItem, P extends Parameters>(
-	// 	input: vs.QuickPick<T> | vs.InputBox,
-	// 	p: P, disposables: vs.Disposable[],
-	// ) {
-	// 	try {
-	// 		return await new Promise<T | (
-	// 			P extends { buttons: (infer I)[] } ? I : never
-	// 		)>((resolve, reject) => {
-	// 			this.modify(input, p, disposables, resolve, reject);
-	// 		});
-	// 	} finally { disposables.forEach(d => d.dispose()) }
-	// }
-
 	async showQuickPick<T extends vs.QuickPickItem, P extends QuickPickParameters<T>>(p: P) {
 		const input = vs.window.createQuickPick<T>();
 		input.items = p.items;
@@ -50,14 +39,18 @@ export class MultiStepInput {
 
 		const disposables: vs.Disposable[] = [];
 		try {
-			return await new Promise<T | (
-				P extends { buttons: (infer I)[] } ? I : never
-			)>((resolve, reject) => {
+			return await new Promise<T | Alias>((resolve, reject) => {
 				disposables.push(
-					// input.onDidChangeActive(items => {
-					// 	console.log(`change selection to ${items[0].label}`)
-					// }),
-					input.onDidChangeSelection(items => resolve(items[0])),
+					input.onDidTriggerItemButton(items => {
+						console.log(`Pressed button ${items.button.tooltip} of '${items.item.label}' option`);
+					}),
+					input.onDidChangeActive(items => {
+						console.log(`Highlight '${items[0].label}' option`);
+					}),
+					input.onDidChangeSelection(items => {
+						resolve(items[0]);
+						console.log(`Select '${items[0].label}' option (as a result)`);
+					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
 			});
@@ -72,33 +65,42 @@ export class MultiStepInput {
 
 		const disposables: vs.Disposable[] = [];
 		try {
-			return await new Promise<string | (
-				P extends { buttons: (infer I)[] } ? I : never
-			)>((resolve, reject) => {
+			return await new Promise<string | Alias>((resolve, reject) => {
 				disposables.push(
 					input.onDidAccept(async () => {
 						const value = input.value;
 						input.enabled = false;
 						input.busy = true;
-						if (!(await p.validate(value))) {
+						if (!(await p.validate(value)))
 							resolve(value);
-						}
 						input.enabled = true;
 						input.busy = false;
+
+						console.log(`Fill in '${input.value}' (as a result)`);
 					}),
 					input.onDidChangeValue(async text => {
 						const current = p.validate(text);
 						validating = current;
 						const validationMessage = await current;
-						if (current === validating) {
+						if (current === validating)
 							input.validationMessage = validationMessage;
-						}
 					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
 			});
 		} finally { disposables.forEach(d => d.dispose()) }
 	}
+
+	// private async test<T extends vs.QuickPickItem, P extends Parameters>(
+	// 	input: vs.QuickPick<T> | vs.InputBox,
+	// 	p: P, disposables: vs.Disposable[],
+	// ) {
+	// 	try {
+	// 		return await new Promise<T | Alias>((resolve, reject) => {
+	// 			this.quickInput(input, p, disposables, resolve, reject);
+	// 		});
+	// 	} finally { disposables.forEach(d => d.dispose()) }
+	// }
 
 	private quickInput<T extends vs.QuickPickItem, P extends Parameters>(
 		input: vs.QuickPick<T> | vs.InputBox,
@@ -121,12 +123,16 @@ export class MultiStepInput {
 				if (button === vs.QuickInputButtons.Back)
 					reject(FlowAction.back);
 				else resolve(button as any);
+
+				console.log(`Pressed window button ${button.tooltip}`);
 			}),
 			input.onDidHide(() => {
 				(async () => {
 					reject(p.shouldResume && await p.shouldResume()
 						? FlowAction.resume : FlowAction.cancel);
 				})().catch(reject);
+
+				console.log(`Hide this window!`);
 			}),
 		);
 
