@@ -27,11 +27,10 @@ export async function multiStepInput() {
 	async function pickResourceGroup(input: MultiStepInput, state: Partial<State>) {
 		state.resourceGroup = await input.showQuickPick({
 			title, step: 1, totalSteps: 3,
-			items: resourceGroups, activeItem: state.resourceGroup,
 			placeholder: 'Pick a resource group',
-			// onHighlight: (items: readonly vs.QuickPickItem[]) => 
-			// 	console.log(`HELLO FROM INDEX!!! ${items[0]}`),
-			shouldResume: shouldResume,
+			items: resourceGroups, activeItem: state.resourceGroup,
+			// onHighlight: (items: vs.QuickPickItem[]) =>
+			// 	console.log(`HELLO FROM INDEX!!! ${items[0].label}`),
 		});
 		return (input: MultiStepInput) => inputName(input, state);
 	}
@@ -39,35 +38,19 @@ export async function multiStepInput() {
 	async function inputName(input: MultiStepInput, state: Partial<State>) {
 		state.name = await input.showInputBox({
 			title, step: 2, totalSteps: 3,
-			value: state.name || '', placeholder: '...',
+			placeholder: '...', value: state.name || '',
 			prompt: 'Choose a unique name for the Application Service',
-			shouldResume: shouldResume,
 		});
 		return (input: MultiStepInput) => pickRuntime(input, state);
 	}
 
 	async function pickRuntime(input: MultiStepInput, state: Partial<State>) {
-		const runtimes = await getAvailableRuntimes(state.resourceGroup!, undefined /* TODO: token */);
+		const runtimes = ['Node 8.9', 'Node 6.11', 'Node 4.5']
+			.map(label => ({ label }));
 		state.runtime = await input.showQuickPick({
 			title, step: 3, totalSteps: 3,
 			placeholder: 'Pick a runtime',
-			items: runtimes,
-			activeItem: state.runtime,
-			shouldResume: shouldResume,
+			items: runtimes, activeItem: state.runtime,
 		});
 	}
-
-	async function getAvailableRuntimes(
-		_resourceGroup: vs.QuickPickItem | string, _token?: vs.CancellationToken,
-	): Promise<vs.QuickPickItem[]> {
-		// await new Promise(resolve => setTimeout(resolve, 1000));
-		return ['Node 8.9', 'Node 6.11', 'Node 4.5']
-			.map(label => ({ label }));
-	}
-}
-
-function shouldResume() {
-	return new Promise<boolean>((_resolve, _reject) => {
-		// noop
-	});
 }

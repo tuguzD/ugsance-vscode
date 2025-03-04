@@ -1,15 +1,16 @@
 import * as vs from 'vscode';
 
 interface Parameters {
-	title: string, step: number, totalSteps: number,
+	title: string, placeholder: string,
+	step: number, totalSteps: number,
 	buttons?: vs.QuickInputButton[],
-	ignoreFocusOut?: boolean, placeholder: string,
-	shouldResume: () => Thenable<boolean>,
+	ignoreFocusOut?: boolean,
+	shouldResume?: () => Promise<boolean>,
 }
 interface QuickPickParameters<T extends vs.QuickPickItem> extends Parameters {
 	items: T[], activeItem?: T,
-	onHighlight?: (items: readonly T[]) => void,
-	onSelect?: (items: readonly T[]) => void,
+	onSelect?: (items: T[]) => void,
+	onHighlight?: (items: T[]) => void,
 	onItemButton?: (event: vs.QuickPickItemButtonEvent<T>) => void,
 }
 interface InputBoxParameters extends Parameters {
@@ -49,8 +50,7 @@ export class MultiStepInput {
 			}),
 			input.onDidChangeActive(items => {
 				console.log(`Highlight '${items[0].label}' option`);
-				if (p.onHighlight)
-					p.onHighlight(items);
+				if (p.onHighlight) p.onHighlight([...items]);
 			}),
 		];
 
@@ -60,8 +60,7 @@ export class MultiStepInput {
 					input.onDidChangeSelection(items => {
 						resolve(items[0]);
 						console.log(`Select '${items[0].label}' option (as a result)`);
-						if (p.onSelect)
-							p.onSelect(items);
+						if (p.onSelect) p.onSelect([...items]);
 					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
@@ -123,6 +122,8 @@ export class MultiStepInput {
 			...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
 			...(p.buttons || []),
 		];
+		if (!p.shouldResume) 
+			p.shouldResume = () => new Promise<boolean>(() => {});
 
 		disposables.push(
 			input.onDidTriggerButton(button => {
