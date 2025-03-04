@@ -7,13 +7,30 @@ import { Command, name } from '../command';
 import { tags } from './queries';
 import { Parser } from './parsers/model';
 
+import { multiStepInput } from '../window';
+// import { showQuickPick, showInputBox } from '../basicInput';
+
 export function register(
     context: vs.ExtensionContext,
     parser: Parser, config: Configuration,
 ) {
-    context.subscriptions.push(vs.commands.registerCommand(
-        name(Command.TreeSitter), () => { useTreeSitter(parser, config) },
-    ));
+    context.subscriptions.push(vs.commands.registerCommand(name(Command.TreeSitter), () => {
+        useTreeSitter(parser, config);
+
+        const options: Record<string, (context: vs.ExtensionContext) => Promise<void>> = {
+			multiStepInput, //showQuickPick, showInputBox,
+		};
+        const quickPick = vs.window.createQuickPick();
+        quickPick.items = Object.keys(options).map(label => ({ label }));
+        quickPick.onDidChangeSelection(selection => {
+			if (selection[0]) {
+				options[selection[0].label](context)
+					.catch(console.error);
+			}
+		});
+		quickPick.onDidHide(() => quickPick.dispose());
+		quickPick.show();
+    }));
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {

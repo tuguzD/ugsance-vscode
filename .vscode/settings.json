@@ -21,5 +21,8 @@
 		".idea",
 		"node_modules",
 		".gitignore"
+	],
+	"cSpell.words": [
+		"appservice"
 	]
 }
