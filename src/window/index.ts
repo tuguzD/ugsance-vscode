@@ -27,10 +27,10 @@ export async function multiStepInput() {
 	async function pickResourceGroup(input: MultiStepInput, state: Partial<State>) {
 		state.resourceGroup = await input.showQuickPick({
 			title, step: 1, totalSteps: 3,
+			items: resourceGroups, activeItem: state.resourceGroup,
 			placeholder: 'Pick a resource group',
-			items: resourceGroups,
-			activeItem: state.resourceGroup,
-			buttons: [],
+			// onHighlight: (items: readonly vs.QuickPickItem[]) => 
+			// 	console.log(`HELLO FROM INDEX!!! ${items[0]}`),
 			shouldResume: shouldResume,
 		});
 		return (input: MultiStepInput) => inputName(input, state);
@@ -39,10 +39,8 @@ export async function multiStepInput() {
 	async function inputName(input: MultiStepInput, state: Partial<State>) {
 		state.name = await input.showInputBox({
 			title, step: 2, totalSteps: 3,
-			value: state.name || '',
-			placeholder: '...',
+			value: state.name || '', placeholder: '...',
 			prompt: 'Choose a unique name for the Application Service',
-			validate: validateNameIsUnique,
 			shouldResume: shouldResume,
 		});
 		return (input: MultiStepInput) => pickRuntime(input, state);
@@ -57,10 +55,6 @@ export async function multiStepInput() {
 			activeItem: state.runtime,
 			shouldResume: shouldResume,
 		});
-	}
-
-	async function validateNameIsUnique(name: string) {
-		return name === 'vscode' ? 'Name not unique' : undefined;
 	}
 
 	async function getAvailableRuntimes(

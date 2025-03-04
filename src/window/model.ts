@@ -8,10 +8,14 @@ interface Parameters {
 }
 interface QuickPickParameters<T extends vs.QuickPickItem> extends Parameters {
 	items: T[], activeItem?: T,
+	onHighlight?: (items: readonly T[]) => void,
+	onSelect?: (items: readonly T[]) => void,
+	onItemButton?: (event: vs.QuickPickItemButtonEvent<T>) => void,
 }
 interface InputBoxParameters extends Parameters {
 	value: string, prompt: string,
-	validate: (value: string) => Promise<string | undefined>,
+	validate?: (value: string) => Promise<string | undefined>,
+	onEnter?: (value: string) => void,
 }
 
 class FlowAction {
@@ -40,9 +44,13 @@ export class MultiStepInput {
 		const disposables: vs.Disposable[] = [
 			input.onDidTriggerItemButton(items => {
 				console.log(`Pressed button ${items.button.tooltip} of '${items.item.label}' option`);
+				if (p.onItemButton)
+					p.onItemButton(items);
 			}),
 			input.onDidChangeActive(items => {
 				console.log(`Highlight '${items[0].label}' option`);
+				if (p.onHighlight)
+					p.onHighlight(items);
 			}),
 		];
 
@@ -52,6 +60,8 @@ export class MultiStepInput {
 					input.onDidChangeSelection(items => {
 						resolve(items[0]);
 						console.log(`Select '${items[0].label}' option (as a result)`);
+						if (p.onSelect)
+							p.onSelect(items);
 					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
@@ -63,12 +73,13 @@ export class MultiStepInput {
 		const input = vs.window.createInputBox();
 		input.value = p.value || '';
 		input.prompt = p.prompt;
-		let validating = p.validate('');
 
 		const disposables: vs.Disposable[] = [
 			input.onDidChangeValue(async text => {
+				if (!p.validate)
+					return;
 				const current = p.validate(text);
-				validating = current;
+				let validating = current;
 				const validationMessage = await current;
 				if (current === validating)
 					input.validationMessage = validationMessage;
@@ -82,9 +93,11 @@ export class MultiStepInput {
 						const value = input.value;
 						input.enabled = false;
 						input.busy = true;
-						if (!(await p.validate(value))) {
+						if (!p.validate || !(await p.validate(value))) {
 							resolve(value);
 							console.log(`Enter '${input.value}' (as a result)`);
+							if (p.onEnter)
+								p.onEnter(value);
 						}
 						input.enabled = true;
 						input.busy = false;
