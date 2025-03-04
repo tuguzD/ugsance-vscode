@@ -37,16 +37,18 @@ export class MultiStepInput {
 		input.items = p.items;
 		input.activeItems = p.activeItem ? [p.activeItem] : [];
 
-		const disposables: vs.Disposable[] = [];
+		const disposables: vs.Disposable[] = [
+			input.onDidTriggerItemButton(items => {
+				console.log(`Pressed button ${items.button.tooltip} of '${items.item.label}' option`);
+			}),
+			input.onDidChangeActive(items => {
+				console.log(`Highlight '${items[0].label}' option`);
+			}),
+		];
+
 		try {
 			return await new Promise<T | Alias>((resolve, reject) => {
 				disposables.push(
-					input.onDidTriggerItemButton(items => {
-						console.log(`Pressed button ${items.button.tooltip} of '${items.item.label}' option`);
-					}),
-					input.onDidChangeActive(items => {
-						console.log(`Highlight '${items[0].label}' option`);
-					}),
 					input.onDidChangeSelection(items => {
 						resolve(items[0]);
 						console.log(`Select '${items[0].label}' option (as a result)`);
@@ -63,7 +65,16 @@ export class MultiStepInput {
 		input.prompt = p.prompt;
 		let validating = p.validate('');
 
-		const disposables: vs.Disposable[] = [];
+		const disposables: vs.Disposable[] = [
+			input.onDidChangeValue(async text => {
+				const current = p.validate(text);
+				validating = current;
+				const validationMessage = await current;
+				if (current === validating)
+					input.validationMessage = validationMessage;
+			}),
+		];
+
 		try {
 			return await new Promise<string | Alias>((resolve, reject) => {
 				disposables.push(
@@ -71,36 +82,18 @@ export class MultiStepInput {
 						const value = input.value;
 						input.enabled = false;
 						input.busy = true;
-						if (!(await p.validate(value)))
+						if (!(await p.validate(value))) {
 							resolve(value);
+							console.log(`Enter '${input.value}' (as a result)`);
+						}
 						input.enabled = true;
 						input.busy = false;
-
-						console.log(`Fill in '${input.value}' (as a result)`);
-					}),
-					input.onDidChangeValue(async text => {
-						const current = p.validate(text);
-						validating = current;
-						const validationMessage = await current;
-						if (current === validating)
-							input.validationMessage = validationMessage;
 					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
 			});
 		} finally { disposables.forEach(d => d.dispose()) }
 	}
-
-	// private async test<T extends vs.QuickPickItem, P extends Parameters>(
-	// 	input: vs.QuickPick<T> | vs.InputBox,
-	// 	p: P, disposables: vs.Disposable[],
-	// ) {
-	// 	try {
-	// 		return await new Promise<T | Alias>((resolve, reject) => {
-	// 			this.quickInput(input, p, disposables, resolve, reject);
-	// 		});
-	// 	} finally { disposables.forEach(d => d.dispose()) }
-	// }
 
 	private quickInput<T extends vs.QuickPickItem, P extends Parameters>(
 		input: vs.QuickPick<T> | vs.InputBox,
