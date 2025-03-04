@@ -6,8 +6,6 @@ class InputFlowAction {
 	static resume = new InputFlowAction();
 }
 
-type InputStep = (input: MultiStepInput) => Thenable<InputStep | void>;
-
 interface QuickPickParameters<T extends vs.QuickPickItem> {
 	title: string;
 	step: number;
@@ -19,7 +17,6 @@ interface QuickPickParameters<T extends vs.QuickPickItem> {
 	buttons?: vs.QuickInputButton[];
 	shouldResume: () => Thenable<boolean>;
 }
-
 interface InputBoxParameters {
 	title: string;
 	step: number;
@@ -32,16 +29,16 @@ interface InputBoxParameters {
 	placeholder?: string;
 	shouldResume: () => Thenable<boolean>;
 }
+type InputStep = (input: MultiStepInput) => Thenable<InputStep | void>;
 
 export class MultiStepInput {
+	private current?: vs.QuickInput;
+	private steps: InputStep[] = [];
 
 	static async run(start: InputStep) {
 		const input = new MultiStepInput();
 		return input.stepThrough(start);
 	}
-
-	private current?: vs.QuickInput;
-	private steps: InputStep[] = [];
 
 	private async stepThrough(start: InputStep) {
 		let step: InputStep | void = start;
@@ -76,88 +73,90 @@ export class MultiStepInput {
 			this.current.dispose();
 	}
 
-	async showQuickPick<T extends vs.QuickPickItem, P extends QuickPickParameters<T>>({ title, step, totalSteps, items, activeItem, ignoreFocusOut, placeholder, buttons, shouldResume }: P) {
+	async showQuickPick<T extends vs.QuickPickItem, P extends QuickPickParameters<T>>(p: P) {
 		const disposables: vs.Disposable[] = [];
 		try {
-			return await new Promise<T | (P extends { buttons: (infer I)[] } ? I : never)>((resolve, reject) => {
+			return await new Promise<T | (
+				P extends { buttons: (infer I)[] } ? I : never
+			)>((resolve, reject) => {
+
 				const input = vs.window.createQuickPick<T>();
-				input.title = title;
-				input.step = step;
-				input.totalSteps = totalSteps;
-				input.ignoreFocusOut = ignoreFocusOut ?? false;
-				input.placeholder = placeholder;
-				input.items = items;
-				if (activeItem) {
-					input.activeItems = [activeItem];
+				input.title = p.title;
+				input.step = p.step;
+				input.totalSteps = p.totalSteps;
+				input.ignoreFocusOut = p.ignoreFocusOut ?? false;
+				input.placeholder = p.placeholder;
+				input.items = p.items;
+				if (p.activeItem) {
+					input.activeItems = [p.activeItem];
 				}
 				input.buttons = [
 					...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
-					...(buttons || [])
+					...(p.buttons || [])
 				];
 				disposables.push(
 					input.onDidTriggerButton(item => {
-						if (item === vs.QuickInputButtons.Back) {
+						if (item === vs.QuickInputButtons.Back)
 							reject(InputFlowAction.back);
-						} else {
-							resolve((item as any));
-						}
+						else resolve((item as any));
 					}),
 					input.onDidChangeSelection(items => resolve(items[0])),
 					input.onDidHide(() => {
 						(async () => {
-							reject(shouldResume && await shouldResume() ? InputFlowAction.resume : InputFlowAction.cancel);
-						})()
-							.catch(reject);
+							reject(p.shouldResume && await p.shouldResume()
+								? InputFlowAction.resume : InputFlowAction.cancel);
+						})().catch(reject);
 					})
 				);
-				if (this.current) {
+				if (this.current)
 					this.current.dispose();
-				}
 				this.current = input;
 				this.current.show();
 			});
+
 		} finally {
 			disposables.forEach(d => d.dispose());
 		}
 	}
 
-	async showInputBox<P extends InputBoxParameters>({ title, step, totalSteps, value, prompt, validate, buttons, ignoreFocusOut, placeholder, shouldResume }: P) {
+	async showInputBox<P extends InputBoxParameters>(p: P) {
 		const disposables: vs.Disposable[] = [];
 		try {
-			return await new Promise<string | (P extends { buttons: (infer I)[] } ? I : never)>((resolve, reject) => {
+			return await new Promise<string | (
+				P extends { buttons: (infer I)[] } ? I : never
+			)>((resolve, reject) => {
+
 				const input = vs.window.createInputBox();
-				input.title = title;
-				input.step = step;
-				input.totalSteps = totalSteps;
-				input.value = value || '';
-				input.prompt = prompt;
-				input.ignoreFocusOut = ignoreFocusOut ?? false;
-				input.placeholder = placeholder;
+				input.title = p.title;
+				input.step = p.step;
+				input.totalSteps = p.totalSteps;
+				input.value = p.value || '';
+				input.prompt = p.prompt;
+				input.ignoreFocusOut = p.ignoreFocusOut ?? false;
+				input.placeholder = p.placeholder;
 				input.buttons = [
 					...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
-					...(buttons || [])
+					...(p.buttons || [])
 				];
-				let validating = validate('');
+				let validating = p.validate('');
 				disposables.push(
 					input.onDidTriggerButton(item => {
-						if (item === vs.QuickInputButtons.Back) {
+						if (item === vs.QuickInputButtons.Back)
 							reject(InputFlowAction.back);
-						} else {
-							resolve(item as any);
-						}
+						else resolve(item as any);
 					}),
 					input.onDidAccept(async () => {
 						const value = input.value;
 						input.enabled = false;
 						input.busy = true;
-						if (!(await validate(value))) {
+						if (!(await p.validate(value))) {
 							resolve(value);
 						}
 						input.enabled = true;
 						input.busy = false;
 					}),
 					input.onDidChangeValue(async text => {
-						const current = validate(text);
+						const current = p.validate(text);
 						validating = current;
 						const validationMessage = await current;
 						if (current === validating) {
@@ -166,17 +165,17 @@ export class MultiStepInput {
 					}),
 					input.onDidHide(() => {
 						(async () => {
-							reject(shouldResume && await shouldResume() ? InputFlowAction.resume : InputFlowAction.cancel);
-						})()
-							.catch(reject);
+							reject(p.shouldResume && await p.shouldResume()
+								? InputFlowAction.resume : InputFlowAction.cancel);
+						})().catch(reject);
 					})
 				);
-				if (this.current) {
+				if (this.current)
 					this.current.dispose();
-				}
 				this.current = input;
 				this.current.show();
 			});
+
 		} finally {
 			disposables.forEach(d => d.dispose());
 		}
