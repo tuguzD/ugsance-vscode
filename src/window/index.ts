@@ -40,6 +40,7 @@ export async function multiStepInput() {
 		state.name = await input.showInputBox({
 			title, step: 2, totalSteps: 3,
 			value: state.name || '',
+			placeholder: '...',
 			prompt: 'Choose a unique name for the Application Service',
 			validate: validateNameIsUnique,
 			shouldResume: shouldResume,

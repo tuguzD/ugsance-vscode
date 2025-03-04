@@ -6,20 +6,18 @@ class FlowAction {
 	static resume = new FlowAction();
 }
 
-interface QuickPickParameters<T extends vs.QuickPickItem> {
+interface Parameters {
 	title: string, step: number, totalSteps: number,
-	items: T[], activeItem?: T,
-	ignoreFocusOut?: boolean, placeholder: string,
 	buttons?: vs.QuickInputButton[],
+	ignoreFocusOut?: boolean, placeholder: string,
 	shouldResume: () => Thenable<boolean>,
 }
-interface InputBoxParameters {
-	title: string, step: number, totalSteps: number,
+interface QuickPickParameters<T extends vs.QuickPickItem> extends Parameters {
+	items: T[], activeItem?: T,
+}
+interface InputBoxParameters extends Parameters {
 	value: string, prompt: string,
 	validate: (value: string) => Promise<string | undefined>,
-	buttons?: vs.QuickInputButton[],
-	ignoreFocusOut?: boolean, placeholder?: string,
-	shouldResume: () => Thenable<boolean>,
 }
 type Step = (input: MultiStepInput) => Thenable<Step | void>;
 
@@ -30,6 +28,49 @@ export class MultiStepInput {
 	static async run(start: Step) {
 		const input = new MultiStepInput();
 		return input.stepThrough(start);
+	}
+
+	// private async test<P extends Parameters>(
+	// 	p: P, input: vs.QuickInput, disposables: vs.Disposable[],
+	// ) {
+	// 	try {
+	// 		return await new Promise<string | (
+	// 			P extends { buttons: (infer I)[] } ? I : never
+	// 		)>((resolve, reject) => {
+	// 			input.title = p.title;
+	// 			input.step = p.step;
+	// 			input.totalSteps = p.totalSteps;
+	// 			input.ignoreFocusOut = p.ignoreFocusOut ?? false;
+	// 			disposables.push(
+	// 				input.onDidHide(() => {
+	// 					(async () => {
+	// 						reject(p.shouldResume && await p.shouldResume()
+	// 							? FlowAction.resume : FlowAction.cancel);
+	// 					})().catch(reject);
+	// 				}),
+	// 			);
+	// 			if (this.current)
+	// 				this.current.dispose();
+	// 			this.current = input;
+	// 			this.current.show();
+	// 		});
+	// 	} finally {
+	// 		disposables.forEach(d => d.dispose());
+	// 	}
+	// }
+
+	private buttons(items: vs.QuickInputButton[] | undefined) {
+		return [
+			...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
+			...(items || []),
+		];
+	}
+	private trigger(
+		button: vs.QuickInputButton, resolve: any, reject: any,
+	) {
+		if (button === vs.QuickInputButtons.Back)
+			reject(FlowAction.back);
+		else resolve(button as any);
 	}
 
 	async showQuickPick<T extends vs.QuickPickItem, P extends QuickPickParameters<T>>(p: P) {
@@ -49,19 +90,14 @@ export class MultiStepInput {
 				if (p.activeItem) {
 					input.activeItems = [p.activeItem];
 				}
-				input.buttons = [
-					...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
-					...(p.buttons || []),
-				];
+				input.buttons = this.buttons(p.buttons);
 				disposables.push(
+					input.onDidTriggerButton(
+						item => this.trigger(item, resolve, reject)
+					),
 					// input.onDidChangeActive(items => {
 					// 	console.log(`change selection to ${items[0].label}`)
 					// }),
-					input.onDidTriggerButton(item => {
-						if (item === vs.QuickInputButtons.Back)
-							reject(FlowAction.back);
-						else resolve((item as any));
-					}),
 					input.onDidChangeSelection(items => resolve(items[0])),
 					input.onDidHide(() => {
 						(async () => {
@@ -96,17 +132,12 @@ export class MultiStepInput {
 				input.prompt = p.prompt;
 				input.ignoreFocusOut = p.ignoreFocusOut ?? false;
 				input.placeholder = p.placeholder;
-				input.buttons = [
-					...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
-					...(p.buttons || [])
-				];
+				input.buttons = this.buttons(p.buttons);
 				let validating = p.validate('');
 				disposables.push(
-					input.onDidTriggerButton(item => {
-						if (item === vs.QuickInputButtons.Back)
-							reject(FlowAction.back);
-						else resolve(item as any);
-					}),
+					input.onDidTriggerButton(
+						item => this.trigger(item, resolve, reject)
+					),
 					input.onDidAccept(async () => {
 						const value = input.value;
 						input.enabled = false;
