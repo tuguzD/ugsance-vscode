@@ -37,7 +37,7 @@ export class MultiStepInput {
 		return input.stepThrough(start);
 	}
 
-	async showQuickPick<T extends vs.QuickPickItem, P extends QuickPickParameters<T>>(p: P) {
+	async showQuickPick<T extends vs.QuickPickItem>(p: QuickPickParameters<T>) {
 		const input = vs.window.createQuickPick<T>();
 		input.items = p.items;
 		input.activeItems = p.activeItem ? [p.activeItem] : [];
@@ -68,7 +68,7 @@ export class MultiStepInput {
 		} finally { disposables.forEach(d => d.dispose()) }
 	}
 
-	async showInputBox<P extends InputBoxParameters>(p: P) {
+	async showInputBox(p: InputBoxParameters) {
 		const input = vs.window.createInputBox();
 		input.value = p.value || '';
 		input.prompt = p.prompt;
