@@ -1,8 +1,8 @@
 import * as vs from 'vscode';
 
 interface Parameters {
-	title: string, placeholder: string,
-	step: number, totalSteps: number,
+	title?: string, placeholder?: string,
+	step?: number, totalSteps?: number,
 	buttons?: vs.QuickInputButton[],
 	ignoreFocusOut?: boolean,
 	shouldResume?: () => Promise<boolean>,

@@ -43,13 +43,13 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             callNames.nodesText, callArgs.nodesText);
         calls = ut.nestSeq(calls, 2).map(item => item.join(''));
 
-        const items: vs.QuickPickItem[] = calls.map(label => ({ label }));
+        const items = calls.map(label => ({ label }));
         state.callUnit = await input.showQuickPick({
             title: 'Define new callback',
             step: 1, totalSteps: 3, items: items,
             placeholder: `Select a call unit that'll launch new callback`,
             activeItem: items.find(item => item.label === state.callUnit?.label),
-            onHighlight: async (items: vs.QuickPickItem[]) => {
+            onHighlight: async (items) => {
                 const index = calls.indexOf(items[0].label);
                 const callUnit = callNames.nodes[index];
                 await w.cursorJump(editor!,
@@ -64,14 +64,14 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     }
 
     async function pickNextStep(input: MultiStepInput, state: Partial<State>) {
-        const options: Map<string, (input: MultiStepInput, state: Partial<State>) => Promise<void>> = new Map([
+        const options = new Map([
             ['Pick from something', pick],
-            ['Try again lol =)', pick],
+            // ['Try again lol =)', pick],
         ]);
+        const items = [...options.keys()].map(label => ({ label }));
         const option = await input.showQuickPick({
-            title: 'Choose new step to perform', step: 2, totalSteps: 3,
-            items: [...options.keys()].map(label => ({ label })),
-            placeholder: `...`,
+            title: 'Choose the next step',
+            items: items, placeholder: `...`,
         });
         const callback = options.get(option.label);
         return (input: MultiStepInput) => callback!(input, state);
@@ -84,7 +84,6 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const flowCaptures = parser.captures(language.flow.toString(), chosenCallBody),
             loopCaptures = parser.captures(language.loop.toString(), chosenCallBody),
             jumpCaptures = parser.captures(language.jump.toString(), chosenCallBody);
-        // console.log(Java.flow.toString());
 
         const flows = flowCaptures.filter([tags.flow.body!]),
             loops = loopCaptures.filter([tags.loop.item]),
@@ -104,19 +103,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         // console.log(chosenFlowBody.text);
 
         state.callUnit = await input.showQuickPick({
-            title: '',
-            step: 2, totalSteps: 3, items: [],
-            placeholder: ``,
-            // activeItem: items.find(item => item.label === state.callUnit?.label),
-            onHighlight: async (items: vs.QuickPickItem[]) => {
-                // const index = calls.indexOf(items[0].label);
-                // const callUnit = callNames.nodes[index];
-                // await w.cursorJump(editor!,
-                //     callUnit.startPosition.row,
-                //     callUnit.startPosition.column,
-                //     callUnit.endPosition.column,
-                // );
-            },
+            items: [],
         });
     }
 }
