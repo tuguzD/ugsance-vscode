@@ -94,7 +94,8 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         ).filter([tags.jump.item]).nodes;
 
         const items = jumps.map(node => ({
-            node, label: node.text.split(';')[0].trim(),
+            node, description: 'Jump',
+            label: node.text.split(';')[0].trim(),
         }));
         await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
@@ -114,9 +115,15 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             language.loop.toString(), state.callUnitBody,
         ).filter([tags.loop.item]).nodes;
 
-        const items = loops.map(node => ({
-            node, label: node.text.split('{')[0].trim(),
-        }));
+        const items = loops.map(node => {
+            const textBody = editor!.document.lineAt(new vs.Position(
+                node.startPosition.row + 1, 0)).text;
+            return {
+                node, detail: 'Loop',
+                description: textBody.trim(),
+                label: node.text.split('{')[0].trim(),
+            };
+        });
         await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
             step: 2, totalSteps: 3, items,
@@ -132,13 +139,18 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
 
     async function pickFlows(input: MultiStepInput, state: Partial<State>) {
         const flows = parser.captures(language.flow.toString(), state.callUnitBody);
-        const flowBodies = flows.filter([tags.flow.body!]).nodes,
-            flowItems = flows.filter([tags.flow.item]).nodes;
+        const flowBodies = flows.filter([tags.flow.body!]).nodes;
 
-        const items: QuickPickNode[] = flowBodies.map((node, index) => ({
-            label: flowItems[index].text.split('\n')[0].trim(),
-            node, description: node.text.split('\n')[1].trim(),
-        }));
+        const items: QuickPickNode[] = flowBodies.map(node => {
+            const text = editor!.document.lineAt(new vs.Position(
+                node.startPosition.row, node.startPosition.column
+            )).text;
+            return {
+                node, detail: 'Flow',
+                description: node.text.split('\n')[1].trim(),
+                label: text.trim().replace('} ', '').replace(' {', ''),
+            };
+        });
         await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
             step: 2, totalSteps: 3, items,
