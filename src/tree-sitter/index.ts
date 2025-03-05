@@ -61,14 +61,11 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             step: 1, totalSteps: 2, items,
             placeholder: `Select a "call unit" that'll launch new callback`,
             activeItem: items.find(item => item.label === state.callUnit?.label),
-            onHighlight: async (items) => {
-                const callUnit = items[0].node;
-                await w.cursorJump(editor!,
-                    callUnit.startPosition.row,
-                    callUnit.startPosition.column,
-                    callUnit.endPosition.column,
-                );
-            },
+            onHighlight: async (items) => await w.cursorJump(editor!,
+                items[0].node.startPosition.row,
+                items[0].node.startPosition.column,
+                items[0].label.split('(')[0].trim().length,
+            ),
         });
         state.callUnitBody = callUnits.filter([tags.unit.body!])
             .nodes[items.indexOf(state.callUnit)];
@@ -79,6 +76,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     async function pickNextStep(input: MultiStepInput, state: Partial<State>) {
         const steps = new Map([
             [`View "jump" statements (return, break, continue, goto...)`, pickJumps],
+            [`View various loops (do/while, for(each)...)`, pickLoops],
             // [`Pick empty test window`, pick],
         ]);
         const items = [...steps.keys()].map(label => ({ label }));
@@ -95,23 +93,41 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             language.jump.toString(), state.callUnitBody,
         ).filter([tags.jump.item]).nodes;
 
-        const items = jumps.map(item => ({
-            label: item.text, node: item,
+        const items = jumps.map(node => ({
+            node, label: node.text.split(';')[0].trim(),
         }));
         await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
             step: 2, totalSteps: 2, items,
             placeholder: `Select a "jump" statement before which new callback will be launched`,
-            onHighlight: async (items) => {
-                const jump = items[0].node;
-                await w.cursorJump(editor!,
-                    jump.startPosition.row,
-                    jump.startPosition.column,
-                    jump.endPosition.column,
-                );
-            },
+            onHighlight: async (items) => await w.cursorJump(editor!,
+                items[0].node.startPosition.row,
+                items[0].node.startPosition.column,
+                items[0].label.length,
+            ),
         });
-        // return (input: MultiStepInput) => pickNextStep(input, state);
+        return (input: MultiStepInput) => pickNextStep(input, state);
+    }
+
+    async function pickLoops(input: MultiStepInput, state: Partial<State>) {
+        const loops = parser.captures(
+            language.loop.toString(), state.callUnitBody,
+        ).filter([tags.loop.item]).nodes;
+
+        const items = loops.map(node => ({
+            node, label: node.text.split('{')[0].trim(),
+        }));
+        await input.showQuickPick<QuickPickNode>({
+            title: `Define new callback`,
+            step: 2, totalSteps: 2, items,
+            placeholder: `Select a "loop" in which new callback will be (repeatedly) launched`,
+            onHighlight: async (items) => await w.cursorJump(editor!,
+                items[0].node.startPosition.row,
+                items[0].node.startPosition.column,
+                items[0].label.length,
+            ),
+        });
+        return (input: MultiStepInput) => pickNextStep(input, state);
     }
 
     // async function pick(input: MultiStepInput, state: Partial<State>) {
