@@ -4,16 +4,10 @@ export function nullCheck(condition: any, message: string): asserts condition {
 }
 
 // combine arrays, while retaining both their index and order
-export function mergeOrdered<T>(first: T[], second: T[]) {
-    var min = Math.min(first.length, second.length),
-        i = 0, result = [];
-    while (i < min) {
-        result.push(first[i], second[i]);
-        ++i;
-    }
-    return result.concat(
-        first.slice(min), second.slice(min),
-    );
+export function mergeOrdered(...args: any[]) {
+    var logic = (a = [], ...b: any[]): any[] =>
+        b.length ? a.length ? [a[0], ...logic(...b, a.slice(1))] : logic(...b) : a;
+    return logic(...args);
 }
 
 // build nested array with (grouped) items of input array

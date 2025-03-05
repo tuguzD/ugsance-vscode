@@ -33,10 +33,13 @@ const jumps = block.items(tags.jump, [
     'yield_statement', 'throw_statement',
 ]);
 const flows: QueryItem[] = [
-    new QueryItem(tags.flow.item, 'if_statement', [new Alternation(null, [
-        new QueryItem(tags.flow.body, 'statement'),
-        new QueryItem(tags.flow.body, 'statement', [], false, true),
-    ])]),
+    new QueryItem(tags.flow.item, 'if_statement', [
+        new QueryItem(tags.flow.body, 'block'),
+    ]),
+    // new QueryItem(tags.flow.item, 'if_statement', [new Alternation(null, [
+    //     new QueryItem(tags.flow.body, 'statement'),
+    //     new QueryItem(tags.flow.body, 'statement', [], false, true),
+    // ])]),
     ...flow.items(tags.flow, ['switch_expression'],
         ['switch_block'], 'switch_block_statement_group',
     false, false, false),
