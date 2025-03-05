@@ -76,8 +76,8 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     async function pickNextStep(input: MultiStepInput, state: Partial<State>) {
         const steps = new Map([
             [`View "jump" statements (return, break, continue, goto...)`, pickJumps],
-            [`View various loops (do/while, for(each)...)`, pickLoops],
-            // [`Pick empty test window`, pick],
+            [`View various loops (for, for-each, (do-)while...)`, pickLoops],
+            [`View various flows (if-else, switch, try-catch...)`, pickFlows],
         ]);
         const items = [...steps.keys()].map(label => ({ label }));
         const step = await input.showQuickPick({
@@ -119,7 +119,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         }));
         await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
-            step: 2, totalSteps: 2, items,
+            step: 2, totalSteps: 3, items,
             placeholder: `Select a "loop" in which new callback will be (repeatedly) launched`,
             onHighlight: async (items) => await w.cursorJump(editor!,
                 items[0].node.startPosition.row,
@@ -130,30 +130,30 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         return (input: MultiStepInput) => pickNextStep(input, state);
     }
 
-    // async function pick(input: MultiStepInput, state: Partial<State>) {
-    //     const flowCaptures = parser.captures(language.flow.toString(), state.callUnitBody),
-    //         loopCaptures = parser.captures(language.loop.toString(), state.callUnitBody),
-    //         jumpCaptures = parser.captures(language.jump.toString(), state.callUnitBody);
+    async function pickFlows(input: MultiStepInput, state: Partial<State>) {
+        const flows = parser.captures(language.flow.toString(), state.callUnitBody);
+        const flowBodies = flows.filter([tags.flow.body!]).nodes,
+            flowItems = flows.filter([tags.flow.item]).nodes;
 
-    //     const flows = flowCaptures.filter([tags.flow.body!]),
-    //         loops = loopCaptures.filter([tags.loop.item]),
-    //         jumps = jumpCaptures.filter([tags.jump.item]);
+        const items: QuickPickNode[] = flowBodies.map((node, index) => ({
+            label: flowItems[index].text.split('\n')[0].trim(),
+            node, description: node.text.split('\n')[1].trim(),
+        }));
+        await input.showQuickPick<QuickPickNode>({
+            title: `Define new callback`,
+            step: 2, totalSteps: 3, items,
+            placeholder: `Select a "flow" in case of which new callback will be launched`,
+            onHighlight: async (items) => {
+                const line = items[0].node.startPosition.row;
+                const offset = items[0].node.startPosition.column;
 
-    //     const lol = [
-    //         ...flows.nodes, ...loops.nodes, ...jumps.nodes,
-    //     ];
-    //     lol.sort((a, b) => a.startPosition.row - b.startPosition.row);
-    //     console.log(lol.map(item => item.startPosition.row));
+                const character = editor!.document.lineAt(
+                    new vs.Position(line, offset),
+                ).firstNonWhitespaceCharacterIndex;
 
-    //     // let calls = ut.mergeOrdered(
-    //     //     flows.nodesText, loops.nodesText, jumps.nodesText);
-    //     // calls = ut.nestSeq(calls, 3).map(item => item.join(''));
-
-    //     // const chosenFlowBody = flows.nodes[0];
-    //     // console.log(chosenFlowBody.text);
-
-    //     state.callUnit = await input.showQuickPick({
-    //         items: [],
-    //     });
-    // }
+                await w.cursorJump(editor!, line, character, offset);
+            }
+        });
+        return (input: MultiStepInput) => pickNextStep(input, state);
+    }
 }
