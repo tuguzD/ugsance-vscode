@@ -42,6 +42,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     const outputArgs = callArgs.map(item => item.node.text);
 
     {
+        // combine 2 arrays, retaining both their index and order
         function mergeArrays(first: any[], second: any[]) {
             var min = Math.min(first.length, second.length),
                 i = 0, result = [];
@@ -52,9 +53,11 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             return result.concat(first.slice(min), second.slice(min));
         }
         let result = mergeArrays(outputCalls, outputArgs);
+        // combine 2 (sibling array) items into a nested array, containing them (exactly 2 items)
         result = result.reduce((result, value, index, sourceArray) =>
             index % 2 === 0 ? [...result, sourceArray.slice(index, index + 2)] : result, []
         );
+        // convert nested arrays with 2 items to strings (items of parent array)
         result = result.map(item => item.join(''));
         console.log(result);
     }
