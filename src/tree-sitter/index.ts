@@ -7,6 +7,7 @@ import { Parser } from './parsers/model';
 
 import { tags } from './queries';
 
+import * as w from '../window';
 import { MultiStepInput } from '../window/model';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
@@ -32,7 +33,6 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
 
     let state = {} as Partial<State>;
     await MultiStepInput.run(input => pickCallUnit(input, state));
-    // state = state as State;
     vs.window.showInformationMessage(`COMMAND COMPLETED!!!`);
 
     async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
@@ -52,15 +52,10 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             onHighlight: async (items: vs.QuickPickItem[]) => {
                 const index = calls.indexOf(items[0].label);
                 const callUnit = callNames.nodes[index];
-                const point = callUnit.startPosition;
-
-                const position = new vs.Position(point.row + 1, point.column);
-                editor!.selection = new vs.Selection(position, position);
-                await vs.commands.executeCommand('cursorMove', { to: 'up' });
-
-                editor!.selection = new vs.Selection(
-                    new vs.Position(point.row, point.column),
-                    new vs.Position(point.row, callUnit.endPosition.column),
+                await w.cursorJump(editor!,
+                    callUnit.startPosition.row,
+                    callUnit.startPosition.column,
+                    callUnit.endPosition.column,
                 );
             },
         });
