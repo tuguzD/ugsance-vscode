@@ -7,7 +7,7 @@ import { Parser } from './parsers/model';
 
 import { tags } from './queries';
 
-// import { MultiStepInput } from '../window/model';
+import { MultiStepInput } from '../window/model';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(vs.commands.registerCommand(name(Command.TreeSitter), () => {
@@ -25,24 +25,48 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     } catch (e: any) {
         vs.window.showErrorMessage(e.message);
         console.log(e.message);
+        return;
     }
     const language = parser.langData;
-
     const callUnits = parser.captures(language.callUnit.toString());
 
-    // todo
-    const callNames = callUnits.filter([tags.unit.name!]);
-    // console.log(callNames.nodes.map(item =>
-    //     `${item.startPosition.row}:${item.startPosition.column}`
-    // ));
-    const callArgs = callUnits.filter([tags.unit.args]);
-    const callBodies = callUnits.filter([tags.unit.body!]);
+    let state = {} as Partial<State>;
+    await MultiStepInput.run(input => pickCallUnit(input, state));
+    // state = state as State;
+    vs.window.showInformationMessage(`COMMAND COMPLETED!!!`);
 
-    let items: any[] = ut.mergeOrdered(
-        callNames.nodesText, callArgs.nodesText,
-    );
-    items = ut.nestSeq(items, 2).map(item => item.join(''));
-    console.log(items);
+    async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
+        const callNames = callUnits.filter([tags.unit.name!]);
+        const callArgs = callUnits.filter([tags.unit.args]);
+
+        let calls: any[] = ut.mergeOrdered(
+            callNames.nodesText, callArgs.nodesText);
+        calls = ut.nestSeq(calls, 2).map(item => item.join(''));
+
+        const items: vs.QuickPickItem[] = calls.map(label => ({ label }));
+        state.callUnit = await input.showQuickPick({
+            title: 'Define new callback',
+            step: 1, totalSteps: 2, items: items,
+            placeholder: `Select a call unit that'll launch new callback`,
+            activeItem: items.find(item => item.label === state.callUnit?.label),
+            onHighlight: async (items: vs.QuickPickItem[]) => {
+                const index = calls.indexOf(items[0].label);
+                const callUnit = callNames.nodes[index];
+                const point = callUnit.startPosition;
+
+                const position = new vs.Position(point.row + 1, point.column);
+                editor!.selection = new vs.Selection(position, position);
+                await vs.commands.executeCommand('cursorMove', { to: 'up' });
+
+                editor!.selection = new vs.Selection(
+                    new vs.Position(point.row, point.column),
+                    new vs.Position(point.row, callUnit.endPosition.column),
+                );
+            },
+        });
+        return (input: MultiStepInput) => pickRuntime(input, state);
+    }
+    const callBodies = callUnits.filter([tags.unit.body!]);
 
     // todo
     const chosenCallBody = callBodies.nodes[0];
@@ -56,35 +80,18 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     const chosenFlowBody = flowBodies.nodes[0];
     console.log(chosenFlowBody.text);
 
-    // let state = {} as Partial<State>;
-    // await MultiStepInput.run(input => pickResourceGroup(input, state));
-    // // state = state as State;
-    // vs.window.showInformationMessage(`COMMAND COMPLETED!!!`);
-
-    // async function pickResourceGroup(input: MultiStepInput, state: Partial<State>) {
-    //     state.resourceGroup = await input.showQuickPick({
-    //         title: '',
-    //         step: 1, totalSteps: 2,
-    //         placeholder: '...',
-    //         items: [], activeItem: state.resourceGroup,
-    //         // onHighlight: (items: vs.QuickPickItem[]) =>
-    //         //     console.log(`HELLO FROM INDEX!!! ${items[0].label}`),
-    //     });
-    //     return (input: MultiStepInput) => pickRuntime(input, state);
-    // }
-
-    // async function pickRuntime(input: MultiStepInput, state: Partial<State>) {
-    //     state.runtime = await input.showQuickPick({
-    //         title: '',
-    //         step: 2, totalSteps: 2,
-    //         placeholder: '...',
-    //         items: [], activeItem: state.runtime,
-    //     });
-    // }
+    async function pickRuntime(input: MultiStepInput, state: Partial<State>) {
+        state.runtime = await input.showQuickPick({
+            title: '',
+            step: 2, totalSteps: 2,
+            placeholder: '...',
+            items: [], activeItem: state.runtime,
+        });
+    }
 }
 
-// interface State {
-//     title: string, step: number, totalSteps: number,
-//     resourceGroup: vs.QuickPickItem,
-//     name: string, runtime: vs.QuickPickItem,
-// }
+interface State {
+    title: string, step: number, totalSteps: number,
+    callUnit: vs.QuickPickItem,
+    name: string, runtime: vs.QuickPickItem,
+}
