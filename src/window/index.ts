@@ -13,10 +13,9 @@ export async function multiStepInput() {
 	vs.window.showInformationMessage(`Creating Application Service '${state.name}'`);
 
 	interface State {
-		title: string;
-		step: number; totalSteps: number;
-		resourceGroup: vs.QuickPickItem;
-		name: string; runtime: vs.QuickPickItem;
+		title: string, step: number, totalSteps: number,
+		resourceGroup: vs.QuickPickItem,
+		name: string, runtime: vs.QuickPickItem,
 	}
 	async function collectInputs() {
 		const state = {} as Partial<State>;
