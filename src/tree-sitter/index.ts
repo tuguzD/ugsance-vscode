@@ -22,8 +22,8 @@ interface QuickPickNode extends vs.QuickPickItem {
 }
 interface State {
     title: string, step: number, totalSteps: number,
-    callUnit: vs.QuickPickItem, callUnitBody: T.SyntaxNode,
-    name: string, runtime: vs.QuickPickItem,
+    callUnit: QuickPickNode, callUnitBody: T.SyntaxNode,
+    name: string, runtime: QuickPickNode,
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {
@@ -46,23 +46,23 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
 
     async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
         const callUnits = parser.captures(language.callUnit.toString());
-
-        const callNames = callUnits.filter([tags.unit.name!]);
-        const callArgs = callUnits.filter([tags.unit.args]);
+        const callNames = callUnits.filter([tags.unit.name!]),
+            callArgs = callUnits.filter([tags.unit.args]);
 
         let calls = ut.mergeOrdered(
             callNames.nodesText, callArgs.nodesText);
         calls = ut.nestSeq(calls, 2).map(item => item.join(''));
 
-        const items = calls.map(label => ({ label }));
-        state.callUnit = await input.showQuickPick({
+        const items: QuickPickNode[] = calls.map((value, index) => ({
+            label: value, node: callNames.nodes[index],
+        }));
+        state.callUnit = await input.showQuickPick<QuickPickNode>({
             title: `Define new callback`,
             step: 1, totalSteps: 2, items,
             placeholder: `Select a "call unit" that'll launch new callback`,
             activeItem: items.find(item => item.label === state.callUnit?.label),
             onHighlight: async (items) => {
-                const index = calls.indexOf(items[0].label);
-                const callUnit = callNames.nodes[index];
+                const callUnit = items[0].node;
                 await w.cursorJump(editor!,
                     callUnit.startPosition.row,
                     callUnit.startPosition.column,
