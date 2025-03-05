@@ -12,6 +12,12 @@ export class QueryCaptures {
     constructor(capture: T.QueryCapture[]) {
         this.list = capture;
     }
+    get nodes() {
+        return this.list.map(item => item.node);
+    }
+    get nodesText() {
+        return this.list.map(item => item.node.text);
+    }
     filter(tags: Tag[]): QueryCaptures {
         return new QueryCaptures(tags.map(tag =>
             this.list.filter(item => item.name === tag)

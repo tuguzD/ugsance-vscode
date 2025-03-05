@@ -1,5 +1,5 @@
 import * as vs from 'vscode';
-import { nullCheck } from '../utils';
+import * as ut from '../utils';
 
 import { Configuration } from '../config';
 import { Command, name } from '../command';
@@ -18,7 +18,7 @@ export function register(context: vs.ExtensionContext, parser: Parser, config: C
 async function useTreeSitter(parser: Parser, config: Configuration) {
     const editor = vs.window.activeTextEditor;
     try {
-        nullCheck(editor, `No text editor opened!`);
+        ut.nullCheck(editor, `No text editor opened!`);
         await parser.setLanguage(
             editor.document.languageId, config.userFolder);
         parser.parse(editor.document.getText());
@@ -26,53 +26,34 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         vs.window.showErrorMessage(e.message);
         console.log(e.message);
     }
+    const language = parser.langData;
 
-    const callUnits = parser.captures(
-        parser.langData.callUnit.toString(),
-    );
+    const callUnits = parser.captures(language.callUnit.toString());
 
     // todo
-    const callNames = callUnits.filter([tags.unit.name!]).list;
-    // console.log(callNames.map(item =>
-    //     `${item.node.startPosition.row}:${item.node.startPosition.column}`
+    const callNames = callUnits.filter([tags.unit.name!]);
+    // console.log(callNames.nodes.map(item =>
+    //     `${item.startPosition.row}:${item.startPosition.column}`
     // ));
-    const outputCalls = callNames.map(item => item.node.text);
+    const callArgs = callUnits.filter([tags.unit.args]);
+    const callBodies = callUnits.filter([tags.unit.body!]);
 
-    const callArgs = callUnits.filter([tags.unit.args]).list;
-    const outputArgs = callArgs.map(item => item.node.text);
-
-    {
-        // combine 2 arrays, retaining both their index and order
-        function mergeArrays(first: any[], second: any[]) {
-            var min = Math.min(first.length, second.length),
-                i = 0, result = [];
-            while (i < min) {
-                result.push(first[i], second[i]);
-                ++i;
-            }
-            return result.concat(first.slice(min), second.slice(min));
-        }
-        let result = mergeArrays(outputCalls, outputArgs);
-        // combine 2 (sibling array) items into a nested array, containing them (exactly 2 items)
-        result = result.reduce((result, value, index, sourceArray) =>
-            index % 2 === 0 ? [...result, sourceArray.slice(index, index + 2)] : result, []
-        );
-        // convert nested arrays with 2 items to strings (items of parent array)
-        result = result.map(item => item.join(''));
-        console.log(result);
-    }
+    let items: any[] = ut.mergeOrdered(
+        callNames.nodesText, callArgs.nodesText,
+    );
+    items = ut.nestSeq(items, 2).map(item => item.join(''));
+    console.log(items);
 
     // todo
-    const callBodies = callUnits.filter([tags.unit.body!]).list;
-    const chosenCallBody = callBodies[0].node;
+    const chosenCallBody = callBodies.nodes[0];
     console.log(chosenCallBody.text);
 
     // todo
     const flows = parser.captures(
-        parser.langData.flow.toString(), chosenCallBody,
+        language.flow.toString(), chosenCallBody,
     );
-    const flowBodies = flows.filter([tags.flow.body!]).list;
-    const chosenFlowBody = flowBodies[0].node;
+    const flowBodies = flows.filter([tags.flow.body!]);
+    const chosenFlowBody = flowBodies.nodes[0];
     console.log(chosenFlowBody.text);
 
     // let state = {} as Partial<State>;
