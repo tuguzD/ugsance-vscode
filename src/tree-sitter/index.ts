@@ -133,6 +133,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         // Interaction with a user itself
         state.chosenNode = await input.showQuickPick<QuickPickNode>({
             title, step: 2, totalSteps: 3, items, onHighlight,
+            activeItem: items.find(item => item.label === state.chosenNode?.label),
             placeholder: `Select a place where new callback will be launched`,
         });
         state.jumps = jumps;
