@@ -26,7 +26,7 @@ interface State {
     callUnit: QuickPickNode, callUnitBody: T.SyntaxNode,
     chosenNode: QuickPickNode,
     // TODO: It's better to store a single entity (node, index, ?..)
-    jumps: T.SyntaxNode[], loops: T.SyntaxNode[], flows: T.SyntaxNode[]
+    value: T.SyntaxNode[],
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {
@@ -136,28 +136,24 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             activeItem: items.find(item => item.label === state.chosenNode?.label),
             placeholder: `Select a place where new callback will be launched`,
         });
-        state.jumps = jumps;
-        state.loops = loops;
-        state.flows = flows;
-
+        switch (state.chosenNode!.detail) {
+            case '':
+                state.value = jumps;
+                break;
+            case 'Flow':
+                state.value = flows;
+                break;
+            case 'Loop':
+                state.value = loops;
+                break;
+        }
         return (input: MultiStepInput) => nameCallback(input, state);
     }
 
     async function nameCallback(input: MultiStepInput, state: Partial<State>) {
-        let value = '';
-        switch (state.chosenNode!.detail) {
-            case '':
-                value = buildNames(state, state.jumps!);
-                break;
-            case 'Flow':
-                value = buildNames(state, state.flows!);
-                break;
-            case 'Loop':
-                value = buildNames(state, state.loops!);
-                break;
-        }
         const inputName = await input.showInputBox({
-            title, step: 3, totalSteps: 3, value,
+            title, step: 3, totalSteps: 3,
+            value: buildNames(state, state.value!),
             prompt: 'Set a name for the new callback',
         });
         const point = state.callUnit!.node.startPosition;
