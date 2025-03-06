@@ -3,13 +3,14 @@ import * as ut from '../utils';
 import * as T from 'web-tree-sitter';
 
 import { Configuration } from '../config';
-import { Command, name } from '../command';
+import { Command, name, vsCommand } from '../command';
 import { Parser } from './parsers/model';
 
 import { tags } from './queries';
 
 import * as w from '../window';
 import { MultiStepInput } from '../window/model';
+import { executeFeatureProvider } from '../lang-features';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(vs.commands.registerCommand(name(Command.TreeSitter), () => {
@@ -41,6 +42,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     const language = parser.langData;
 
     let state = {} as Partial<State>;
+    const title = 'Define new callback';
     await MultiStepInput.run(input => pickCallUnit(input, state));
 
     async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
@@ -56,8 +58,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             label: value, node: callNames.nodes[index],
         }));
         state.callUnit = await input.showQuickPick<QuickPickNode>({
-            title: `Define new callback`,
-            step: 1, totalSteps: 3, items,
+            title, step: 1, totalSteps: 3, items,
             placeholder: `Select a "call unit" that'll launch new callback`,
             activeItem: items.find(item => item.label === state.callUnit?.label),
             onHighlight: async (items) => await w.cursorJump(editor!,
@@ -129,10 +130,20 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         };
         // Interaction with a user itself
         state.chosenNode = await input.showQuickPick<QuickPickNode>({
-            title: `Define new callback`,
+            title, items, onHighlight, step: 2, totalSteps: 3,
             placeholder: `Select a place where new callback will be launched`,
-            items, onHighlight, step: 2, totalSteps: 3,
         });
+
+        const amount = (await executeFeatureProvider(editor!, name(vsCommand.references))).length;
+        const detail = [
+            `Do you really want to place callback in chosen call unit (${state.callUnit!.label.split('(')[0]})?`,
+            `It's used by your code in exactly ${amount} places!`,
+        ].join('\n');
+        const confirmOption = 'Yes';
+
+        const choice = await vs.window.showInformationMessage(
+            title, { detail, modal: true }, confirmOption);
+        if (choice !== confirmOption) { return; }
 
         const line = state.chosenNode!.node.startPosition.row;
         switch (state.chosenNode.detail) {

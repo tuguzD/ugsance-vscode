@@ -11,41 +11,44 @@ export function register(context: vs.ExtensionContext) {
 	);
 }
 
-function DefinitionProvider() {
-	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.definitions));
-}
-
-function TypeDefinitionProvider() {
-	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.typeDefinitions));
-}
-
-function DeclarationProvider() {
-	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.declarations));
-}
-
-function ImplementationProvider() {
-	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.implementations));
-}
-
-function ReferenceProvider() {
-	executeFeatureProvider(vs.window.activeTextEditor, name(vsCommand.references));
-}
-
-async function executeFeatureProvider(editor: vs.TextEditor | undefined, command: string) {
-	if (!editor) {
-		console.log("No file opened!");
-		return;
-	}
+export async function executeFeatureProvider(editor: vs.TextEditor, command: string) {
 	type Locations = vs.Location[] | vs.LocationLink[];
-	const locations: vs.Location[] = await vs.commands.executeCommand<Locations>(
+	return await vs.commands.executeCommand<Locations>(
 		command, editor.document.uri, editor.selection.active,
 	).then(locations => locations.map(
 		item => item instanceof vs.Location ? item
 			: new vs.Location(item.targetUri, item.targetRange))
 	);
+}
+
+function DefinitionProvider() {
+	testCommand(vs.window.activeTextEditor, name(vsCommand.definitions));
+}
+
+function TypeDefinitionProvider() {
+	testCommand(vs.window.activeTextEditor, name(vsCommand.typeDefinitions));
+}
+
+function DeclarationProvider() {
+	testCommand(vs.window.activeTextEditor, name(vsCommand.declarations));
+}
+
+function ImplementationProvider() {
+	testCommand(vs.window.activeTextEditor, name(vsCommand.implementations));
+}
+
+function ReferenceProvider() {
+	testCommand(vs.window.activeTextEditor, name(vsCommand.references));
+}
+
+async function testCommand(editor: vs.TextEditor | undefined, command: string) {
+	if (!editor) {
+		console.log("No file opened!");
+		return;
+	}
+	const locations = await executeFeatureProvider(editor, command);
 	console.log('\n', `Command '${command}' was successfully called`);
 	console.log(locations);
-
 	const rangeOutput: string[] = locations.map(item =>
 		`Line: ${item.range.start.line.toString()} + ` +
 		`Char: ${item.range.start.character.toString()}`
