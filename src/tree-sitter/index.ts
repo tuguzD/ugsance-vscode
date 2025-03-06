@@ -3,7 +3,7 @@ import * as ut from '../utils';
 import * as T from 'web-tree-sitter';
 
 import { Configuration } from '../config';
-import { Command, name, vsCommand } from '../command';
+import * as cmd from '../command';
 import { Parser } from './parsers/model';
 
 import { tags } from './queries';
@@ -13,7 +13,7 @@ import { MultiStepInput } from '../window/model';
 import { executeFeatureProvider } from '../lang-features';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
-    context.subscriptions.push(vs.commands.registerCommand(name(Command.TreeSitter), () => {
+    context.subscriptions.push(vs.commands.registerCommand(cmd.name(cmd.Command.TreeSitter), () => {
         useTreeSitter(parser, config);
     }));
 }
@@ -146,13 +146,13 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         let value = '';
         switch (state.chosenNode!.detail) {
             case '':
-                value = names(state, state.jumps!);
+                value = buildNames(state, state.jumps!);
                 break;
             case 'Flow':
-                value = names(state, state.flows!);
+                value = buildNames(state, state.flows!);
                 break;
             case 'Loop':
-                value = names(state, state.loops!);
+                value = buildNames(state, state.loops!);
                 break;
         }
         const inputName = await input.showInputBox({
@@ -163,9 +163,10 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const position = new vs.Position(point.row, point.column);
         editor!.selection = new vs.Selection(position, position);
 
-        const amount = (await executeFeatureProvider(editor!, name(vsCommand.references))).length;
+        const amount = (await executeFeatureProvider(editor!, cmd.name(cmd.vsCommand.references))).length;
+        const callName = state.callUnit!.label.split('(')[0];
         const detail = [
-            `Do you really want to place callback in chosen call unit (${state.callUnit!.label.split('(')[0]})?`,
+            `Do you really want to place callback in chosen call unit (${callName})?`,
             `It's used by your code in exactly ${amount} places!`,
         ].join('\n');
         const confirmOption = 'Yes';
@@ -181,7 +182,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     }
 }
 
-function names(state: Partial<State>, nodes: T.SyntaxNode[]) {
+function buildNames(state: Partial<State>, nodes: T.SyntaxNode[]) {
     return state.callUnit!.label.split('(')[0] + '_'
         + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
         + (1 + nodes.findIndex(item => state.chosenNode!.node === item));
