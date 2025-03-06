@@ -45,12 +45,11 @@ export class MultiStepInput {
 		const disposables: vs.Disposable[] = [
 			input.onDidTriggerItemButton(items => {
 				console.log(`Pressed button ${items.button.tooltip} of '${items.item.label}' option`);
-				if (p.onItemButton)
-					p.onItemButton(items);
+				if (p.onItemButton) { p.onItemButton(items); }
 			}),
 			input.onDidChangeActive(items => {
 				console.log(`Highlight '${items[0].label}' option`);
-				if (p.onHighlight) p.onHighlight([...items]);
+				if (p.onHighlight) { p.onHighlight([...items]); }
 			}),
 		];
 
@@ -60,12 +59,12 @@ export class MultiStepInput {
 					input.onDidChangeSelection(items => {
 						resolve(items[0]);
 						console.log(`Select '${items[0].label}' option (as a result)`);
-						if (p.onSelect) p.onSelect([...items]);
+						if (p.onSelect) { p.onSelect([...items]); }
 					}),
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
 			});
-		} finally { disposables.forEach(d => d.dispose()) }
+		} finally { disposables.forEach(d => d.dispose()); }
 	}
 
 	async showInputBox(p: InputBoxParameters) {
@@ -75,13 +74,11 @@ export class MultiStepInput {
 
 		const disposables: vs.Disposable[] = [
 			input.onDidChangeValue(async text => {
-				if (!p.validate)
-					return;
+				if (!p.validate) { return; }
 				const current = p.validate(text);
 				let validating = current;
 				const validationMessage = await current;
-				if (current === validating)
-					input.validationMessage = validationMessage;
+				if (current === validating) { input.validationMessage = validationMessage; }
 			}),
 		];
 
@@ -95,8 +92,7 @@ export class MultiStepInput {
 						if (!p.validate || !(await p.validate(value))) {
 							resolve(value);
 							console.log(`Enter '${input.value}' (as a result)`);
-							if (p.onEnter)
-								p.onEnter(value);
+							if (p.onEnter) { p.onEnter(value); }
 						}
 						input.enabled = true;
 						input.busy = false;
@@ -104,7 +100,7 @@ export class MultiStepInput {
 				);
 				this.quickInput(input, p, disposables, resolve, reject);
 			});
-		} finally { disposables.forEach(d => d.dispose()) }
+		} finally { disposables.forEach(d => d.dispose()); }
 	}
 
 	private quickInput<T extends vs.QuickPickItem, P extends Parameters>(
@@ -122,14 +118,14 @@ export class MultiStepInput {
 			...(this.steps.length > 1 ? [vs.QuickInputButtons.Back] : []),
 			...(p.buttons || []),
 		];
-		if (!p.shouldResume) 
-			p.shouldResume = () => new Promise<boolean>(() => {});
-
+		if (!p.shouldResume) {
+			p.shouldResume = () => new Promise<boolean>(() => { });
+		}
 		disposables.push(
 			input.onDidTriggerButton(button => {
-				if (button === vs.QuickInputButtons.Back)
+				if (button === vs.QuickInputButtons.Back) {
 					reject(FlowAction.back);
-				else resolve(button as any);
+				} else { resolve(button as any); }
 
 				console.log(`Pressed window button ${button.tooltip}`);
 			}),
@@ -143,8 +139,7 @@ export class MultiStepInput {
 			}),
 		);
 
-		if (this.current)
-			this.current.dispose();
+		if (this.current) { this.current.dispose(); }
 		this.current = input;
 		this.current.show();
 	}
@@ -157,19 +152,18 @@ export class MultiStepInput {
 				this.current.enabled = false;
 				this.current.busy = true;
 			}
-			try { step = await step(this) }
+			try { step = await step(this); }
 			catch (err) {
-				if (err == FlowAction.back) {
+				if (err === FlowAction.back) {
 					this.steps.pop();
 					step = this.steps.pop();
-				} else if (err == FlowAction.resume) {
+				} else if (err === FlowAction.resume) {
 					step = this.steps.pop();
-				} else if (err == FlowAction.cancel) {
+				} else if (err === FlowAction.cancel) {
 					step = undefined;
-				} else throw err;
+				} else { throw err; }
 			}
 		}
-		if (this.current)
-			this.current.dispose();
+		if (this.current) { this.current.dispose(); }
 	}
 }

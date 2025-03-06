@@ -24,9 +24,7 @@ interface QuickPickNode extends vs.QuickPickItem {
 interface State {
     title: string, step: number, totalSteps: number,
     callUnit: QuickPickNode, callUnitBody: T.SyntaxNode,
-    chosenNode: QuickPickNode,
-    // TODO: It's better to store a single entity (node, index, ?..)
-    value: T.SyntaxNode[],
+    chosenNode: QuickPickNode, callbackName: string,
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {
@@ -136,24 +134,21 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             activeItem: items.find(item => item.label === state.chosenNode?.label),
             placeholder: `Select a place where new callback will be launched`,
         });
-        switch (state.chosenNode!.detail) {
-            case '':
-                state.value = jumps;
-                break;
-            case 'Flow':
-                state.value = flows;
-                break;
-            case 'Loop':
-                state.value = loops;
-                break;
-        }
+
+        const nodes = ({
+            '': jumps, 'Flow': flows, 'Loop': loops,
+        })[state.chosenNode.detail!];
+        state.callbackName = state.callUnit!.label.split('(')[0] + '_'
+            + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
+            + (1 + nodes!.findIndex(item => state.chosenNode!.node === item));
+
         return (input: MultiStepInput) => nameCallback(input, state);
     }
 
     async function nameCallback(input: MultiStepInput, state: Partial<State>) {
         const inputName = await input.showInputBox({
-            title, step: 3, totalSteps: 3,
-            value: buildNames(state, state.value!),
+            step: 3, totalSteps: 3,
+            title, value: state.callbackName!,
             prompt: 'Set a name for the new callback',
         });
         const point = state.callUnit!.node.startPosition;
@@ -177,12 +172,6 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         placeCallback(editor!, line, inputName);
         vs.commands.executeCommand('editor.action.addCommentLine');
     }
-}
-
-function buildNames(state: Partial<State>, nodes: T.SyntaxNode[]) {
-    return state.callUnit!.label.split('(')[0] + '_'
-        + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
-        + (1 + nodes.findIndex(item => state.chosenNode!.node === item));
 }
 
 function placeCallback(editor: vs.TextEditor, line: number, name: string) {
