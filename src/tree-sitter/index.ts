@@ -164,8 +164,8 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const callName = state.callUnit!.label.split('(')[0];
         const detail = [
             `Do you really want to place callback in chosen call unit (${callName})?`,
-            `It's used by your code in exactly ${amount} places!`,
-        ].join('\n');
+            amount > 0 ? `It's used by your code in exactly ${amount} places!` : '',
+        ].filter(i => i !== '').join('\n');
         const confirmOption = 'Yes';
 
         const choice = await vs.window.showInformationMessage(
