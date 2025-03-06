@@ -25,6 +25,8 @@ interface State {
     title: string, step: number, totalSteps: number,
     callUnit: QuickPickNode, callUnitBody: T.SyntaxNode,
     chosenNode: QuickPickNode,
+    // TODO: It's better to store a single entity (node, index, ?..)
+    jumps: T.SyntaxNode[], loops: T.SyntaxNode[], flows: T.SyntaxNode[]
 }
 
 async function useTreeSitter(parser: Parser, config: Configuration) {
@@ -70,10 +72,10 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         state.callUnitBody = callUnits.filter([tags.unit.body!])
             .nodes[items.indexOf(state.callUnit)];
 
-        return (input: MultiStepInput) => pickNodes(input, state);
+        return (input: MultiStepInput) => pickNode(input, state);
     }
 
-    async function pickNodes(input: MultiStepInput, state: Partial<State>) {
+    async function pickNode(input: MultiStepInput, state: Partial<State>) {
         const jumps = parser.captures(language.jump.toString(), state.callUnitBody)
             .filter([tags.jump.item]).nodes;
         const loops = parser.captures(language.loop.toString(), state.callUnitBody)
@@ -130,9 +132,20 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         };
         // Interaction with a user itself
         state.chosenNode = await input.showQuickPick<QuickPickNode>({
-            title, items, onHighlight, step: 2, totalSteps: 3,
+            title, step: 2, totalSteps: 3, items, onHighlight,
             placeholder: `Select a place where new callback will be launched`,
         });
+        state.jumps = jumps;
+        state.loops = loops;
+        state.flows = flows;
+
+        return (input: MultiStepInput) => nameCallback(input, state);
+    }
+
+    async function nameCallback(input: MultiStepInput, state: Partial<State>) {
+        const point = state.callUnit!.node.startPosition;
+        const position = new vs.Position(point.row, point.column);
+        editor!.selection = new vs.Selection(position, position);
 
         const amount = (await executeFeatureProvider(editor!, name(vsCommand.references))).length;
         const detail = [
@@ -146,34 +159,32 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         if (choice !== confirmOption) { return; }
 
         const line = state.chosenNode!.node.startPosition.row;
-        switch (state.chosenNode.detail) {
+        switch (state.chosenNode!.detail) {
             case '':
-                placeCallback(editor!, state, line, jumps);
+                placeCallback(editor!, line, names(state, state.jumps!));
                 break;
             case 'Flow':
-                placeCallback(editor!, state, line + 1, flows);
+                placeCallback(editor!, line + 1, names(state, state.flows!));
                 break;
             case 'Loop':
-                placeCallback(editor!, state, line + 1, loops);
+                placeCallback(editor!, line + 1, names(state, state.loops!));
                 break;
         }
         vs.commands.executeCommand('editor.action.addCommentLine');
-
-        // return (input: MultiStepInput) => pickNextStep(input, state);
     }
 }
 
-function placeCallback(
-    editor: vs.TextEditor, state: Partial<State>,
-    line: number, nodes: T.SyntaxNode[],
-) {
+function names(state: Partial<State>, nodes: T.SyntaxNode[]) {
+    return state.callUnit!.label.split('(')[0] + '_'
+        + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
+        + (1 + nodes.findIndex(item => state.chosenNode!.node === item));
+}
+
+function placeCallback(editor: vs.TextEditor, line: number, name: string) {
     const character = editor!.document.lineAt(
         new vs.Position(line, 0),
     ).firstNonWhitespaceCharacterIndex;
 
-    const name = state.callUnit!.label.split('(')[0] + '_'
-        + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
-        + (1 + nodes.findIndex(item => state.chosenNode!.node === item));
     const args = `()`;
     const space = editor!.document.getText(new vs.Range(
         new vs.Position(line, 0),
