@@ -143,6 +143,22 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     }
 
     async function nameCallback(input: MultiStepInput, state: Partial<State>) {
+        let value = '';
+        switch (state.chosenNode!.detail) {
+            case '':
+                value = names(state, state.jumps!);
+                break;
+            case 'Flow':
+                value = names(state, state.flows!);
+                break;
+            case 'Loop':
+                value = names(state, state.loops!);
+                break;
+        }
+        const inputName = await input.showInputBox({
+            title, step: 3, totalSteps: 3, value,
+            prompt: 'Set a name for the new callback',
+        });
         const point = state.callUnit!.node.startPosition;
         const position = new vs.Position(point.row, point.column);
         editor!.selection = new vs.Selection(position, position);
@@ -158,18 +174,9 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             title, { detail, modal: true }, confirmOption);
         if (choice !== confirmOption) { return; }
 
-        const line = state.chosenNode!.node.startPosition.row;
-        switch (state.chosenNode!.detail) {
-            case '':
-                placeCallback(editor!, line, names(state, state.jumps!));
-                break;
-            case 'Flow':
-                placeCallback(editor!, line + 1, names(state, state.flows!));
-                break;
-            case 'Loop':
-                placeCallback(editor!, line + 1, names(state, state.loops!));
-                break;
-        }
+        let line = state.chosenNode!.node.startPosition.row;
+        if (state.chosenNode!.detail !== '') { line++; }
+        placeCallback(editor!, line, inputName);
         vs.commands.executeCommand('editor.action.addCommentLine');
     }
 }
