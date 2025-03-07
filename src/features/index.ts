@@ -2,15 +2,15 @@ import * as vs from 'vscode';
 import * as ut from '../utils';
 import * as T from 'web-tree-sitter';
 
-import { Configuration } from '../config';
-import * as cmd from '../command';
-import { Parser } from './parsers/model';
+import { Configuration } from '../vscode/commands/model';
+import * as cmd from '../vscode/commands';
+import { Parser } from '../tree-sitter/parsers/model';
 
-import { tags } from './queries';
+import { tags } from '../tree-sitter/queries';
 
-import * as w from '../window';
-import { MultiStepInput } from '../window/model';
-import { executeFeatureProvider } from '../lang-features';
+import * as w from '../vscode/inputs';
+import { MultiStepInput } from '../vscode/inputs/model';
+import { executeFeatureProvider } from './test';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(vs.commands.registerCommand(cmd.name(cmd.Command.TreeSitter), () => {

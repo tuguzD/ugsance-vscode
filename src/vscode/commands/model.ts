@@ -1,5 +1,5 @@
 import * as vs from 'vscode';
-import { nullCheck } from './utils';
+import { nullCheck } from '../../utils';
 
 export const UGsance = 'UGsance';
 

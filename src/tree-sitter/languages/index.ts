@@ -16,7 +16,7 @@ export const list: Language[] = [
 ];
 
 export function find(name: string) {
-    const item = list.find(item => item.vscodeId == name);
+    const item = list.find(item => item.vscodeId === name);
     nullCheck(item, `The language '${name}' is not (currently) supported!`);
     return item;
 }

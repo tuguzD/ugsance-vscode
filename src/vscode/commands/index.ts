@@ -1,4 +1,4 @@
-import { UGsance } from "./config";
+import { UGsance } from "./model";
 const VSCode = 'vscode';
 
 export enum Command {

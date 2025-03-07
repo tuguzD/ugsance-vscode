@@ -1,10 +1,10 @@
 import * as vs from 'vscode';
-import { Configuration } from './config';
+import { Configuration } from './vscode/commands/model';
 
-import * as LSP from './lang-features';
+import * as LSP from './features/test';
 
 import T from "web-tree-sitter";
-import * as TreeSitter from './tree-sitter';
+import * as TreeSitter from './features';
 import { Parser } from './tree-sitter/parsers/model';
 
 export async function activate(context: vs.ExtensionContext) {

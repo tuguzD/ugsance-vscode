@@ -1,5 +1,5 @@
 import * as vs from 'vscode';
-import { name, Command, vsCommand } from '../command';
+import { name, Command, vsCommand } from '../vscode/commands';
 
 export function register(context: vs.ExtensionContext) {
 	context.subscriptions.push(
