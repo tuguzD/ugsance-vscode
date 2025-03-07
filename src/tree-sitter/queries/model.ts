@@ -11,7 +11,7 @@ export class QueryItem {
         let children: string = this.children.map(
             item => `\n${item.query}`
         ).join('');
-        let tag: string = (this.tag != null) ? `@${this.tag}` : '';
+        let tag: string = (this.tag !== null) ? `@${this.tag}` : '';
 
         let optional = this.optional ? '?' : '';
         let repeat = this.repeat ? '*' : '';
