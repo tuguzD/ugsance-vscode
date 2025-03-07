@@ -1,10 +1,10 @@
 import * as vs from 'vscode';
 import { Configuration } from './vscode/commands/model';
 
-import * as LSP from './features/test';
+import * as Test from './features/items/test';
+import * as Callback from './features/items/callback';
 
 import T from "web-tree-sitter";
-import * as TreeSitter from './features';
 import { Parser } from './tree-sitter/parsers/model';
 
 export async function activate(context: vs.ExtensionContext) {
@@ -13,8 +13,8 @@ export async function activate(context: vs.ExtensionContext) {
 	await T.init();
     const parser = new Parser();
 
-	LSP.register(context);
-	TreeSitter.register(context, parser, config);
+	Test.register(context);
+	Callback.register(context, parser, config);
 
 	function api() { }
 

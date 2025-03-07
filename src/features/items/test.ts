@@ -1,5 +1,6 @@
 import * as vs from 'vscode';
-import { name, Command, vsCommand } from '../vscode/commands';
+import { name, Command, vsCommand } from '../../vscode/commands';
+import { executeFeatureProvider } from '..';
 
 export function register(context: vs.ExtensionContext) {
 	context.subscriptions.push(
@@ -8,16 +9,6 @@ export function register(context: vs.ExtensionContext) {
 		vs.commands.registerCommand(name(Command.declarations), DeclarationProvider),
 		vs.commands.registerCommand(name(Command.implementations), ImplementationProvider),
 		vs.commands.registerCommand(name(Command.references), ReferenceProvider),
-	);
-}
-
-export async function executeFeatureProvider(editor: vs.TextEditor, command: string) {
-	type Locations = vs.Location[] | vs.LocationLink[];
-	return await vs.commands.executeCommand<Locations>(
-		command, editor.document.uri, editor.selection.active,
-	).then(locations => locations.map(
-		item => item instanceof vs.Location ? item
-			: new vs.Location(item.targetUri, item.targetRange))
 	);
 }
 
