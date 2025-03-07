@@ -10,7 +10,13 @@
 		"out": true,
 		".idea": true,
 		"node_modules": true,
-		".gitignore": true
+		".gitignore": true,
+		".vscode": true,
+		"markdown": true,
+		".vscode-test.mjs": true,
+		".vscodeignore": true,
+		"eslint.config.mjs": true,
+		"tsconfig.json": true
 	},
 	"search.exclude": {
 		"out": true // set this to false to include "out" folder in search results
@@ -20,7 +26,13 @@
 	"hide-files.files": [
 		".idea",
 		"node_modules",
-		".gitignore"
+		".gitignore",
+		".vscode",
+		"markdown",
+		".vscode-test.mjs",
+		".vscodeignore",
+		"eslint.config.mjs",
+		"tsconfig.json"
 	],
 	"cSpell.words": [
 		"appservice"

@@ -2,7 +2,7 @@ import T from "web-tree-sitter";
 import * as files from 'fs';
 import { nullCheck } from "../../utils";
 
-import { find } from "../languages";
+import * as language from "../languages";
 import { Language } from "../languages/model";
 
 import { Tag } from "../queries";
@@ -12,12 +12,14 @@ export class QueryCaptures {
     constructor(capture: T.QueryCapture[]) {
         this.list = capture;
     }
+
     get nodes() {
         return this.list.map(item => item.node);
     }
     get nodesText() {
         return this.list.map(item => item.node.text);
     }
+
     filter(tags: Tag[]): QueryCaptures {
         return new QueryCaptures(tags.map(tag =>
             this.list.filter(item => item.name === tag)
@@ -32,6 +34,9 @@ export class Parser {
     rootNode!: T.SyntaxNode;
     langData!: Language;
 
+    parse(text: string) {
+        this.rootNode = this.parser.parse(text).rootNode;
+    }
     captures(query: string, node = this.rootNode) {
         return new QueryCaptures(
             this.language.query(query).captures(node)
@@ -39,14 +44,11 @@ export class Parser {
     }
 
     async setLanguage(id: string, folderPath: string) {
-        this.langData = find(id);
+        this.langData = language.find(id);
         let path = this.getPath(id, folderPath);
 
         this.language = await T.Language.load(path);
         this.parser.setLanguage(this.language);
-    }
-    parse(text: string) {
-        this.rootNode = this.parser.parse(text).rootNode;
     }
 
     private getPath(languageId: string, folderPath: string) {

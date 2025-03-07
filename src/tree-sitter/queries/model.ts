@@ -8,15 +8,15 @@ export class QueryItem {
     repeat: boolean;
 
     get query(): string {
-        let children: string = this.children.map(
+        const children: string = this.children.map(
             item => `\n${item.query}`
         ).join('');
-        let tag: string = (this.tag !== null) ? `@${this.tag}` : '';
+        const tag = (this.tag !== null) ? `@${this.tag}` : '';
+        const optional = this.optional ? '?' : '';
+        const repeat = this.repeat ? '*' : '';
 
-        let optional = this.optional ? '?' : '';
-        let repeat = this.repeat ? '*' : '';
-
-        return `( ${this.type} ${children})${optional}${repeat} ${tag} `;
+        const modifier = optional + repeat;
+        return `( ${this.type} ${children})${modifier} ${tag} `;
     }
 
     constructor(
@@ -34,11 +34,11 @@ export class QueryItem {
 
 export class Alternation extends QueryItem {
     get query(): string {
-        let children: string = this.children.map(
+        const children: string = this.children.map(
             item => `\n${item.query}`
         ).join('');
-        let optional = this.optional ? '?' : '';
-        let repeat = this.repeat ? '*' : '';
+        const optional = this.optional ? '?' : '';
+        const repeat = this.repeat ? '*' : '';
         return `[ ${children} ]${optional}${repeat} `;
     }
 
