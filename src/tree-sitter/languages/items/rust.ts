@@ -43,6 +43,7 @@ const flows = [
         ['match_expression'], ['match_block'],
     'match_arm', false, false, false),
 ];
+// TODO: TRY is a loop? What???
 const loops = block.items(tags.loop, [
     'for_expression', 'loop_expression',
     'while_expression', 'try_block',
