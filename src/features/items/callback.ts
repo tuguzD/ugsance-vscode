@@ -1,6 +1,6 @@
 
 import * as vs from 'vscode';
-import * as ut from '../../utils';
+import * as util from '../../utils';
 import * as T from 'web-tree-sitter';
 
 import { Configuration } from '../../vscode/commands/model';
@@ -31,7 +31,7 @@ interface State {
 async function useTreeSitter(parser: Parser, config: Configuration) {
     const editor = vs.window.activeTextEditor;
     try {
-        ut.nullCheck(editor, `No text editor opened!`);
+        util.nullCheck(editor, `No text editor opened!`);
         await parser.setLanguage(
             editor.document.languageId, config.userFolder);
         parser.parse(editor.document.getText());
@@ -51,9 +51,9 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const callNames = callUnits.filter([tags.unit.name!]),
             callArgs = callUnits.filter([tags.unit.args]);
 
-        let calls = ut.mergeOrdered(
+        let calls = util.mergeOrdered(
             callNames.nodesText, callArgs.nodesText);
-        calls = ut.nestSeq(calls, 2).map(item => item.join(''));
+        calls = util.nestSeq(calls, 2).map(item => item.join(''));
 
         const items: QuickPickNode[] = calls.map((value, index) => ({
             label: value, node: callNames.nodes[index],

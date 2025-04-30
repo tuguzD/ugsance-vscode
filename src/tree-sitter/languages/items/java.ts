@@ -15,6 +15,10 @@ const callUnits = [
         item: 'constructor_declaration', name: 'identifier',
         body: 'constructor_body', args: 'formal_parameters',
     }),
+    new QueryItem(tags.unit.item, 'compact_constructor_declaration', [
+        new QueryItem(tags.unit.name, 'identifier'),
+        new QueryItem(tags.unit.body, 'block'),
+    ]),
     unit.item({
         item: 'synchronized_statement', name: null,
         body: 'block', args: 'parenthesized_expression',
