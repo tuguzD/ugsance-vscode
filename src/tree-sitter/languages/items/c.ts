@@ -11,13 +11,18 @@ const callUnitsCpp = [
         'qualified_identifier', 'operator_name',
         'destructor_name', 'structured_binding_declarator',
     ]),
-    new QueryItem(tags.unit.item, 'lambda_expression', [
-        new QueryItem(tags.unit.name, 'lambda_capture_specifier'),
-        new QueryItem(null, 'abstract_function_declarator', [
-            new QueryItem(tags.unit.args, 'parameter_list'),
-        ], true),
-        new QueryItem(tags.unit.body, 'compound_statement'),
-    ]),
+    new QueryItem({
+        tag: tags.unit.item, type: 'lambda_expression',
+        children: [
+            new QueryItem({ tag: tags.unit.name, type: 'lambda_capture_specifier' }),
+            new QueryItem({
+                type: 'abstract_function_declarator', children: [
+                    new QueryItem({ tag: tags.unit.args, type: 'parameter_list' }),
+                ], option: true
+            }),
+            new QueryItem({ tag: tags.unit.body, type: 'compound_statement' }),
+        ],
+    }),
 ];
 const jumps = block.items(tags.jump, [
     'return_statement', 'goto_statement',
@@ -59,14 +64,16 @@ export const Cpp: Language = {
 };
 
 function unitItem(nameTypes: string[]) {
-    return new QueryItem(
-        tags.unit.item, 'function_definition', [
-        new QueryItem(null, 'function_declarator', [
-            new Alternation(null, block.items({
-                item: tags.unit.name!, body: null,
-            }, nameTypes), true),
-            new QueryItem(tags.unit.args, 'parameter_list'),
-        ]),
-        new QueryItem(tags.unit.body, 'compound_statement'),
-    ]);
+    return new QueryItem({
+        tag: tags.unit.item, type: 'function_definition',
+        children: [
+            new QueryItem({ type: 'function_declarator', children: [
+                new Alternation({ children: block.items({
+                    item: tags.unit.name!, body: null,
+                }, nameTypes), option: true }),
+                new QueryItem({ tag: tags.unit.args, type: 'parameter_list' }),
+            ]}),
+            new QueryItem({ tag: tags.unit.body, type: 'compound_statement' }),
+        ],
+    });
 }

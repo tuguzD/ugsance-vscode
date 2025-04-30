@@ -1,53 +1,50 @@
 import { Tag } from ".";
 
+type Input = {
+    tag: Tag | null;
+    type: string;
+    children: QueryItem[];
+    option: boolean;
+    repeat: boolean;
+}
+
 export class QueryItem {
     tag: Tag | null;
     type: string | null;
     children: QueryItem[];
-    optional: boolean;
+    option: boolean;
     repeat: boolean;
 
-    get query(): string {
-        const children: string = this.children.map(
+    protected get children_map(): string {
+        return this.children.map(
             item => `\n${item.query}`
         ).join('');
-        const tag = (this.tag !== null) ? `@${this.tag}` : '';
-        const optional = this.optional ? '?' : '';
+    }
+    protected get modifier(): string {
+        const option = this.option ? '?' : '';
         const repeat = this.repeat ? '*' : '';
-
-        const modifier = optional + repeat;
-        return `( ${this.type} ${children})${modifier} ${tag} `;
+        return option + repeat;
     }
 
-    constructor(
-        tag: Tag | null, type: string,
-        children: QueryItem[] = [],
-        optional = false, repeat = false,
-    ) {
-        this.tag = tag;
-        this.type = type;
-        this.children = children;
-        this.optional = optional;
-        this.repeat = repeat;
+    get query(): string {
+        const children = this.children_map;
+        const tag = (this.tag !== null) ? `@${this.tag}` : '';
+
+        return `( ${this.type} ${children})${this.modifier} ${tag} `;
+    }
+
+    constructor(input: Partial<Input>) {
+        this.tag = input.tag || null;
+        this.type = input.type || null;
+        this.children = input.children || [];
+        this.option = input.option || false;
+        this.repeat = input.repeat || false;
     }
 };
 
 export class Alternation extends QueryItem {
     get query(): string {
-        const children: string = this.children.map(
-            item => `\n${item.query}`
-        ).join('');
-        const optional = this.optional ? '?' : '';
-        const repeat = this.repeat ? '*' : '';
-        return `[ ${children} ]${optional}${repeat} `;
-    }
-
-    constructor(
-        tag: Tag | null, children: QueryItem[] = [],
-        optional = false, repeat = false, type = null,
-    ) {
-        super(tag, '', children, optional, repeat);
-        this.type = type;
+        return `[ ${this.children_map} ]${this.modifier} `;
     }
 }
 

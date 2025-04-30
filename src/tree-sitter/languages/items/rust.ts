@@ -11,24 +11,28 @@ const callUnits = [
         item: 'function_item', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
-    new QueryItem(tags.unit.item, 'macro_definition', [
-        new QueryItem(tags.unit.name, 'identifier'),
-        new QueryItem(null, 'macro_rule', [
-            new QueryItem(tags.unit.args, 'token_tree_pattern'),
-            new QueryItem(tags.unit.body, 'token_tree'),
-        ]),
-    ]),
+    new QueryItem({
+        tag: tags.unit.item, type: 'macro_definition',
+        children: [
+            new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+            new QueryItem({ type: 'macro_rule', children: [
+                new QueryItem({ tag: tags.unit.args, type: 'token_tree_pattern' }),
+                new QueryItem({ tag: tags.unit.body, type: 'token_tree' }),
+            ]}),
+        ],
+    }),
     unit.item({
         item: 'closure_expression', body: 'block',
         name: null, args: 'closure_parameters',
     }),
-    new QueryItem(null, '', [
-        new QueryItem(tags.unit.body, 'block', [
-            new QueryItem(null, 'label', [
-                new QueryItem(tags.unit.name, 'identifier'),
-            ], true),
-        ]),
-    ]),
+    new QueryItem({ children: [
+        new QueryItem({ 
+            tag: tags.unit.body, type: 'block', children: [
+            new QueryItem({ type: 'label', children: [
+                new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+            ], option: true }),
+        ]}),
+    ]}),
 ];
 const jumps = block.items(tags.jump, [
     'return_expression',

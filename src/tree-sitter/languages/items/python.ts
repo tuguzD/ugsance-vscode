@@ -11,12 +11,13 @@ const callUnits = [
         item: 'function_definition', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
-    new QueryItem(tags.unit.item, 'lambda', [
-        new Alternation(null, [
-            new QueryItem(tags.unit.args, 'lambda_parameters'),
-            new QueryItem(tags.unit.body, 'expression'),
-        ],),
-    ]),
+    new QueryItem({
+        tag: tags.unit.item, type: 'lambda',
+        children: [new Alternation({ children: [
+            new QueryItem({ tag: tags.unit.args, type: 'lambda_parameters' }),
+            new QueryItem({ tag: tags.unit.body, type: 'expression' }),
+        ]}),
+    ]}),
 ];
 const jumps = block.items(tags.jump, [
     'return_statement', 'await',

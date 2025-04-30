@@ -10,17 +10,23 @@ const callUnits = csQueryItems([
     'method_declaration', 'local_function_statement',
     'anonymous_method_expression', // no "name" tag
 ]).concat([
-    new QueryItem(tags.unit.item, 'constructor_declaration', [
-        new QueryItem(tags.unit.name, 'identifier'),
-        new QueryItem(tags.unit.args, 'parameter_list'),
-        arrowBody(false),
-    ]),
-    new QueryItem(tags.unit.item, 'property_declaration', [
-        new QueryItem(tags.unit.name, 'identifier'),
-        new QueryItem(null, 'accessor_list', [
-            new QueryItem(null, 'accessor_declaration', [arrowBody()]),
-        ]),
-    ]),
+    new QueryItem({
+        tag: tags.unit.item, type: 'constructor_declaration',
+        children: [
+            new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+            new QueryItem({ tag: tags.unit.args, type: 'parameter_list' }),
+            arrowBody(false),
+        ],
+    }),
+    new QueryItem({
+        tag: tags.unit.item, type: 'property_declaration', 
+        children: [
+            new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+            new QueryItem({ type: 'accessor_list', children: [
+                new QueryItem({ type: 'accessor_declaration', children: [arrowBody()] }),
+            ],
+        }),
+    ]}),
 ]);
 const jumps = block.items(tags.jump, [
     'return_statement',
@@ -58,9 +64,11 @@ function csQueryItems(units: string[]): QueryItem[] {
     }));
 }
 
-function arrowBody(optional = true): QueryItem {
-    return new Alternation(null, [
-        new QueryItem(tags.unit.body, 'block'),
-        new QueryItem(tags.unit.body, 'arrow_expression_clause'),
-    ], optional);
+function arrowBody(option = true): QueryItem {
+    return new Alternation({
+        children: [
+            new QueryItem({ tag: tags.unit.body, type: 'block' }),
+            new QueryItem({ tag: tags.unit.body, type: 'arrow_expression_clause' }),
+        ], option
+    });
 }

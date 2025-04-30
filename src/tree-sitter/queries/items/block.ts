@@ -7,9 +7,10 @@ export type Block = {
 };
 
 function item(tag: Block, type: Block): QueryItem {
-    return new QueryItem(tag.item, type.item,
-        type.body ? [new QueryItem(tag.body, type.body)] : []
-    );
+    return new QueryItem({
+        tag: tag.item, type: type.item,
+        children: type.body ? [new QueryItem({ tag: tag.body, type: type.body })] : []
+    });
 }
 
 export function items(

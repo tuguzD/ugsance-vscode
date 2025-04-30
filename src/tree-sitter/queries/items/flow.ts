@@ -6,19 +6,20 @@ export function items(
     tag: Block, types: string[],
     clauses: string[], typeBody: string,
     alternation = true, bodyFirst = true,
-    tagged = true, repeated = false, bodyNest = true,
+    tagged = true, repeat = false, bodyNest = true,
 ): QueryItem[] {
-    let body = new QueryItem(tags.flow.body, typeBody);
+    let body = new QueryItem({ tag: tags.flow.body, type: typeBody });
     let item = tagged ? tags.flow.item : null;
-    let group = clauses.map(clause => new QueryItem(
-        bodyNest ? item : tags.flow.body, clause,
-        bodyNest ? [body] : [], false, repeated,
-    ));
-    let child = bodyFirst ? [body].concat(group) : group;
+    let group = clauses.map(clause => new QueryItem({
+        tag: bodyNest ? item : tags.flow.body, type: clause,
+        children: bodyNest ? [body] : [], option: false, repeat,
+    }));
+    let children = bodyFirst ? [body].concat(group) : group;
 
     return types.map(type =>
-        new QueryItem(tag.item, type,
-            alternation ? [new Alternation(null, child)] : child,
-        ),
+        new QueryItem({
+            tag: tag.item, type,
+            children: alternation ? [new Alternation({ children })] : children,
+        }),
     );
 }

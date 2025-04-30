@@ -23,12 +23,15 @@ const flows = [
     ...flow.items(tags.flow, ['if_statement'],
         ['else_clause'], 'statement',
     false, true, false, true),
-    new QueryItem(tags.flow.item, 'switch_statement', [
-        new QueryItem(null, 'switch_body', [new Alternation(null, [
-            new QueryItem(tags.flow.body, 'switch_case'),
-            new QueryItem(tags.flow.body, 'switch_default'),
-        ])]),
-    ]),
+    new QueryItem({
+        tag: tags.flow.item, type: 'switch_statement', children: [
+        new QueryItem({type: 'switch_body', children: [
+            new Alternation({ children: [
+                new QueryItem({ tag: tags.flow.body, type: 'switch_case' }),
+                new QueryItem({ tag: tags.flow.body, type: 'switch_default' }),
+            ]}),
+        ]}),
+    ]}),
     ...flow.items(tags.flow, ['try_statement'],
         ['catch_clause', 'finally_clause'],
     'statement_block'),
