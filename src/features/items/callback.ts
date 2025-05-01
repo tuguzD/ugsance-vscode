@@ -12,6 +12,7 @@ import { tags } from '../../tree-sitter/queries';
 import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
 import { executeFeatureProvider } from '..';
+import { Java } from '../../tree-sitter/languages/items/java';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(vs.commands.registerCommand(cmd.name(cmd.Command.TreeSitter), () => {
@@ -51,12 +52,16 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const callNames = callUnits.filter([tags.unit.name!]),
             callArgs = callUnits.filter([tags.unit.args]);
 
-        let calls = util.mergeOrdered(
-            callNames.nodesText, callArgs.nodesText);
-        calls = util.nestSeq(calls, 2).map(item => item.join(''));
+        // TODO: fix different lengths of 'name' and 'args' arrays
+        // IDK how, because 'name' doesn't exist for lambdas and sync. statements (for Java)
+        const names = callNames.nodesText,
+            args = callArgs.nodesText,
+            node = callNames.nodes;
 
-        const items: QuickPickNode[] = calls.map((value, index) => ({
-            label: util.clean(value), node: callNames.nodes[index],
+        const items: QuickPickNode[] = names.map((value, index) => ({
+            label: util.clean(value),
+            description: args[index],
+            detail: '', node: node[index],
         }));
         state.callUnit = await input.showQuickPick<QuickPickNode>({
             title, step: 1, totalSteps: 3, items,
@@ -82,11 +87,11 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const flows = parser.captures(language.flow.toString(), state.callUnitBody)
             .filter([tags.flow.body!]).nodes;
 
-        const jumpItems = jumps.map(node => ({
+        const jumpItems: QuickPickNode[] = jumps.map(node => ({
             node, description: 'Jump', detail: '',
             label: node.text.split(';')[0].trim(),
         }));
-        const loopItems = loops.map(node => {
+        const loopItems: QuickPickNode[] = loops.map(node => {
             const textBody = editor!.document.lineAt(new vs.Position(
                 node.startPosition.row + 1, 0)).text;
             return {
@@ -95,7 +100,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
                 label: node.text.split('{')[0].trim(),
             };
         });
-        const flowItems = flows.map(node => {
+        const flowItems: QuickPickNode[] = flows.map(node => {
             const text = editor!.document.lineAt(new vs.Position(
                 node.startPosition.row, node.startPosition.column,
             )).text;
