@@ -21,7 +21,7 @@ export function register(context: vs.ExtensionContext, parser: Parser, config: C
 }
 
 interface QuickPickNode extends vs.QuickPickItem {
-    node: T.SyntaxNode,
+    node: T.SyntaxNode, type?: string
 }
 interface State {
     title: string, step: number, totalSteps: number,
@@ -88,14 +88,14 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
             .filter([tags.flow.body!]).nodes;
 
         const jumpItems: QuickPickNode[] = jumps.map(node => ({
-            node, description: 'Jump', detail: '',
+            node, description: 'Jump', type: 'jump',
             label: node.text.split(';')[0].trim(),
         }));
         const loopItems: QuickPickNode[] = loops.map(node => {
             const textBody = editor!.document.lineAt(new vs.Position(
                 node.startPosition.row + 1, 0)).text;
             return {
-                node, detail: 'Loop',
+                node, detail: 'Loop', type: 'loop',
                 description: textBody.trim(),
                 label: node.text.split('{')[0].trim(),
             };
@@ -105,27 +105,33 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
                 node.startPosition.row, node.startPosition.column,
             )).text;
             return {
-                node, detail: 'Flow',
+                node, detail: 'Flow', type: 'flow',
                 description: node.text.split('\n')[1].trim(),
                 label: text.trim().replace('} ', '').replace(' {', ''),
             };
         });
-        const items = [...flowItems, ...loopItems, ...jumpItems];
+        const bodyItems: QuickPickNode[] = [{ 
+            label: 'Beginning of chosen call unit',
+            type: 'body', detail: 'Body',
+            node: state.callUnitBody!
+        }];
+        const items = [...bodyItems, ...flowItems, ...loopItems, ...jumpItems];
         items.sort((a, b) => a.node.startPosition.row - b.node.startPosition.row);
 
         const onHighlight = async (items: QuickPickNode[]) => {
             const item = items[0];
             const line = item.node.startPosition.row;
             const offset = item.node.startPosition.column;
-            switch (item.detail) {
-                case '':
-                case 'Loop':
+            switch (item.type) {
+                case 'jump':
+                case 'loop':
                     await w.cursorJump(
                         editor!, line, offset,
                         item.label.length,
                     );
                     break;
-                case 'Flow':
+                case 'body':
+                case 'flow':
                     const character = editor!.document.lineAt(
                         new vs.Position(line, offset),
                     ).firstNonWhitespaceCharacterIndex;
@@ -142,8 +148,9 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         });
 
         const nodes = ({
-            '': jumps, 'Flow': flows, 'Loop': loops,
-        })[state.chosenNode.detail!];
+            'jump': jumps, 'flow': flows, 'loop': loops,
+            'body': bodyItems,
+        })[state.chosenNode.type!];
         state.callbackName = state.callUnit!.label.split('(')[0] + '_'
             + state.chosenNode!.label.split(' ')[0].split('(')[0] + '_'
             + (1 + nodes!.findIndex(item => state.chosenNode!.node === item));
