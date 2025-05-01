@@ -56,7 +56,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         calls = util.nestSeq(calls, 2).map(item => item.join(''));
 
         const items: QuickPickNode[] = calls.map((value, index) => ({
-            label: value, node: callNames.nodes[index],
+            label: util.clean(value), node: callNames.nodes[index],
         }));
         state.callUnit = await input.showQuickPick<QuickPickNode>({
             title, step: 1, totalSteps: 3, items,
@@ -148,8 +148,8 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
 
     async function nameCallback(input: MultiStepInput, state: Partial<State>) {
         const inputName = await input.showInputBox({
-            step: 3, totalSteps: 3,
-            title, value: state.callbackName!,
+            step: 3, totalSteps: 3, title, 
+            value: state.callbackName!.replace(/(\r\n|\n|\r)/gm, ''),
             prompt: 'Set a name for the new callback',
         });
         const point = state.callUnit!.node.startPosition;
