@@ -3,8 +3,16 @@ import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
-import * as unit from "../../queries/items/call-unit";
+import * as call from "../../queries/items/call";
 import { items } from ".";
+
+function callItem(item: string, name: boolean, method: boolean = false) {
+    let identifier = (method ? 'property_' : '') + 'identifier';
+    return call.item({
+        item, name: name ? identifier : null,
+        body: 'statement_block', args: 'formal_parameters',
+    });
+}
 
 const calls = [
     callItem('arrow_function', false),
@@ -51,11 +59,3 @@ export const TypeScript: Language = {
     call: items(calls), type: items([]), data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };
-
-function callItem(callUnit: string, name: boolean, method: boolean = false) {
-    let identifier = (method ? 'property_' : '') + 'identifier';
-    return unit.item({
-        item: callUnit, name: name ? identifier : null,
-        body: 'statement_block', args: 'formal_parameters',
-    });
-}

@@ -5,14 +5,14 @@ import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
 import { items } from ".";
 
-function callItem(nameTypes: string[]) {
+function callItem(types: string[]) {
     return new QueryItem({
         tag: tags.call.item, type: 'function_definition',
         children: [
             new QueryItem({ type: 'function_declarator', children: [
                 new Alternation({ children: block.items({
                     item: tags.call.name!, body: null,
-                }, nameTypes), option: true }),
+                }, types), option: true }),
                 new QueryItem({ tag: tags.call.args, type: 'parameter_list' }),
             ]}),
             new QueryItem({ tag: tags.call.body, type: 'compound_statement' }),
@@ -58,7 +58,7 @@ const flows = [
 export const C: Language = {
     vscodeId: 'c',
     loop: items(loops), flow: items(flows), jump: items(jumps),
-    call: items([ callItem(['identifier']), ]),
+    call: items([ callItem(['identifier']) ]),
     type: items([]), data: items([]),
 };
 export const Cpp: Language = {

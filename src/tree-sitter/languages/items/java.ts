@@ -3,39 +3,39 @@ import { QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
-import * as unit from "../../queries/items/call-unit";
+import * as call from "../../queries/items/call";
 import { items } from ".";
 
 const calls = [
-    unit.item({
+    call.item({
         item: 'method_declaration', name: 'identifier',
         body: 'block', args: 'formal_parameters',
     }),
-    unit.item({
+    call.item({
         item: 'constructor_declaration', name: 'identifier',
         body: 'constructor_body', args: 'formal_parameters',
     }),
     // TODO: enable again when lengths are fixed
     // new QueryItem({
-    //     tag: tags.unit.item,
+    //     tag: tags.call.item,
     //     type: 'compact_constructor_declaration',
     //     children: [
-    //         new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
-    //         new QueryItem({ tag: tags.unit.body, type: 'block' }),
+    //         new QueryItem({ tag: tags.call.name, type: 'identifier' }),
+    //         new QueryItem({ tag: tags.call.body, type: 'block' }),
     //     ],
     // }),
-    // unit.item({
+    // call.item({
     //     item: 'synchronized_statement', name: null,
     //     body: 'block', args: 'parenthesized_expression',
     // }),
     // new QueryItem({
-    //     tag: tags.unit.item, type: 'lambda_expression',
+    //     tag: tags.call.item, type: 'lambda_expression',
     //     children: [
     //         new Alternation({ children: [
-    //             new QueryItem({ tag: tags.unit.args, type: 'formal_parameters' }),
-    //             new QueryItem({ tag: tags.unit.args, type: 'inferred_parameters' }),]
+    //             new QueryItem({ tag: tags.call.args, type: 'formal_parameters' }),
+    //             new QueryItem({ tag: tags.call.args, type: 'inferred_parameters' }),]
     //         }),
-    //         new QueryItem({ tag: tags.unit.body, type: 'block' }),
+    //         new QueryItem({ tag: tags.call.body, type: 'block' }),
     //     ],
     // }),
 ];

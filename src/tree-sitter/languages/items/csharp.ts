@@ -3,10 +3,25 @@ import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
-import * as unit from "../../queries/items/call-unit";
+import * as call from "../../queries/items/call";
 import { items } from ".";
 
-const calls = csQueryItems([
+function callItems(types: string[]): QueryItem[] {
+    return types.map(item => call.item({
+        item: item, body: 'block', args: 'parameter_list',
+        name: item.includes('anonymous') ? null : 'identifier',
+    }));
+}
+function arrowBody(option = true): QueryItem {
+    return new Alternation({
+        children: [
+            new QueryItem({ tag: tags.call.body, type: 'block' }),
+            new QueryItem({ tag: tags.call.body, type: 'arrow_expression_clause' }),
+        ], option
+    });
+}
+
+const calls = callItems([
     'method_declaration', 'local_function_statement',
     'anonymous_method_expression', // no "name" tag
 ]).concat([
@@ -55,19 +70,3 @@ export const CSharp: Language = {
     call: items(calls), type: items([]), data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };
-
-function csQueryItems(units: string[]): QueryItem[] {
-    return units.map(item => unit.item({
-        item: item, body: 'block', args: 'parameter_list',
-        name: item.includes('anonymous') ? null : 'identifier',
-    }));
-}
-
-function arrowBody(option = true): QueryItem {
-    return new Alternation({
-        children: [
-            new QueryItem({ tag: tags.call.body, type: 'block' }),
-            new QueryItem({ tag: tags.call.body, type: 'arrow_expression_clause' }),
-        ], option
-    });
-}

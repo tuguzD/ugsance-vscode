@@ -3,11 +3,11 @@ import { QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
-import * as unit from "../../queries/items/call-unit";
+import * as call from "../../queries/items/call";
 import { items } from ".";
 
 const calls = [
-    unit.item({
+    call.item({
         item: 'function_item', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
@@ -21,7 +21,7 @@ const calls = [
             ]}),
         ],
     }),
-    unit.item({
+    call.item({
         item: 'closure_expression', body: 'block',
         name: null, args: 'closure_parameters',
     }),

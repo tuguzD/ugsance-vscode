@@ -2,15 +2,15 @@ import { Language } from "../model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
-import * as unit from "../../queries/items/call-unit";
+import * as call from "../../queries/items/call";
 import { items } from ".";
 
 const calls = [
-    unit.item({
+    call.item({
         item: 'function_declaration', body: 'block',
         name: 'identifier', args: 'parameter_list',
     }),
-    unit.item({
+    call.item({
         item: 'method_declaration', body: 'block',
         name: 'field_identifier', args: 'parameter_list',
     }),
