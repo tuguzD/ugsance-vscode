@@ -48,9 +48,9 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
     await MultiStepInput.run(input => pickCallUnit(input, state));
 
     async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
-        const callUnits = parser.captures(language.callUnit.toString());
-        const callNames = callUnits.filter([tags.unit.name!]),
-            callArgs = callUnits.filter([tags.unit.args]);
+        const callUnits = parser.captures(language.call.toString());
+        const callNames = callUnits.filter([tags.call.name!]),
+            callArgs = callUnits.filter([tags.call.args]);
 
         // TODO: fix different lengths of 'name' and 'args' arrays
         // IDK how, because 'name' doesn't exist for lambdas and sync. statements (for Java)
@@ -73,7 +73,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
                 items[0].label.split('(')[0].trim().length,
             ),
         });
-        state.callUnitBody = callUnits.filter([tags.unit.body!])
+        state.callUnitBody = callUnits.filter([tags.call.body!])
             .nodes[items.indexOf(state.callUnit)];
 
         return (input: MultiStepInput) => pickNode(input, state);

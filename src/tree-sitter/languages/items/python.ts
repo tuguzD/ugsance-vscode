@@ -6,16 +6,16 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 import { items } from ".";
 
-const callUnits = [
+const calls = [
     unit.item({
         item: 'function_definition', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
     new QueryItem({
-        tag: tags.unit.item, type: 'lambda',
+        tag: tags.call.item, type: 'lambda',
         children: [new Alternation({ children: [
-            new QueryItem({ tag: tags.unit.args, type: 'lambda_parameters' }),
-            new QueryItem({ tag: tags.unit.body, type: 'expression' }),
+            new QueryItem({ tag: tags.call.args, type: 'lambda_parameters' }),
+            new QueryItem({ tag: tags.call.body, type: 'expression' }),
         ]}),
     ]}),
 ];
@@ -43,7 +43,6 @@ const loops = flow.items(tags.loop,
 
 export const Python: Language = {
     vscodeId: 'python',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items([]), data: items([]),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };

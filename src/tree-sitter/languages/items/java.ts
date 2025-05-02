@@ -1,12 +1,12 @@
 import { Language } from "../model";
-import { Alternation, QueryItem } from "../../queries/model";
+import { QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 import { items } from ".";
 
-const callUnits = [
+const calls = [
     unit.item({
         item: 'method_declaration', name: 'identifier',
         body: 'block', args: 'formal_parameters',
@@ -39,6 +39,38 @@ const callUnits = [
     //     ],
     // }),
 ];
+
+function dataItem(type: string, name_parent?: string) {
+    var name = new QueryItem({ tag: 'name', type: 'identifier' });
+
+    return new QueryItem({
+        tag: 'data', type, children: [
+            new QueryItem({ tag: 'type', type: '_', name: 'type', option: true, }),
+            !name_parent ? name : new QueryItem({
+                type: name_parent, children: [name], })
+        ],
+    });
+}
+const datas = [
+    dataItem('field_declaration', 'variable_declarator'),
+    dataItem('annotation_type_element_declaration'),
+    dataItem('formal_parameter'),
+];
+
+function typeItem(type: string, body: string = 'class_body') {
+    return new QueryItem({
+        tag: 'type', type, children: [
+            new QueryItem({ tag: 'name', type: 'identifier' }),
+            new QueryItem({ tag: 'body', type: body }),
+        ],
+    });
+}
+const types = [
+    typeItem('class_declaration'),
+    typeItem('record_declaration'),
+    typeItem('enum_declaration', 'enum_body'),
+    typeItem('annotation_type_declaration', 'annotation_type_body'),
+];
 const jumps = block.items(tags.jump, [
     'return_statement',
     'break_statement', 'continue_statement',
@@ -69,7 +101,6 @@ const loops = block.items(tags.loop, [
 
 export const Java: Language = {
     vscodeId: 'java',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items(types), data: items(datas),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };

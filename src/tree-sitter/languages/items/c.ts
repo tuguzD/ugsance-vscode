@@ -5,22 +5,37 @@ import * as flow from "../../queries/items/flow";
 import * as block from "../../queries/items/block";
 import { items } from ".";
 
-const callUnitsCpp = [
-    unitItem([
+function callItem(nameTypes: string[]) {
+    return new QueryItem({
+        tag: tags.call.item, type: 'function_definition',
+        children: [
+            new QueryItem({ type: 'function_declarator', children: [
+                new Alternation({ children: block.items({
+                    item: tags.call.name!, body: null,
+                }, nameTypes), option: true }),
+                new QueryItem({ tag: tags.call.args, type: 'parameter_list' }),
+            ]}),
+            new QueryItem({ tag: tags.call.body, type: 'compound_statement' }),
+        ],
+    });
+}
+
+const calls = [
+    callItem([
         'identifier', 'field_identifier',
         'qualified_identifier', 'operator_name',
         'destructor_name', 'structured_binding_declarator',
     ]),
     new QueryItem({
-        tag: tags.unit.item, type: 'lambda_expression',
+        tag: tags.call.item, type: 'lambda_expression',
         children: [
-            new QueryItem({ tag: tags.unit.name, type: 'lambda_capture_specifier' }),
+            new QueryItem({ tag: tags.call.name, type: 'lambda_capture_specifier' }),
             new QueryItem({
                 type: 'abstract_function_declarator', children: [
-                    new QueryItem({ tag: tags.unit.args, type: 'parameter_list' }),
+                    new QueryItem({ tag: tags.call.args, type: 'parameter_list' }),
                 ], option: true
             }),
-            new QueryItem({ tag: tags.unit.body, type: 'compound_statement' }),
+            new QueryItem({ tag: tags.call.body, type: 'compound_statement' }),
         ],
     }),
 ];
@@ -42,16 +57,13 @@ const flows = [
 
 export const C: Language = {
     vscodeId: 'c',
-    loop: items(loops),
-    flow: items(flows),
-    jump: items(jumps),
-    callUnit: items([
-        unitItem(['identifier']),
-    ]),
+    loop: items(loops), flow: items(flows), jump: items(jumps),
+    call: items([ callItem(['identifier']), ]),
+    type: items([]), data: items([]),
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    callUnit: items(callUnitsCpp),
+    call: items(calls), type: items([]), data: items([]),
     flow: items(flows.concat(flow.items(
         tags.flow, ['try_statement'], ['catch_clause'],
         'compound_statement', false, true, false,
@@ -62,18 +74,3 @@ export const Cpp: Language = {
         'co_return_statement', 'co_yield_statement', 'co_await_expression',
     ]))),
 };
-
-function unitItem(nameTypes: string[]) {
-    return new QueryItem({
-        tag: tags.unit.item, type: 'function_definition',
-        children: [
-            new QueryItem({ type: 'function_declarator', children: [
-                new Alternation({ children: block.items({
-                    item: tags.unit.name!, body: null,
-                }, nameTypes), option: true }),
-                new QueryItem({ tag: tags.unit.args, type: 'parameter_list' }),
-            ]}),
-            new QueryItem({ tag: tags.unit.body, type: 'compound_statement' }),
-        ],
-    });
-}

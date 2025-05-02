@@ -6,18 +6,18 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 import { items } from ".";
 
-const callUnits = [
+const calls = [
     unit.item({
         item: 'function_item', body: 'block',
         name: 'identifier', args: 'parameters',
     }),
     new QueryItem({
-        tag: tags.unit.item, type: 'macro_definition',
+        tag: tags.call.item, type: 'macro_definition',
         children: [
-            new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+            new QueryItem({ tag: tags.call.name, type: 'identifier' }),
             new QueryItem({ type: 'macro_rule', children: [
-                new QueryItem({ tag: tags.unit.args, type: 'token_tree_pattern' }),
-                new QueryItem({ tag: tags.unit.body, type: 'token_tree' }),
+                new QueryItem({ tag: tags.call.args, type: 'token_tree_pattern' }),
+                new QueryItem({ tag: tags.call.body, type: 'token_tree' }),
             ]}),
         ],
     }),
@@ -27,9 +27,9 @@ const callUnits = [
     }),
     new QueryItem({ children: [
         new QueryItem({ 
-            tag: tags.unit.body, type: 'block', children: [
+            tag: tags.call.body, type: 'block', children: [
             new QueryItem({ type: 'label', children: [
-                new QueryItem({ tag: tags.unit.name, type: 'identifier' }),
+                new QueryItem({ tag: tags.call.name, type: 'identifier' }),
             ], option: true }),
         ]}),
     ]}),
@@ -55,7 +55,6 @@ const loops = block.items(tags.loop, [
 
 export const Rust: Language = {
     vscodeId: 'rust',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items([]), data: items([]),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };

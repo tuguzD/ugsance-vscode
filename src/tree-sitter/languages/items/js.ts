@@ -6,13 +6,13 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 import { items } from ".";
 
-const callUnits = [
-    unitItem('arrow_function', false),
-    unitItem('generator_function', false),
-    unitItem('function_expression', false),
-    unitItem('method_definition', true, true),
-    unitItem('function_declaration', true, false),
-    unitItem('generator_function_declaration', true, false),
+const calls = [
+    callItem('arrow_function', false),
+    callItem('generator_function', false),
+    callItem('function_expression', false),
+    callItem('method_definition', true, true),
+    callItem('function_declaration', true, false),
+    callItem('generator_function_declaration', true, false),
 ];
 const jumps = block.items(tags.jump, [
     'return_statement', 'throw_statement',
@@ -43,18 +43,16 @@ const loops = block.items(tags.loop, [
 
 export const JavaScript: Language = {
     vscodeId: 'javascript',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items([]), data: items([]),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items([]), data: items([]),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };
 
-function unitItem(callUnit: string, name: boolean, method: boolean = false) {
+function callItem(callUnit: string, name: boolean, method: boolean = false) {
     let identifier = (method ? 'property_' : '') + 'identifier';
     return unit.item({
         item: callUnit, name: name ? identifier : null,

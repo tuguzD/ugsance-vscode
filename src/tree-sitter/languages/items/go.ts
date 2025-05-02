@@ -5,7 +5,7 @@ import * as flow from "../../queries/items/flow";
 import * as unit from "../../queries/items/call-unit";
 import { items } from ".";
 
-const callUnits = [
+const calls = [
     unit.item({
         item: 'function_declaration', body: 'block',
         name: 'identifier', args: 'parameter_list',
@@ -34,7 +34,6 @@ const loops = block.items(tags.loop, ['for_statement'], 'block');
 
 export const Go: Language = {
     vscodeId: 'go',
-    jump: items(jumps),
-    loop: items(loops), flow: items(flows),
-    callUnit: items(callUnits),
+    call: items(calls), type: items([]), data: items([]),
+    jump: items(jumps), loop: items(loops), flow: items(flows),
 };

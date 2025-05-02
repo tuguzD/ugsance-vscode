@@ -3,6 +3,7 @@ import { Tag } from ".";
 type Input = {
     tag: Tag | null;
     type: string;
+    name: string,
     children: QueryItem[];
     option: boolean;
     repeat: boolean;
@@ -11,6 +12,7 @@ type Input = {
 export class QueryItem {
     tag: Tag | null;
     type: string | null;
+    name: string | null;
     children: QueryItem[];
     option: boolean;
     repeat: boolean;
@@ -29,13 +31,15 @@ export class QueryItem {
     get query(): string {
         const children = this.children_map;
         const tag = (this.tag !== null) ? `@${this.tag}` : '';
+        const name = (this.name !== null) ? `${this.name}: ` : '';
 
-        return `( ${this.type} ${children})${this.modifier} ${tag} `;
+        return `${name}( ${this.type} ${children})${this.modifier} ${tag} `;
     }
 
     constructor(input: Partial<Input>) {
         this.tag = input.tag || null;
         this.type = input.type || null;
+        this.name = input.name || null;
         this.children = input.children || [];
         this.option = input.option || false;
         this.repeat = input.repeat || false;

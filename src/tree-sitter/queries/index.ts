@@ -1,15 +1,15 @@
-import { CallUnit } from "./items/call-unit";
+import { Call } from "./items/call-unit";
 import { Block } from "./items/block";
 
 export type Tag = string;
 type TagItem = {
-    unit: CallUnit, jump: Block,
-    loop: Block, flow: Block,
+    call: Call,
+    jump: Block, loop: Block, flow: Block,
 };
 
 const body = 'body';
 export const tags: TagItem = {
-    unit: {
+    call: {
         item: 'unit', body: body,
         name: 'name', args: 'args',
     },
