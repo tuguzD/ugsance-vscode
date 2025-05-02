@@ -53,13 +53,14 @@ export class Alternation extends QueryItem {
 }
 
 export class QueryItems {
-    list: QueryItem[];
+    private list: QueryItem[];
+
     constructor(query: QueryItem[]) {
         this.list = query;
     }
-    toString(separator = '\n\n'): string {
+    get str(): string {
         return this.list
             .map(item => item.query)
-            .join(separator);
+            .join('\n\n');
     }
 }

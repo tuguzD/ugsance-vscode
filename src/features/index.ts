@@ -10,7 +10,7 @@ import * as event from './items/event';
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(
         vs.commands.registerCommand(cmd.name(cmd.Command.new_event), () => {
-            event.useTreeSitter(parser, config);
+            event.launch(parser, config);
         }),
     );
 }

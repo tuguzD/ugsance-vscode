@@ -29,26 +29,26 @@ export class QueryCaptures {
 
 export class Parser {
     private parser: T = new T();
-    language!: T.Language;
+    private _lang_!: T.Language;
 
     rootNode!: T.SyntaxNode;
-    langData!: Language;
+    language!: Language;
 
     parse(text: string) {
         this.rootNode = this.parser.parse(text).rootNode;
     }
     captures(query: string, node = this.rootNode) {
         return new QueryCaptures(
-            this.language.query(query).captures(node)
+            this._lang_.query(query).captures(node)
         );
     }
 
     async setLanguage(id: string, folderPath: string) {
-        this.langData = language.find(id);
+        this.language = language.find(id);
         let path = this.getPath(id, folderPath);
 
-        this.language = await T.Language.load(path);
-        this.parser.setLanguage(this.language);
+        this._lang_ = await T.Language.load(path);
+        this.parser.setLanguage(this._lang_);
     }
 
     private getPath(languageId: string, folderPath: string) {
