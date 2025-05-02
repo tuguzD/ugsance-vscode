@@ -1,10 +1,30 @@
 import { Language } from "../model";
 import { QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
-import * as block from "../../queries/items/block";
 import * as flow from "../../queries/items/flow";
 import * as call from "../../queries/items/call";
+import * as block from "../../queries/items/block";
 import { items } from ".";
+
+function dataItem(type: string, name_parent?: string) {
+    var name = new QueryItem({ tag: tags.data.name, type: 'identifier' });
+
+    return new QueryItem({
+        tag: tags.data.item, type, children: [
+            new QueryItem({ tag: tags.data.type, type: '_', name: 'type', option: true }),
+            !name_parent ? name : new QueryItem(
+                { type: name_parent, children: [name] }),
+        ],
+    });
+}
+function typeItem(type: string, body: string = 'class_body') {
+    return new QueryItem({
+        tag: tags.type.item, type, children: [
+            new QueryItem({ tag: tags.type.name, type: 'identifier' }),
+            new QueryItem({ tag: tags.type.body, type: body }),
+        ],
+    });
+}
 
 const calls = [
     call.item({
@@ -39,32 +59,11 @@ const calls = [
     //     ],
     // }),
 ];
-
-function dataItem(type: string, name_parent?: string) {
-    var name = new QueryItem({ tag: 'name', type: 'identifier' });
-
-    return new QueryItem({
-        tag: 'data', type, children: [
-            new QueryItem({ tag: 'type', type: '_', name: 'type', option: true, }),
-            !name_parent ? name : new QueryItem({
-                type: name_parent, children: [name], })
-        ],
-    });
-}
 const datas = [
     dataItem('field_declaration', 'variable_declarator'),
     dataItem('annotation_type_element_declaration'),
     dataItem('formal_parameter'),
 ];
-
-function typeItem(type: string, body: string = 'class_body') {
-    return new QueryItem({
-        tag: 'type', type, children: [
-            new QueryItem({ tag: 'name', type: 'identifier' }),
-            new QueryItem({ tag: 'body', type: body }),
-        ],
-    });
-}
 const types = [
     typeItem('class_declaration'),
     typeItem('record_declaration'),

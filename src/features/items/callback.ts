@@ -12,7 +12,6 @@ import { tags } from '../../tree-sitter/queries';
 import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
 import { executeFeatureProvider } from '..';
-import { Java } from '../../tree-sitter/languages/items/java';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(vs.commands.registerCommand(cmd.name(cmd.Command.TreeSitter), () => {
@@ -21,7 +20,7 @@ export function register(context: vs.ExtensionContext, parser: Parser, config: C
 }
 
 interface QuickPickNode extends vs.QuickPickItem {
-    node: T.SyntaxNode, type?: string
+    node: T.SyntaxNode, type?: string,
 }
 interface State {
     title: string, step: number, totalSteps: number,
@@ -42,6 +41,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         return;
     }
     const language = parser.langData;
+    // console.log(language.type.toString());
 
     let state = {} as Partial<State>;
     const title = 'Define new callback';
