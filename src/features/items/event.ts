@@ -11,43 +11,26 @@ import { tags } from '../../tree-sitter/queries';
 
 import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
-import { executeFeatureProvider } from '..';
 
-export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
-    context.subscriptions.push(vs.commands.registerCommand(cmd.name(cmd.Command.TreeSitter), () => {
-        useTreeSitter(parser, config);
-    }));
-}
+import { executeFeatureProvider, checkEditor } from '..';
+import { QuickPickNode, State } from '../model';
 
-interface QuickPickNode extends vs.QuickPickItem {
-    node: T.SyntaxNode, type?: string,
-}
-interface State {
-    title: string, step: number, totalSteps: number,
+interface EventState extends State {
     callUnit: QuickPickNode, callUnitBody: T.SyntaxNode,
     chosenNode: QuickPickNode, callbackName: string,
 }
 
-async function useTreeSitter(parser: Parser, config: Configuration) {
-    const editor = vs.window.activeTextEditor;
-    try {
-        util.nullCheck(editor, `No text editor opened!`);
-        await parser.setLanguage(
-            editor.document.languageId, config.userFolder);
-        parser.parse(editor.document.getText());
-    } catch (e: any) {
-        vs.window.showErrorMessage(e.message);
-        console.log(e.message);
-        return;
-    }
+export async function useTreeSitter(parser: Parser, config: Configuration) {
+    const editor = await checkEditor(parser, config);
+    if (!editor) { return; }
     const language = parser.langData;
     // console.log(language.call_data.toString());
 
-    let state = {} as Partial<State>;
+    let state = {} as Partial<EventState>;
     const title = 'Define new callback';
     await MultiStepInput.run(input => pickCallUnit(input, state));
 
-    async function pickCallUnit(input: MultiStepInput, state: Partial<State>) {
+    async function pickCallUnit(input: MultiStepInput, state: Partial<EventState>) {
         const callUnits = parser.captures(language.call.toString());
         const callNames = callUnits.filter([tags.call.name!]),
             callArgs = callUnits.filter([tags.call.args]);
@@ -79,7 +62,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         return (input: MultiStepInput) => pickNode(input, state);
     }
 
-    async function pickNode(input: MultiStepInput, state: Partial<State>) {
+    async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
         const jumps = parser.captures(language.jump.toString(), state.callUnitBody)
             .filter([tags.jump.item]).nodes;
         const loops = parser.captures(language.loop.toString(), state.callUnitBody)
@@ -158,7 +141,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         return (input: MultiStepInput) => nameCallback(input, state);
     }
 
-    async function nameCallback(input: MultiStepInput, state: Partial<State>) {
+    async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
         const inputName = await input.showInputBox({
             step: 3, totalSteps: 3,
             title, value: state.callbackName!,
@@ -168,7 +151,9 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         const position = new vs.Position(point.row, point.column);
         editor!.selection = new vs.Selection(position, position);
 
-        const amount = (await executeFeatureProvider(editor!, cmd.name(cmd.vsCommand.references))).length;
+        const amount = (await executeFeatureProvider(
+            editor!, cmd.name(cmd.vsCommand.references)
+        )).length;
         const callName = state.callUnit!.label.split('(')[0];
         const detail = [
             `Do you really want to place callback in chosen call unit (${callName})?`,

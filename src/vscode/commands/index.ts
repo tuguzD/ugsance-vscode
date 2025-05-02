@@ -2,12 +2,15 @@ import { UGsance } from "./model";
 const VSCode = 'vscode';
 
 export enum Command {
+    new_event = 'new_event',
+    new_host_api = 'new_host_api',
+    new_data_type = 'new_data_type',
+    // Tests
     definitions = 'DefinitionProvider',
     typeDefinitions = 'TypeDefinitionProvider',
     declarations = 'DeclarationProvider',
     implementations = 'ImplementationProvider',
     references = 'ReferenceProvider',
-    TreeSitter = 'tree_sitter',
 }
 export enum vsCommand {
     definitions = 'executeDefinitionProvider',
