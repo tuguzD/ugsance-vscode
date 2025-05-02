@@ -41,7 +41,7 @@ async function useTreeSitter(parser: Parser, config: Configuration) {
         return;
     }
     const language = parser.langData;
-    // console.log(language.type.toString());
+    // console.log(language.call_data.toString());
 
     let state = {} as Partial<State>;
     const title = 'Define new callback';

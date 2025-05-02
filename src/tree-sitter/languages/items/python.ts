@@ -43,6 +43,7 @@ const loops = flow.items(tags.loop,
 
 export const Python: Language = {
     vscodeId: 'python',
-    call: items(calls), type: items([]), data: items([]),
+    type: items([]), type_data: items([]),
+    call: items(calls), call_data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };

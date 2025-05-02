@@ -57,20 +57,21 @@ const flows = [
 
 export const C: Language = {
     vscodeId: 'c',
-    loop: items(loops), flow: items(flows), jump: items(jumps),
-    call: items([ callItem(['identifier']) ]),
-    type: items([]), data: items([]),
+    type: items([]), type_data: items([]),
+    call: items([ callItem(['identifier']) ]), call_data: items([]),
+    flow: items(flows), loop: items(loops), jump: items(jumps),
 };
 export const Cpp: Language = {
     vscodeId: 'cpp',
-    call: items(calls), type: items([]), data: items([]),
-    flow: items(flows.concat(flow.items(
-        tags.flow, ['try_statement'], ['catch_clause'],
-        'compound_statement', false, true, false,
-    ))),
-    loop: items(loops),
+    type: items([]), type_data: items([]),
+    call: items(calls), call_data: items([]),
     jump: items(jumps.concat(block.items(tags.jump, [
         'throw_statement', // then: coroutines (C++20)
         'co_return_statement', 'co_yield_statement', 'co_await_expression',
     ]))),
+    loop: items(loops),
+    flow: items(flows.concat(flow.items(
+        tags.flow, ['try_statement'], ['catch_clause'],
+        'compound_statement', false, true, false,
+    ))),
 };

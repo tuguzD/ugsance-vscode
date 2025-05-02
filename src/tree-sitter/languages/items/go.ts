@@ -34,6 +34,7 @@ const loops = block.items(tags.loop, ['for_statement'], 'block');
 
 export const Go: Language = {
     vscodeId: 'go',
-    call: items(calls), type: items([]), data: items([]),
+    type: items([]), type_data: items([]),
+    call: items(calls), call_data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };

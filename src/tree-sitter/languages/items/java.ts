@@ -26,6 +26,16 @@ function typeItem(type: string, body: string = 'class_body') {
     });
 }
 
+const types = [
+    typeItem('class_declaration'),
+    typeItem('record_declaration'),
+    typeItem('enum_declaration', 'enum_body'),
+    typeItem('annotation_type_declaration', 'annotation_type_body'),
+];
+const type_data = [
+    dataItem('field_declaration', 'variable_declarator'),
+    dataItem('annotation_type_element_declaration'),
+];
 const calls = [
     call.item({
         item: 'method_declaration', name: 'identifier',
@@ -59,17 +69,10 @@ const calls = [
     //     ],
     // }),
 ];
-const datas = [
-    dataItem('field_declaration', 'variable_declarator'),
-    dataItem('annotation_type_element_declaration'),
+const call_data = [
     dataItem('formal_parameter'),
 ];
-const types = [
-    typeItem('class_declaration'),
-    typeItem('record_declaration'),
-    typeItem('enum_declaration', 'enum_body'),
-    typeItem('annotation_type_declaration', 'annotation_type_body'),
-];
+
 const jumps = block.items(tags.jump, [
     'return_statement',
     'break_statement', 'continue_statement',
@@ -100,6 +103,7 @@ const loops = block.items(tags.loop, [
 
 export const Java: Language = {
     vscodeId: 'java',
-    call: items(calls), type: items(types), data: items(datas),
+    type: items(types), type_data: items(type_data),
+    call: items(calls), call_data: items(call_data),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };

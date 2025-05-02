@@ -51,11 +51,13 @@ const loops = block.items(tags.loop, [
 
 export const JavaScript: Language = {
     vscodeId: 'javascript',
-    call: items(calls), type: items([]), data: items([]),
+    type: items([]), type_data: items([]),
+    call: items(calls), call_data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };
 export const TypeScript: Language = {
     vscodeId: 'typescript',
-    call: items(calls), type: items([]), data: items([]),
+    type: items([]), type_data: items([]),
+    call: items(calls), call_data: items([]),
     jump: items(jumps), loop: items(loops), flow: items(flows),
 };
