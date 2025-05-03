@@ -19,7 +19,7 @@ import { Block } from '../../tree-sitter/queries/items/block';
 
 interface EventState extends State {
     callNode: QuickPickNode, callBody: T.SyntaxNode,
-    bodyNode: QuickPickNode, // args: QuickPickNode[] ???
+    bodyNode: QuickPickNode, callArgs: T.SyntaxNode,
     eventName: string,
 }
 
@@ -31,7 +31,7 @@ export async function launch(parser: Parser, config: Configuration) {
         title: 'Define new callback',
         editor, parser,
     };
-    console.log(parser.language.call_data.str);
+    // console.log(parser.language.call.str);
     await MultiStepInput.run(input => pickCallUnit(input, state));
 }
 
@@ -40,7 +40,12 @@ async function pickCallUnit(input: MultiStepInput, state: Partial<EventState>) {
 
     const callUnits = state.parser!.captures(language.call.str);
     const callNames = callUnits.filter([tags.call.name!]),
+        callBodies = callUnits.filter([tags.call.body!]),
         callArgs = callUnits.filter([tags.call.args]);
+    // console.log(
+    //     callBodies.list.length + " bodies, "
+    //     + callNames.list.length + " names!"
+    // );
 
     // TODO: fix different lengths of 'name' and 'args' arrays
     // IDK how, because 'name' doesn't exist for lambdas and sync. statements (for Java)
@@ -63,8 +68,12 @@ async function pickCallUnit(input: MultiStepInput, state: Partial<EventState>) {
             items[0].label.split('(')[0].trim().length,
         ),
     });
-    state.callBody = callUnits.filter([tags.call.body!])
-        .nodes[items.indexOf(state.callNode)];
+
+    const index = items.indexOf(state.callNode);
+    state.callBody = callBodies.nodes[index];
+    state.callArgs = callArgs.nodes[index];
+    // console.log(state.callBody.parent!
+    //     .equals(state.callNode.node.parent!));
 
     return (input: MultiStepInput) => pickNode(input, state);
 }
@@ -179,21 +188,33 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
 
     let line = state.bodyNode!.node.startPosition.row;
     if (state.bodyNode!.type !== 'jump') { line++; }
-    placeCallback(state.editor!, line, inputName);
+
+    const callArgs = state.parser!.captures(
+        state.parser!.language.call_data.str, state.callArgs,
+    );
+    const names = callArgs.filter([tags.data.name]).nodesText,
+        types = callArgs.filter([tags.data.type]).nodesText;
+    // const display = util.nestSeq(
+    //     util.mergeOrdered(types, names), 2
+    // ).map(item => item.join(' '));
+
+    placeCallback(state.editor!, line, inputName, names.join(', '));
     vs.commands.executeCommand('editor.action.addCommentLine');
 }
 
-function placeCallback(editor: vs.TextEditor, line: number, name: string) {
+function placeCallback(
+    editor: vs.TextEditor, line: number, 
+    name: string, args: string,
+) {
     const character = editor!.document.lineAt(
         new vs.Position(line, 0),
     ).firstNonWhitespaceCharacterIndex;
 
-    const args = `()`;
     const space = editor!.document.getText(new vs.Range(
         new vs.Position(line, 0),
         new vs.Position(line, character),
     ));
-    const result = space + name + args + '\n';
+    const result = space + name + `(${args})` + '\n';
 
     editor!.edit(i => i.insert(
         new vs.Position(line, 0), result,

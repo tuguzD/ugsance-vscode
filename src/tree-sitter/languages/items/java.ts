@@ -1,5 +1,5 @@
 import { Language } from "../model";
-import { QueryItem } from "../../queries/model";
+import { Alternation, QueryItem } from "../../queries/model";
 import { tags } from "../../queries";
 import * as flow from "../../queries/items/flow";
 import * as call from "../../queries/items/call";
