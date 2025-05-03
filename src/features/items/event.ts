@@ -222,14 +222,20 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     if (state.argNode) {
         args.push(state.argNode.label);
     }
-    placeCallback(state.editor!, line, inputName, args.join(', '));
+    const typeName = state.parser!.captures(
+        state.parser!.language.type.str,
+        state.callNode!.node.parent!.parent!.parent!,
+    ).filter([tags.type.name]).nodesText[0];
 
+    placeCallback(state.editor!, line,
+        inputName, args.join(', '), typeName + '_PubFun',
+    );
     vs.commands.executeCommand('editor.action.addCommentLine');
 }
 
 function placeCallback(
-    editor: vs.TextEditor, line: number, 
-    name: string, args: string,
+    editor: vs.TextEditor, line: number,
+    name: string, args: string, type?: string,
 ) {
     const character = editor!.document.lineAt(
         new vs.Position(line, 0),
@@ -239,7 +245,9 @@ function placeCallback(
         new vs.Position(line, 0),
         new vs.Position(line, character),
     ));
-    const result = space + name + `(${args})` + '\n';
+    const result = space +
+        (type ? `${type}.` : '') +
+        `${name}(${args})` + ';\n';
 
     editor!.edit(i => i.insert(
         new vs.Position(line, 0), result,
