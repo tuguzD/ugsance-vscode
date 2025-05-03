@@ -37,12 +37,12 @@ export class QueryItem {
     }
 
     constructor(input: Partial<Input>) {
-        this.tag = input.tag || null;
-        this.type = input.type || null;
-        this.name = input.name || null;
-        this.children = input.children || [];
-        this.option = input.option || false;
-        this.repeat = input.repeat || false;
+        this.tag = input.tag ?? null;
+        this.type = input.type ?? null;
+        this.name = input.name ?? null;
+        this.children = input.children ?? [];
+        this.option = input.option ?? false;
+        this.repeat = input.repeat ?? false;
     }
 };
 

@@ -19,8 +19,8 @@ import { Block } from '../../tree-sitter/queries/items/block';
 
 interface EventState extends State {
     callNode: QuickPickNode, callBody: T.SyntaxNode,
-    bodyNode: QuickPickNode, callArgs: T.SyntaxNode,
-    eventName: string,
+    argNode: QuickPickNode, callArgs: T.SyntaxNode,
+    bodyNode: QuickPickNode, eventName: string,
 }
 
 export async function launch(parser: Parser, config: Configuration) {
@@ -59,7 +59,7 @@ async function pickCallUnit(input: MultiStepInput, state: Partial<EventState>) {
         detail: '', node: node[index],
     }));
     state.callNode = await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 1, totalSteps: 3, items,
+        title: state.title, step: 1, totalSteps: 4, items,
         placeholder: `Select a "call unit" that'll launch new callback`,
         activeItem: items.find(item => item.label === state.callNode?.label),
         onHighlight: async (items) => await w.cursorJump(state.editor!,
@@ -140,13 +140,13 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
                     new vs.Position(line, offset),
                 ).firstNonWhitespaceCharacterIndex;
 
-                await w.cursorJump(state.editor!, line, character, offset);
+                await w.cursorJump(state.editor!, line, character, item.label.length);
                 break;
         }
     };
     // Interaction with a user itself
     state.bodyNode = await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 2, totalSteps: 3, items, onHighlight,
+        title: state.title, step: 2, totalSteps: 4, items, onHighlight,
         activeItem: items.find(item => item.label === state.bodyNode?.label),
         placeholder: `Select a place where new callback will be launched`,
     });
@@ -159,12 +159,41 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
         + state.bodyNode!.label.split(' ')[0].split('(')[0] + '_'
         + (1 + nodes!.findIndex(item => state.bodyNode!.node === item));
 
+    return (input: MultiStepInput) => pickArguments(input, state);
+}
+
+async function pickArguments(input: MultiStepInput, state: Partial<EventState>) {
+    const language = state.parser!.language;
+    const callArgs = state.parser!.captures(
+        language.call_data.str, state.callArgs,
+    );
+    const names = callArgs.filter([tags.data.name]),
+        types = callArgs.filter([tags.data.type]);
+
+    const items: QuickPickNode[] = names.nodesText.map((label, index) => ({
+        description: types.nodesText[index],
+        label, node: types.nodes[index],
+    }));
+    if (items.length) {
+        state.argNode = await input.showQuickPick<QuickPickNode>({
+            title: state.title, step: 3, totalSteps: 4, items,
+            activeItem: items.find(item => item.label === state.argNode?.label),
+            placeholder: `Select an argument that'll be passed into new callback`,
+            onHighlight: async (items) => await w.cursorJump(state.editor!,
+                items[0].node.startPosition.row,
+                items[0].node.startPosition.column,
+                (items[0].label + items[0].description).length + 1,
+            ),
+        });
+    } else if (input.currentStep() === 4) {
+        input.popStep();
+    }
     return (input: MultiStepInput) => nameCallback(input, state);
 }
 
 async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     const inputName = await input.showInputBox({
-        title: state.title, step: 3, totalSteps: 3,
+        title: state.title, step: 4, totalSteps: 4,
         value: state.eventName!,
         prompt: 'Set a name for the new callback',
     });
@@ -189,16 +218,12 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     let line = state.bodyNode!.node.startPosition.row;
     if (state.bodyNode!.type !== 'jump') { line++; }
 
-    const callArgs = state.parser!.captures(
-        state.parser!.language.call_data.str, state.callArgs,
-    );
-    const names = callArgs.filter([tags.data.name]).nodesText,
-        types = callArgs.filter([tags.data.type]).nodesText;
-    // const display = util.nestSeq(
-    //     util.mergeOrdered(types, names), 2
-    // ).map(item => item.join(' '));
+    const args = ['this'];
+    if (state.argNode) {
+        args.push(state.argNode.label);
+    }
+    placeCallback(state.editor!, line, inputName, args.join(', '));
 
-    placeCallback(state.editor!, line, inputName, names.join(', '));
     vs.commands.executeCommand('editor.action.addCommentLine');
 }
 

@@ -32,6 +32,13 @@ export class MultiStepInput {
 	private current?: vs.QuickInput;
 	private steps: Step[] = [];
 
+	currentStep() {
+		return this.current?.step;
+	}
+	popStep() {
+		this.steps.pop();
+	}
+
 	static async run(start: Step) {
 		const input = new MultiStepInput();
 		return input.stepThrough(start);
