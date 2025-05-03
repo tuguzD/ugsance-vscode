@@ -6,12 +6,23 @@ import * as cmd from '../vscode/commands';
 import { Configuration } from '../vscode/commands/model';
 
 import * as event from './items/event';
+import * as api from './items/host_api';
+import * as type from './items/data_type';
 
 export function register(context: vs.ExtensionContext, parser: Parser, config: Configuration) {
     context.subscriptions.push(
-        vs.commands.registerCommand(cmd.name(cmd.Command.new_event), () => {
-            event.launch(parser, config);
-        }),
+        vs.commands.registerCommand(
+            cmd.name(cmd.Command.new_host_api),
+            () => { api.launch(parser, config); }
+        ),
+        vs.commands.registerCommand(
+            cmd.name(cmd.Command.new_data_type),
+            () => { type.launch(parser, config); }
+        ),
+        vs.commands.registerCommand(
+            cmd.name(cmd.Command.new_event),
+            () => { event.launch(parser, config); }
+        ),
     );
 }
 

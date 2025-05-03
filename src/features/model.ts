@@ -8,7 +8,6 @@ export interface QuickPickNode extends vs.QuickPickItem {
 }
 
 export interface State {
-    title: string, 
-    step: number, totalSteps: number,
+    title: string, step: number, totalSteps: number,
     parser: t.Parser, editor: vs.TextEditor,
 }

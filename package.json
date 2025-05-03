@@ -40,7 +40,7 @@
       },
       {
         "command": "UGsance.new_host_api",
-        "title": "UGsance: Host function (API for mod)"
+        "title": "UGsance: Host function (API call for mod)"
       },
       {
         "command": "UGsance.new_data_type",

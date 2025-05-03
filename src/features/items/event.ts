@@ -1,7 +1,5 @@
 
 import * as vs from 'vscode';
-import * as util from '../../utils';
-import * as T from 'web-tree-sitter';
 
 import { Configuration } from '../../vscode/commands/model';
 import * as cmd from '../../vscode/commands';
@@ -13,14 +11,15 @@ import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
 
 import { executeFeatureProvider, checkEditor } from '..';
-import { QuickPickNode, State } from '../model';
+import { QuickPickNode } from '../model';
 import { QueryItems } from '../../tree-sitter/queries/model';
 import { Block } from '../../tree-sitter/queries/items/block';
+import * as call from '../utils/call';
 
-interface EventState extends State {
-    callNode: QuickPickNode, callBody: T.SyntaxNode,
-    argNode: QuickPickNode, callArgs: T.SyntaxNode,
-    bodyNode: QuickPickNode, eventName: string,
+interface EventState extends call.State {
+    argNode: QuickPickNode,
+    bodyNode: QuickPickNode,
+    eventName: string,
 }
 
 export async function launch(parser: Parser, config: Configuration) {
@@ -28,53 +27,18 @@ export async function launch(parser: Parser, config: Configuration) {
     if (!editor) { return; }
 
     let state: Partial<EventState> = {
-        title: 'Define new callback',
+        step: 0, totalSteps: 4,
+        title: 'New callback, or mod event',
         editor, parser,
     };
     // console.log(parser.language.call.str);
-    await MultiStepInput.run(input => pickCallUnit(input, state));
+    await MultiStepInput.run(input => pickCall(input, state));
 }
 
-async function pickCallUnit(input: MultiStepInput, state: Partial<EventState>) {
-    const language = state.parser!.language;
-
-    const callUnits = state.parser!.captures(language.call.str);
-    const callNames = callUnits.filter([tags.call.name!]),
-        callBodies = callUnits.filter([tags.call.body!]),
-        callArgs = callUnits.filter([tags.call.args]);
-    // console.log(
-    //     callBodies.list.length + " bodies, "
-    //     + callNames.list.length + " names!"
-    // );
-
-    // TODO: fix different lengths of 'name' and 'args' arrays
-    // IDK how, because 'name' doesn't exist for lambdas and sync. statements (for Java)
-    const names = callNames.nodesText,
-        args = callArgs.nodesText,
-        node = callNames.nodes;
-
-    const items: QuickPickNode[] = names.map((value, index) => ({
-        label: util.clean(value),
-        description: args[index],
-        detail: '', node: node[index],
-    }));
-    state.callNode = await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 1, totalSteps: 4, items,
-        placeholder: `Select a "call unit" that'll launch new callback`,
-        activeItem: items.find(item => item.label === state.callNode?.label),
-        onHighlight: async (items) => await w.cursorJump(state.editor!,
-            items[0].node.startPosition.row,
-            items[0].node.startPosition.column,
-            items[0].label.split('(')[0].trim().length,
-        ),
-    });
-
-    const index = items.indexOf(state.callNode);
-    state.callBody = callBodies.nodes[index];
-    state.callArgs = callArgs.nodes[index];
-    // console.log(state.callBody.parent!
-    //     .equals(state.callNode.node.parent!));
-
+async function pickCall(input: MultiStepInput, state: Partial<EventState>) {
+    await call.pick(input, state,
+        `Select a "call unit" that'll launch new callback`,
+    );
     return (input: MultiStepInput) => pickNode(input, state);
 }
 
@@ -146,7 +110,8 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
     };
     // Interaction with a user itself
     state.bodyNode = await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 2, totalSteps: 4, items, onHighlight,
+        title: state.title, step: 2,
+        totalSteps: state.totalSteps, items, onHighlight,
         activeItem: items.find(item => item.label === state.bodyNode?.label),
         placeholder: `Select a place where new callback will be launched`,
     });
@@ -155,13 +120,14 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
         'jump': jumps, 'loop': loops, 'flow': flows,
         'body': bodyItems,
     })[state.bodyNode.type!];
-    state.eventName = state.callNode!.label.split('(')[0] + '_'
+    state.eventName = state.callItem!.label.split('(')[0] + '_'
         + state.bodyNode!.label.split(' ')[0].split('(')[0] + '_'
         + (1 + nodes!.findIndex(item => state.bodyNode!.node === item));
 
     return (input: MultiStepInput) => pickArguments(input, state);
 }
 
+// TODO: move to separate file (to reuse in 'host_api')
 async function pickArguments(input: MultiStepInput, state: Partial<EventState>) {
     const language = state.parser!.language;
     const callArgs = state.parser!.captures(
@@ -176,7 +142,8 @@ async function pickArguments(input: MultiStepInput, state: Partial<EventState>) 
     }));
     if (items.length) {
         state.argNode = await input.showQuickPick<QuickPickNode>({
-            title: state.title, step: 3, totalSteps: 4, items,
+            title: state.title, step: 3,
+            totalSteps: state.totalSteps, items,
             activeItem: items.find(item => item.label === state.argNode?.label),
             placeholder: `Select an argument that'll be passed into new callback`,
             onHighlight: async (items) => await w.cursorJump(state.editor!,
@@ -193,18 +160,18 @@ async function pickArguments(input: MultiStepInput, state: Partial<EventState>) 
 
 async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     const inputName = await input.showInputBox({
-        title: state.title, step: 4, totalSteps: 4,
+        title: state.title, step: 4, totalSteps: state.totalSteps,
         value: state.eventName!,
         prompt: 'Set a name for the new callback',
     });
-    const point = state.callNode!.node.startPosition;
+    const point = state.callItem!.node.startPosition;
     const position = new vs.Position(point.row, point.column);
     state.editor!.selection = new vs.Selection(position, position);
 
     const amount = (await executeFeatureProvider(
         state.editor!, cmd.name(cmd.vsCommand.references)
     )).length;
-    const callName = state.callNode!.label.split('(')[0];
+    const callName = state.callItem!.label.split('(')[0];
     const detail = [
         `Do you really want to place callback in chosen call unit (${callName})?`,
         amount > 0 ? `It's used by your code in exactly ${amount} places!` : '',
@@ -224,7 +191,7 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     }
     const typeName = state.parser!.captures(
         state.parser!.language.type.str,
-        state.callNode!.node.parent!.parent!.parent!,
+        state.callItem!.node.parent!.parent!.parent!,
     ).filter([tags.type.name]).nodesText[0];
 
     placeCallback(state.editor!, line,
