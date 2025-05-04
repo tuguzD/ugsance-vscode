@@ -1,9 +1,9 @@
 import * as T from 'web-tree-sitter';
 import * as M from '../model';
 
-import { tags } from '../../tree-sitter/queries';
-
 import * as util from '../../utils';
+
+import { tags } from '../../tree-sitter/queries';
 
 import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
@@ -18,8 +18,7 @@ export async function pick(
     placeholder: string,
 ) {
     const captures = state.parser!.captures(
-        state.parser!.language.call.str,
-    );
+        state.parser!.language.call.str);
     const names = captures.filter([tags.call.name!]),
         bodies = captures.filter([tags.call.body!]),
         args = captures.filter([tags.call.args]);
@@ -38,10 +37,10 @@ export async function pick(
         }),
     );
     state.callItem = await input.showQuickPick<M.QuickPickNode>({
-        title: state.title, step: 1,
-        totalSteps: state.totalSteps,
-        placeholder, items,
-        activeItem: items.find(item => item.label === state.callItem?.label),
+        title: state.title, placeholder,
+        step: state.step, totalSteps: state.totalSteps,
+        items, activeItem: items.find(
+            item => item.label === state.callItem?.label),
         onHighlight: async (items) => await w.cursorJump(state.editor!,
             items[0].node.startPosition.row,
             items[0].node.startPosition.column,

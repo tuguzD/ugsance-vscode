@@ -14,10 +14,12 @@ import { executeFeatureProvider, checkEditor } from '..';
 import { QuickPickNode } from '../model';
 import { QueryItems } from '../../tree-sitter/queries/model';
 import { Block } from '../../tree-sitter/queries/items/block';
-import * as call from '../utils/call';
 
-interface EventState extends call.State {
-    argNode: QuickPickNode,
+import * as call from '../utils/call';
+import * as data from '../utils/call_data';
+
+interface EventState extends call.State, data.State {
+    // argItem: QuickPickNode,
     bodyNode: QuickPickNode,
     eventName: string,
 }
@@ -36,6 +38,7 @@ export async function launch(parser: Parser, config: Configuration) {
 }
 
 async function pickCall(input: MultiStepInput, state: Partial<EventState>) {
+    state.step = 1;
     await call.pick(input, state,
         `Select a "call unit" that'll launch new callback`,
     );
@@ -109,9 +112,10 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
         }
     };
     // Interaction with a user itself
+    state.step = 2;
     state.bodyNode = await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 2,
-        totalSteps: state.totalSteps, items, onHighlight,
+        step: state.step, totalSteps: state.totalSteps,
+        title: state.title, items, onHighlight,
         activeItem: items.find(item => item.label === state.bodyNode?.label),
         placeholder: `Select a place where new callback will be launched`,
     });
@@ -127,41 +131,19 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
     return (input: MultiStepInput) => pickArguments(input, state);
 }
 
-// TODO: move to separate file (to reuse in 'host_api')
 async function pickArguments(input: MultiStepInput, state: Partial<EventState>) {
-    const language = state.parser!.language;
-    const callArgs = state.parser!.captures(
-        language.call_data.str, state.callArgs,
+    state.step = 3;
+    await data.pick(input, state, state.callArgs!,
+        `Select a "call unit" that'll launch new callback`,
     );
-    const names = callArgs.filter([tags.data.name]),
-        types = callArgs.filter([tags.data.type]);
-
-    const items: QuickPickNode[] = names.nodesText.map((label, index) => ({
-        description: types.nodesText[index],
-        label, node: types.nodes[index],
-    }));
-    if (items.length) {
-        state.argNode = await input.showQuickPick<QuickPickNode>({
-            title: state.title, step: 3,
-            totalSteps: state.totalSteps, items,
-            activeItem: items.find(item => item.label === state.argNode?.label),
-            placeholder: `Select an argument that'll be passed into new callback`,
-            onHighlight: async (items) => await w.cursorJump(state.editor!,
-                items[0].node.startPosition.row,
-                items[0].node.startPosition.column,
-                (items[0].label + items[0].description).length + 1,
-            ),
-        });
-    } else if (input.currentStep() === 4) {
-        input.popStep();
-    }
     return (input: MultiStepInput) => nameCallback(input, state);
 }
 
 async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
+    state.step = 4;
     const inputName = await input.showInputBox({
-        title: state.title, step: 4, totalSteps: state.totalSteps,
-        value: state.eventName!,
+        step: state.step, totalSteps: state.totalSteps,
+        title: state.title, value: state.eventName!,
         prompt: 'Set a name for the new callback',
     });
     const point = state.callItem!.node.startPosition;
@@ -186,8 +168,8 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     if (state.bodyNode!.type !== 'jump') { line++; }
 
     const args = ['this'];
-    if (state.argNode) {
-        args.push(state.argNode.label);
+    if (state.argItem) {
+        args.push(state.argItem.label);
     }
     const typeName = state.parser!.captures(
         state.parser!.language.type.str,
