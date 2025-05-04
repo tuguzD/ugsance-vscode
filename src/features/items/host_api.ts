@@ -41,16 +41,18 @@ async function pickArg(input: MultiStepInput, state: Partial<APIState>) {
     confirm(state);
 }
 
-// TODO: setup cursor position (to use LSP)
-// just like it's done in "event"
 async function confirm(state: Partial<APIState>) {
+    const point = state.callItem!.node.startPosition;
+    const position = new vs.Position(point.row, point.column);
+    state.editor!.selection = new vs.Selection(position, position);
+
     const amount = (await executeFeatureProvider(
-        state.editor!, cmd.name(cmd.vsCommand.references)
+        state.editor!, cmd.name(cmd.vsCommand.implementations)
     )).length;
     const callName = state.callItem!.label.split('(')[0];
     const detail = [
         `Do you really want to provide chosen call unit (${callName}) for mods?`,
-        (amount > 0 ? `It's used by your code in exactly ${amount} places!` : '')
+        (amount > 0 ? `It's implemented in your code exactly ${amount} times!` : ''),
     ].filter(i => i !== '').join('\n');
     const confirmOption = 'Yes';
 

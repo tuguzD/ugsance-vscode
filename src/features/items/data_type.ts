@@ -10,6 +10,7 @@ import { Parser } from '../../tree-sitter/parsers/model';
 
 import { tags } from '../../tree-sitter/queries';
 
+import * as w from '../../vscode/inputs';
 import { MultiStepInput } from '../../vscode/inputs/model';
 
 import { executeFeatureProvider, checkEditor } from '..';
@@ -50,9 +51,14 @@ async function pickType(input: MultiStepInput, state: Partial<DataState>) {
     state.step = 1;
     state.typeItem = await input.showQuickPick<M.QuickPickNode>({
         step: state.step, totalSteps: state.totalSteps,
-        title: state.title, 
         items, activeItem: items.find(
             item => item.label === state.typeItem?.label),
+        onHighlight: async (items) => await w.cursorJump(state.editor!,
+            items[0].node.startPosition.row,
+            items[0].node.startPosition.column,
+            items[0].label.length,
+        ),
+        title: state.title,
         placeholder: `Select a type (struct/class), whose data will be provided to mods`,
     });
 
@@ -80,24 +86,31 @@ async function pickData(input: MultiStepInput, state: Partial<DataState>) {
     state.step = 2;
     state.dataItem = await input.showQuickPick<M.QuickPickNode>({
         step: state.step, totalSteps: state.totalSteps,
-        title: state.title,
         items, activeItem: items.find(
             item => item.label === state.dataItem?.label),
+        onHighlight: async (items) => await w.cursorJump(state.editor!,
+            items[0].node.startPosition.row,
+            items[0].node.startPosition.column,
+            items[0].label.length,
+        ),
+        title: state.title,
         placeholder: `Select data of type (field), that'll be provided to mods`,
     });
     confirm(state);
 }
 
-// TODO: setup cursor position (to use LSP)
-// just like it's done in "event"
 async function confirm(state: Partial<DataState>) {
+    const point = state.typeItem!.node.startPosition;
+    const position = new vs.Position(point.row, point.column);
+    state.editor!.selection = new vs.Selection(position, position);
+
     const amount = (await executeFeatureProvider(
-        state.editor!, cmd.name(cmd.vsCommand.references)
+        state.editor!, cmd.name(cmd.vsCommand.implementations)
     )).length;
     const typeName = state.typeItem!.label.split('(')[0];
     const detail = [
         `Do you really want to provide chosen type's data (${typeName}) for mods?`,
-        (amount > 0 ? `It's used by your code in exactly ${amount} places!` : '')
+        (amount > 0 ? `This type is implemented in your code exactly ${amount} times!` : ''),
     ].filter(i => i !== '').join('\n');
     const confirmOption = 'Yes';
 
