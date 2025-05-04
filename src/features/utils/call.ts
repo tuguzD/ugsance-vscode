@@ -19,6 +19,7 @@ export async function pick(
 ) {
     const captures = state.parser!.captures(
         state.parser!.language.call.str);
+    // console.log(parser.language.call.str);
     const names = captures.filter([tags.call.name!]),
         bodies = captures.filter([tags.call.body!]),
         args = captures.filter([tags.call.args]);

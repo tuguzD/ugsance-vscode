@@ -38,11 +38,11 @@ async function pickArg(input: MultiStepInput, state: Partial<APIState>) {
     await data.pick(input, state, state.callArgs!,
         `Select an argument that'll be provided by a mod`,
     );
-    // TODO: next step (confirm host API creation)
-
     confirm(state);
 }
 
+// TODO: setup cursor position (to use LSP)
+// just like it's done in "event"
 async function confirm(state: Partial<APIState>) {
     const amount = (await executeFeatureProvider(
         state.editor!, cmd.name(cmd.vsCommand.references)
@@ -59,5 +59,5 @@ async function confirm(state: Partial<APIState>) {
     if (choice !== confirmOption) { return; }
 
     vs.window.showInformationMessage(
-        'Host function (mod API call) generated!');
+        'Host function (mod API call) is generated!');
 }

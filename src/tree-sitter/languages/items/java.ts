@@ -28,7 +28,7 @@ function typeItem(type: string, body: string = 'class_body') {
 
 const types = [
     typeItem('class_declaration'),
-    typeItem('record_declaration'),
+    // typeItem('record_declaration'),
     typeItem('enum_declaration', 'enum_body'),
     typeItem('annotation_type_declaration', 'annotation_type_body'),
 ];

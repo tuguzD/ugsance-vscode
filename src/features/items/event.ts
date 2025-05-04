@@ -32,7 +32,6 @@ export async function launch(parser: Parser, config: Configuration) {
         title: 'New callback, or mod event',
         editor, parser,
     };
-    // console.log(parser.language.call.str);
     await MultiStepInput.run(input => pickCall(input, state));
 }
 
@@ -127,10 +126,10 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
         + state.chosenBody!.label.split(' ')[0].split('(')[0] + '_'
         + (1 + nodes!.findIndex(item => state.chosenBody!.node === item));
 
-    return (input: MultiStepInput) => pickArguments(input, state);
+    return (input: MultiStepInput) => pickData(input, state);
 }
 
-async function pickArguments(input: MultiStepInput, state: Partial<EventState>) {
+async function pickData(input: MultiStepInput, state: Partial<EventState>) {
     state.step = 3;
     await data.pick(input, state, state.callArgs!,
         `Select a "call unit" that'll launch new callback`,
@@ -145,15 +144,14 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
         title: state.title, value: state.resultName!,
         prompt: 'Set a name for the new callback',
     });
-
-    const point = state.callItem!.node.startPosition;
-    const position = new vs.Position(point.row, point.column);
-    state.editor!.selection = new vs.Selection(position, position);
-
     confirm(state);
 }
 
 async function confirm(state: Partial<EventState>) {
+    const point = state.callItem!.node.startPosition;
+    const position = new vs.Position(point.row, point.column);
+    state.editor!.selection = new vs.Selection(position, position);
+
     const amount = (await executeFeatureProvider(
         state.editor!, cmd.name(cmd.vsCommand.references)
     )).length;
@@ -184,7 +182,7 @@ async function confirm(state: Partial<EventState>) {
         state.resultName!, args.join(', '), typeName + '_PubFun',
     );
     vs.window.showInformationMessage(
-        'Callback (mod event) generated!');
+        'Callback (mod event) is generated!');
     vs.commands.executeCommand('editor.action.addCommentLine');
 }
 
