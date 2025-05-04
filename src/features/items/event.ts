@@ -141,22 +141,27 @@ async function pickArguments(input: MultiStepInput, state: Partial<EventState>) 
 
 async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     state.step = 4;
-    const inputName = await input.showInputBox({
+    state.eventName = await input.showInputBox({
         step: state.step, totalSteps: state.totalSteps,
         title: state.title, value: state.eventName!,
         prompt: 'Set a name for the new callback',
     });
+
     const point = state.callItem!.node.startPosition;
     const position = new vs.Position(point.row, point.column);
     state.editor!.selection = new vs.Selection(position, position);
 
+    confirm(state);
+}
+
+async function confirm(state: Partial<EventState>) {
     const amount = (await executeFeatureProvider(
         state.editor!, cmd.name(cmd.vsCommand.references)
     )).length;
     const callName = state.callItem!.label.split('(')[0];
     const detail = [
         `Do you really want to place callback in chosen call unit (${callName})?`,
-        amount > 0 ? `It's used by your code in exactly ${amount} places!` : '',
+        (amount > 0 ? `It's used by your code in exactly ${amount} places!` : ''),
     ].filter(i => i !== '').join('\n');
     const confirmOption = 'Yes';
 
@@ -177,8 +182,10 @@ async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     ).filter([tags.type.name]).nodesText[0];
 
     placeCallback(state.editor!, line,
-        inputName, args.join(', '), typeName + '_PubFun',
+        state.eventName!, args.join(', '), typeName + '_PubFun',
     );
+    vs.window.showInformationMessage(
+        'Callback (mod event) generated!');
     vs.commands.executeCommand('editor.action.addCommentLine');
 }
 

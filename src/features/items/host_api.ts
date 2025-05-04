@@ -1,9 +1,11 @@
+import * as vs from 'vscode';
 
 import { Configuration } from '../../vscode/commands/model';
+import * as cmd from '../../vscode/commands';
 import { Parser } from '../../tree-sitter/parsers/model';
 
 import { MultiStepInput } from '../../vscode/inputs/model';
-import { checkEditor } from '..';
+import { executeFeatureProvider, checkEditor } from '..';
 
 import * as call from '../utils/call';
 import * as data from '../utils/call_data';
@@ -37,4 +39,25 @@ async function pickArg(input: MultiStepInput, state: Partial<APIState>) {
         `Select an argument that'll be provided by a mod`,
     );
     // TODO: next step (confirm host API creation)
+
+    confirm(state);
+}
+
+async function confirm(state: Partial<APIState>) {
+    const amount = (await executeFeatureProvider(
+        state.editor!, cmd.name(cmd.vsCommand.references)
+    )).length;
+    const callName = state.callItem!.label.split('(')[0];
+    const detail = [
+        `Do you really want to provide chosen call unit (${callName}) for mods?`,
+        (amount > 0 ? `It's used by your code in exactly ${amount} places!` : '')
+    ].filter(i => i !== '').join('\n');
+    const confirmOption = 'Yes';
+
+    const choice = await vs.window.showInformationMessage(
+        state.title!, { detail, modal: true }, confirmOption);
+    if (choice !== confirmOption) { return; }
+
+    vs.window.showInformationMessage(
+        'Host function (mod API call) generated!');
 }
