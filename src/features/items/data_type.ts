@@ -13,6 +13,7 @@ export async function launch(parser: Parser, config: Configuration) {
     if (!editor) { return; }
 
     let state: Partial<DataState> = {
+        step: 0, totalSteps: 2,
         title: "New mod data, or existing type's info",
         editor, parser,
     };
@@ -22,9 +23,10 @@ export async function launch(parser: Parser, config: Configuration) {
 
 // TODO: first step (pick a type from file)
 async function pickType(input: MultiStepInput, state: Partial<DataState>) {
+    state.step = 1;
     await input.showQuickPick<QuickPickNode>({
-        title: state.title, step: 1, totalSteps: 999,
-        items: [],
+        step: state.step, totalSteps: state.totalSteps,
+        title: state.title, items: [],
     });
     // return (input: MultiStepInput) => ...(input, state);
 }

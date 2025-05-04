@@ -19,9 +19,8 @@ import * as call from '../utils/call';
 import * as data from '../utils/call_data';
 
 interface EventState extends call.State, data.State {
-    // argItem: QuickPickNode,
-    bodyNode: QuickPickNode,
-    eventName: string,
+    chosenBody: QuickPickNode,
+    resultName: string,
 }
 
 export async function launch(parser: Parser, config: Configuration) {
@@ -113,20 +112,20 @@ async function pickNode(input: MultiStepInput, state: Partial<EventState>) {
     };
     // Interaction with a user itself
     state.step = 2;
-    state.bodyNode = await input.showQuickPick<QuickPickNode>({
+    state.chosenBody = await input.showQuickPick<QuickPickNode>({
         step: state.step, totalSteps: state.totalSteps,
         title: state.title, items, onHighlight,
-        activeItem: items.find(item => item.label === state.bodyNode?.label),
+        activeItem: items.find(item => item.label === state.chosenBody?.label),
         placeholder: `Select a place where new callback will be launched`,
     });
 
     const nodes = ({
         'jump': jumps, 'loop': loops, 'flow': flows,
         'body': bodyItems,
-    })[state.bodyNode.type!];
-    state.eventName = state.callItem!.label.split('(')[0] + '_'
-        + state.bodyNode!.label.split(' ')[0].split('(')[0] + '_'
-        + (1 + nodes!.findIndex(item => state.bodyNode!.node === item));
+    })[state.chosenBody.type!];
+    state.resultName = state.callItem!.label.split('(')[0] + '_'
+        + state.chosenBody!.label.split(' ')[0].split('(')[0] + '_'
+        + (1 + nodes!.findIndex(item => state.chosenBody!.node === item));
 
     return (input: MultiStepInput) => pickArguments(input, state);
 }
@@ -141,9 +140,9 @@ async function pickArguments(input: MultiStepInput, state: Partial<EventState>) 
 
 async function nameCallback(input: MultiStepInput, state: Partial<EventState>) {
     state.step = 4;
-    state.eventName = await input.showInputBox({
+    state.resultName = await input.showInputBox({
         step: state.step, totalSteps: state.totalSteps,
-        title: state.title, value: state.eventName!,
+        title: state.title, value: state.resultName!,
         prompt: 'Set a name for the new callback',
     });
 
@@ -169,8 +168,8 @@ async function confirm(state: Partial<EventState>) {
         state.title!, { detail, modal: true }, confirmOption);
     if (choice !== confirmOption) { return; }
 
-    let line = state.bodyNode!.node.startPosition.row;
-    if (state.bodyNode!.type !== 'jump') { line++; }
+    let line = state.chosenBody!.node.startPosition.row;
+    if (state.chosenBody!.type !== 'jump') { line++; }
 
     const args = ['this'];
     if (state.argItem) {
@@ -182,7 +181,7 @@ async function confirm(state: Partial<EventState>) {
     ).filter([tags.type.name]).nodesText[0];
 
     placeCallback(state.editor!, line,
-        state.eventName!, args.join(', '), typeName + '_PubFun',
+        state.resultName!, args.join(', '), typeName + '_PubFun',
     );
     vs.window.showInformationMessage(
         'Callback (mod event) generated!');
